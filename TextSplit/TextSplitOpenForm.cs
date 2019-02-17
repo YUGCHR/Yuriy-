@@ -13,48 +13,61 @@ namespace TextSplit
 
     public partial class TextSplitOpenForm : Form
     {
-    //    private TextSplitForm parentForm;
-    //    public TextSplitOpenForm(TextSplitForm f)
-    //    {
-    //        parentForm = f;
-    //        InitializeComponent();        
+        private TextSplitForm parentForm;
+        public event EventHandler EnglishFileOpenClick;
 
-    //        butOpenEnglishFile.Click += new EventHandler(butOpenEnglishFile_Click);            
-    //        butSelectEnglishFile.Click += butSelectEnglishFile_Click;
+        public TextSplitOpenForm(TextSplitForm f)
+        {
+            parentForm = f;
+            InitializeComponent();        
+
+            butOpenEnglishFile.Click += new EventHandler(butOpenEnglishFile_Click);            
+            butSelectEnglishFile.Click += butSelectEnglishFile_Click;                                   
+        }
+
+        //EnglishFilePath
+
+        void butOpenEnglishFile_Click(object sender, EventArgs e)
+        {
+            if (EnglishFileOpenClick != null)
+            {                
+                EnglishFileOpenClick(this, EventArgs.Empty);
+            }
+            this.parentForm.EnglishFilePath = fldEnglishFilePath.Text;
+            this.Close();
+        }
+
+        //public string EnglishFilePath
+        //{
+        //    get { return fldEnglishFilePath.Text; }
+        //}
 
 
-    //        //this.parentForm.EnglishFilePath = 
-    //    }
+        //    public string EnglishFilePath
+        //    { 
+        //        get { return fldEnglishFilePath.Text; }
+        //    }
+        //    }        
 
-    //    void butOpenEnglishFile_Click(object sender, EventArgs e)
-    //    {
-    //        if (EnglishFileOpenClick != null)
-    //        {
-    //            EnglishFileOpenClick(this, EventArgs.Empty);
-    //        }
+        //    public event EventHandler EnglishFileOpenClick;
+        //    public event EventHandler SelectEnglishFileClick;
 
-    //    }
+        private void butSelectEnglishFile_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog dlg = new OpenFileDialog();
+            dlg.Filter = "Text files|*.txt|All files|*.*";
 
-    //    public string EnglishFilePath
-    //    { 
-    //        get { return fldEnglishFilePath.Text; }
-    //    }
-    //}        
+            if (dlg.ShowDialog() == DialogResult.OK)
+            {
+                fldEnglishFilePath.Text = dlg.FileName;
+                MessageBox.Show("butSelectEnglishFile_Click - ", "We here", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                if (EnglishFileOpenClick != null)
+                {
+                    MessageBox.Show("EnglishFileOpenClick - ", "We here", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    EnglishFileOpenClick(this, EventArgs.Empty);
+                }
 
-    //    public event EventHandler EnglishFileOpenClick;
-    //    public event EventHandler SelectEnglishFileClick;
-
-    //private void butSelectEnglishFile_Click(object sender, EventArgs e)
-    //    {
-    //        OpenFileDialog dlg = new OpenFileDialog();
-    //        dlg.Filter = "Text files|*.txt|All files|*.*";
-
-    //        if (dlg.ShowDialog() == DialogResult.OK)
-    //        {
-    //            fldEnglishFilePath.Text = dlg.FileName;
-
-    //            if (EnglishFileOpenClick != null) EnglishFileOpenClick(this, EventArgs.Empty);
-    //        }
-    //    }
+            }
+        }
     }
 }

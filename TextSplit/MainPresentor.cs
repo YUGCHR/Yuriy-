@@ -60,7 +60,7 @@ namespace TextSplit
         {
             try
             {
-                string filePath = _view.EnglishFilePath;
+                string filePath = _view.FilePath;
                 wasEnglishContentChange = false;
                 _messageService.ShowTrace("Received filePath", filePath); //traced
                 bool isExist = _manager.IsExist(filePath);

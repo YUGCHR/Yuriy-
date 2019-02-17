@@ -12,7 +12,7 @@ namespace TextSplit
 {
     public interface ITextSplitForm
     {
-        string EnglishFilePath { get; }
+        string FilePath { get; }
         string EnglishContent { get; set; }
         //bool WasEnglishContentChange { set; }
         void SetSymbolCount(int count);
@@ -27,7 +27,7 @@ namespace TextSplit
     public partial class TextSplitForm : Form, ITextSplitForm
     {
         //private bool wasEnglishContentChange;
-        //public string EnglishFilePath;
+        public string EnglishFilePath;
 
         public TextSplitForm()
         {
@@ -58,13 +58,13 @@ namespace TextSplit
                 
         void butOpenFiles_Click(object sender, EventArgs e)
         {
-            //TextSplitOpenForm openForm = new TextSplitOpenForm();
-            //openForm.Show();
-
-            if (FilesOpenClick != null)
-            {
-                FilesOpenClick(this, EventArgs.Empty);
-            }
+            TextSplitOpenForm openForm = new TextSplitOpenForm(this);
+            openForm.Show();
+            //MessageBox.Show(EnglishFilePath, "EnglishFilePath received", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            //if (FilesOpenClick != null)
+            //{
+            //    FilesOpenClick(this, EventArgs.Empty);
+            //}
             //EnglishFilePath = 
         }
 
@@ -80,9 +80,9 @@ namespace TextSplit
         #endregion
 
         #region Interface ITextSplitForm
-        public string EnglishFilePath
+        public string FilePath
         { 
-            get { return fldEnglishFilePath.Text; }
+            get { return fldEnglishFilePath.Text; } 
         }
 
         public string EnglishContent
@@ -111,15 +111,15 @@ namespace TextSplit
 
         private void butSelectEnglishFile_Click(object sender, EventArgs e)
         {
-            OpenFileDialog dlg = new OpenFileDialog();
-            dlg.Filter = "Text files|*.txt|All files|*.*";
+            //OpenFileDialog dlg = new OpenFileDialog();
+            //dlg.Filter = "Text files|*.txt|All files|*.*";
 
-            if (dlg.ShowDialog() == DialogResult.OK)
-            {
-                fldEnglishFilePath.Text = dlg.FileName;
-
-                if (FilesOpenClick != null) FilesOpenClick(this, EventArgs.Empty);
-            }
+            //if (dlg.ShowDialog() == DialogResult.OK)
+            //{
+            fldEnglishFilePath.Text = EnglishFilePath;
+            MessageBox.Show(EnglishFilePath, "EnglishFilePath received", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            if (FilesOpenClick != null) FilesOpenClick(this, EventArgs.Empty);
+            
         }
 
         private void numFont_ValueChanged(object sender, EventArgs e)
