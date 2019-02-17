@@ -25,7 +25,6 @@ namespace TextSplit
             MainPresentor presentor = new MainPresentor(form, manager, service);
 
             Application.Run(form);
-
         }
     }
 }
