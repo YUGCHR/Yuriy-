@@ -60,19 +60,20 @@ namespace TextSplit
         {
             try
             {
-                string filePath = _view.FilePath;
+                string[] filePath = _view.FilePath;
                 wasEnglishContentChange = false;
-                _messageService.ShowTrace("Received filePath", filePath); //traced
-                bool isExist = _manager.IsExist(filePath);
+
+                _messageService.ShowTrace("Received filePath", filePath[0]); //traced
+                bool isExist = _manager.IsExist(filePath[0]);
                 if (!isExist)
                 {
                     _messageService.ShowExclamation("Selected file does not exist!");
                     return;
                 }
 
-                _currentFilePath = filePath;
+                _currentFilePath = filePath[0];
 
-                string content = _manager.GetContent(filePath);
+                string content = _manager.GetContent(filePath[0]);
                 int count = _manager.GetSymbolCount(content);
 
                 _view.EnglishContent = content;

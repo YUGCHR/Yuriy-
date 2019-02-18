@@ -12,7 +12,7 @@ namespace TextSplit
 {
     public interface ITextSplitForm
     {
-        string FilePath { get; }
+        string[] FilePath { get; }
         string EnglishContent { get; set; }
         //bool WasEnglishContentChange { set; }
         void SetSymbolCount(int count);
@@ -27,10 +27,13 @@ namespace TextSplit
     public partial class TextSplitForm : Form, ITextSplitForm
     {
         //private bool wasEnglishContentChange;
-        public string EnglishFilePath;
+        //public string EnglishFilePath;
+        //public string RussianhFilePath;
+        //public string ResulthFilePath;
+        public string[] FilePathArray = new string[5];
 
         public TextSplitForm()
-        {
+        {            
             InitializeComponent();
             butOpenFiles.Click += new EventHandler(butOpenFiles_Click);
             butSaveFiles.Click += butSaveFiles_Click;
@@ -58,9 +61,11 @@ namespace TextSplit
                 
         void butOpenFiles_Click(object sender, EventArgs e)
         {
+            MessageBox.Show("butOpenFiles_Click - Started", "butOpenFiles_Click", MessageBoxButtons.OK, MessageBoxIcon.Information);
             TextSplitOpenForm openForm = new TextSplitOpenForm(this);
+            MessageBox.Show("openForm.Show will start now", "openForm.Show", MessageBoxButtons.OK, MessageBoxIcon.Information);
             openForm.Show();
-            //MessageBox.Show(EnglishFilePath, "EnglishFilePath received", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("after openForm.Show now", "openForm.Show", MessageBoxButtons.OK, MessageBoxIcon.Information);
             //if (FilesOpenClick != null)
             //{
             //    FilesOpenClick(this, EventArgs.Empty);
@@ -80,10 +85,12 @@ namespace TextSplit
         #endregion
 
         #region Interface ITextSplitForm
-        public string FilePath
-        { 
-            get { return fldEnglishFilePath.Text; } 
+        //public string[] FilePath => FilePath[];
+        public string[] FilePath
+        {
+            get { return (FilePathArray); }
         }
+        
 
         public string EnglishContent
         {
@@ -109,16 +116,18 @@ namespace TextSplit
         public event EventHandler<FormClosingEventArgs> TextSplitFormClosing;
         #endregion
 
-        private void butSelectEnglishFile_Click(object sender, EventArgs e)
+        private void butSelectEnglishFile_Click(object sender, EventArgs e)//сразу открыть файлы?
         {
             //OpenFileDialog dlg = new OpenFileDialog();
             //dlg.Filter = "Text files|*.txt|All files|*.*";
 
             //if (dlg.ShowDialog() == DialogResult.OK)
             //{
-            fldEnglishFilePath.Text = EnglishFilePath;
-            MessageBox.Show(EnglishFilePath, "EnglishFilePath received", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            if (FilesOpenClick != null) FilesOpenClick(this, EventArgs.Empty);
+            MessageBox.Show(FilePathArray[0], "FilePathArray received", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            fldEnglishFilePath.Text = FilePathArray[0];
+            MessageBox.Show(fldEnglishFilePath.Text, "EnglishFilePath received", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            //if (FilesOpenClick != null)
+            FilesOpenClick(this, EventArgs.Empty);
             
         }
 
