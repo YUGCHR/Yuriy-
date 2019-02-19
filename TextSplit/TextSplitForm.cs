@@ -12,7 +12,7 @@ namespace TextSplit
 {
     public interface ITextSplitForm
     {
-        string[] FilePath { get; }
+        string[] FilePath { get; set; }
         string EnglishContent { get; set; }
         //bool WasEnglishContentChange { set; }
         void SetSymbolCount(int count);
@@ -26,12 +26,12 @@ namespace TextSplit
 
     public partial class TextSplitForm : Form, ITextSplitForm
     {
-        //private bool wasEnglishContentChange;
-        //public string EnglishFilePath;
-        //public string RussianhFilePath;
-        //public string ResulthFilePath;
-        public string[] FilePathArray = new string[5];
-
+        //private bool wasEnglishContentChange;        
+        public string[] FilePath
+        {
+            get; set;
+        }
+        
         public TextSplitForm()
         {            
             InitializeComponent();
@@ -41,7 +41,7 @@ namespace TextSplit
             butSelectEnglishFile.Click += butSelectEnglishFile_Click;
             numFont.ValueChanged += numFont_ValueChanged;
             FormClosing += TextSplitForm_FormClosing;
-            
+            FilePath = new string[3];
         }
 
         #region Events forwarding
@@ -65,12 +65,7 @@ namespace TextSplit
             TextSplitOpenForm openForm = new TextSplitOpenForm(this);
             MessageBox.Show("openForm.Show will start now", "openForm.Show", MessageBoxButtons.OK, MessageBoxIcon.Information);
             openForm.Show();
-            MessageBox.Show("after openForm.Show now", "openForm.Show", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            //if (FilesOpenClick != null)
-            //{
-            //    FilesOpenClick(this, EventArgs.Empty);
-            //}
-            //EnglishFilePath = 
+            MessageBox.Show("after openForm.Show now", "openForm.Show", MessageBoxButtons.OK, MessageBoxIcon.Information);            
         }
 
         private void butSaveFiles_Click(object sender, EventArgs e)
@@ -86,10 +81,10 @@ namespace TextSplit
 
         #region Interface ITextSplitForm
         //public string[] FilePath => FilePath[];
-        public string[] FilePath
-        {
-            get { return (FilePathArray); }
-        }
+        //public string[] FilePath
+        //{
+        //    get; set;
+        //}
         
 
         public string EnglishContent
@@ -123,12 +118,11 @@ namespace TextSplit
 
             //if (dlg.ShowDialog() == DialogResult.OK)
             //{
-            MessageBox.Show(FilePathArray[0], "FilePathArray received", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            fldEnglishFilePath.Text = FilePathArray[0];
+            MessageBox.Show(FilePath[0], "FilePathArray received", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            fldEnglishFilePath.Text = FilePath[0];
             MessageBox.Show(fldEnglishFilePath.Text, "EnglishFilePath received", MessageBoxButtons.OK, MessageBoxIcon.Information);
             //if (FilesOpenClick != null)
-            FilesOpenClick(this, EventArgs.Empty);
-            
+            FilesOpenClick(this, EventArgs.Empty);            
         }
 
         private void numFont_ValueChanged(object sender, EventArgs e)
