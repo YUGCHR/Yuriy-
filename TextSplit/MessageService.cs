@@ -14,7 +14,7 @@ namespace TextSplit
         void ShowError(string error);
         void ShowTrace(string tracePointNumber, string tracePointName);
     }
-    class MessageService: IMessageService
+    public class MessageService: IMessageService
     {
         public void ShowMessage(string message)
         {

@@ -14,7 +14,7 @@ namespace TextSplit
         /// </summary>
         [STAThread]
         static void Main()
-        {
+        {            
             MessageBox.Show("Please remember - the quantity of the working files must be declared in the Form", "Program in progress", MessageBoxButtons.OK, MessageBoxIcon.Information);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

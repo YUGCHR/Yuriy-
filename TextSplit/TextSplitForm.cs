@@ -15,6 +15,7 @@ namespace TextSplit
         string[] FilesPath { get; set; }
         string[] FilesContent { get; set; }        
         int[] FilesToDo { get; set; }
+        int FilesQuantity { get; set; }
         void SetSymbolCount(int[] counts, int[] filesToDo);
           
         event EventHandler FilesOpenClick;
@@ -25,29 +26,32 @@ namespace TextSplit
     }
 
     public partial class TextSplitForm : Form, ITextSplitForm
-    {               
+    {
+        
         public string[] FilesPath { get; set; }
         public string[] FilesContent { get; set; }
         public Label[] lblSymbolsCount;
         public int[] FilesToDo { get; set; }
         public int[] counts;
+        public int FilesQuantity { get; set; }
         public int filesQuantity = 3;//Please remember - the quantity of the working files must be declared here
 
         public TextSplitForm()
         {
-            MessageBox.Show("Form Started", "Form in progress", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("Form Class Constructor Started", "Form in progress", MessageBoxButtons.OK, MessageBoxIcon.Information);
             InitializeComponent();
-
+            
             butOpenFiles.Click += new EventHandler(butOpenFiles_Click);
             butSaveFiles.Click += butSaveFiles_Click;
             fldEnglishContent.TextChanged += fldEnglishContent_TextChanged;
             butSelectEnglishFile.Click += butSelectEnglishFile_Click;
             numFont.ValueChanged += numFont_ValueChanged;
-
-            FormClosing += TextSplitForm_FormClosing;            
+            FormClosing += TextSplitForm_FormClosing;
+            FilesQuantity = filesQuantity;
+            FilesToDo = new int[filesQuantity];
             FilesPath = new string[filesQuantity];
             FilesContent = new string[filesQuantity];
-            FilesToDo = new int[filesQuantity];            
+            
             lblSymbolsCount = new Label[] { lblSymbolCount1, lblSymbolCount2, lblSymbolCount3 };
         }
 
@@ -104,13 +108,7 @@ namespace TextSplit
                 }                
             }            
         }
-
-        //public bool WasEnglishContentChange
-        //{
-        //    set { wasEnglishContentChange = value; }
-        //}
-
-
+        
         public event EventHandler FilesOpenClick;
         public event EventHandler FilesSaveClick;
         public event EventHandler EnglishContentChanged;

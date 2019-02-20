@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace TextSplitLibrary
 {
     public interface IFileManager
-    {
+    {        
         string[] GetContents(string[] FilesPath, int[] FilesToDo);
         string[] GetContents(string[] FilesPath, int[] FilesToDo, Encoding encoding);
         //to add third method for one file
@@ -19,6 +19,7 @@ namespace TextSplitLibrary
         int GetSymbolCounts(string[] FilesContent, int i);
         bool[] IsFilesExist(string[] FilesPath);
         int[] FilesToDo { get; set; }
+        int FilesQuantity { get; set; }
 
     }
     public class FileManager : IFileManager
@@ -26,15 +27,16 @@ namespace TextSplitLibrary
         public int[] FilesToDo { get; set; }        
         private readonly Encoding _defaultEncoding = Encoding.GetEncoding(1251);
         public string[] FilesPath;
-        public string[] FilesContent;        
+        public string[] FilesContent;
+        public int FilesQuantity { get; set; }
         public int filesQuantity;
 
         public FileManager()
         {
-            filesQuantity = FilesToDo.Length;
-            //FilePath = new string[filesQuantity];
-            //FileContent = new string[filesQuantity];            
+            filesQuantity = FilesQuantity;
         }
+        
+
         #region IsFileExists
         public bool[] IsFilesExist(string[] filesPath)
         {            

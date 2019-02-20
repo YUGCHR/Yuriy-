@@ -25,7 +25,9 @@ namespace TextSplit
             _view = view;
             _manager = manager;
             _messageService = service;
-            
+
+            _manager.FilesQuantity = _view.FilesQuantity;
+
             int[] filesToDo = _view.FilesToDo;
             filesQuantity = filesToDo.Length;
             int[] counts = new int[filesQuantity];
@@ -92,7 +94,7 @@ namespace TextSplit
         void _view_EnglishContentChanged(object sender, EventArgs e)
         {
             string[] contents = _view.FilesContent;                        
-            int[] counts = _manager.GetSymbolCounts(contents[]);
+            int[] counts = _manager.GetSymbolCounts(contents);
             _messageService.ShowTrace(wasEnglishContentChange.ToString(), " - EnglishContentWasChanged");
             _view.SetSymbolCount(counts, _view.FilesToDo);
             wasEnglishContentChange = true;//we need also the array here
