@@ -1,0 +1,6 @@
+D:\PBDS\OneDrive\Gonchar\C#2005\TextEditor\TextEditor.BL\bin\Debug\TextEditor.BL.dll
+D:\PBDS\OneDrive\Gonchar\C#2005\TextEditor\TextEditor.BL\bin\Debug\TextEditor.BL.pdb
+D:\PBDS\OneDrive\Gonchar\C#2005\TextEditor\TextEditor.BL\obj\Debug\TextEditor.BL.csprojAssemblyReference.cache
+D:\PBDS\OneDrive\Gonchar\C#2005\TextEditor\TextEditor.BL\obj\Debug\TextEditor.BL.csproj.CoreCompileInputs.cache
+D:\PBDS\OneDrive\Gonchar\C#2005\TextEditor\TextEditor.BL\obj\Debug\TextEditor.BL.dll
+D:\PBDS\OneDrive\Gonchar\C#2005\TextEditor\TextEditor.BL\obj\Debug\TextEditor.BL.pdb

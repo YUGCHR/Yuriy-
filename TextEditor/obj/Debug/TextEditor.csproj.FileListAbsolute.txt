@@ -1,0 +1,13 @@
+D:\PBDS\OneDrive\Gonchar\C#2005\TextEditor\TextEditor\obj\Debug\TextEditor.csprojAssemblyReference.cache
+D:\PBDS\OneDrive\Gonchar\C#2005\TextEditor\TextEditor\obj\Debug\TextEditor.Properties.Resources.resources
+D:\PBDS\OneDrive\Gonchar\C#2005\TextEditor\TextEditor\obj\Debug\TextEditor.csproj.GenerateResource.cache
+D:\PBDS\OneDrive\Gonchar\C#2005\TextEditor\TextEditor\obj\Debug\TextEditor.csproj.CoreCompileInputs.cache
+D:\PBDS\OneDrive\Gonchar\C#2005\TextEditor\TextEditor\obj\Debug\TextEditor.MainForm.resources
+D:\PBDS\OneDrive\Gonchar\C#2005\TextEditor\TextEditor\bin\Debug\TextEditor.exe.config
+D:\PBDS\OneDrive\Gonchar\C#2005\TextEditor\TextEditor\bin\Debug\TextEditor.exe
+D:\PBDS\OneDrive\Gonchar\C#2005\TextEditor\TextEditor\bin\Debug\TextEditor.pdb
+D:\PBDS\OneDrive\Gonchar\C#2005\TextEditor\TextEditor\bin\Debug\TextEditor.BL.dll
+D:\PBDS\OneDrive\Gonchar\C#2005\TextEditor\TextEditor\bin\Debug\TextEditor.BL.pdb
+D:\PBDS\OneDrive\Gonchar\C#2005\TextEditor\TextEditor\obj\Debug\TextEditor.csproj.CopyComplete
+D:\PBDS\OneDrive\Gonchar\C#2005\TextEditor\TextEditor\obj\Debug\TextEditor.exe
+D:\PBDS\OneDrive\Gonchar\C#2005\TextEditor\TextEditor\obj\Debug\TextEditor.pdb
