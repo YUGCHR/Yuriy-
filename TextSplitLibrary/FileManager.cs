@@ -15,22 +15,22 @@ namespace TextSplitLibrary
         void SaveContent(string[] FileContent, string[] FilePath, Encoding encoding);
         int[] GetSymbolCount(string[] FileContent);
         bool[] IsExist(string[] FilePath);
-        int FilesQuantity { get; set; }
+        int[] FilesToDo { get; set; }
+
     }
     public class FileManager : IFileManager
     {
-        public int FilesQuantity { get; set; }
-        
+        public int[] FilesToDo { get; set; }        
         private readonly Encoding _defaultEncoding = Encoding.GetEncoding(1251);
         public string[] FilePath;
-        public string[] FileContent;
+        public string[] FileContent;        
         public int filesQuantity;
 
         public FileManager()
         {
-            filesQuantity = FilesQuantity;
-            FilePath = new string[filesQuantity];
-            FileContent = new string[filesQuantity];            
+            filesQuantity = FilesToDo.Length;
+            //FilePath = new string[filesQuantity];
+            //FileContent = new string[filesQuantity];            
         }
 
         public bool[] IsExist(string[] filePath)

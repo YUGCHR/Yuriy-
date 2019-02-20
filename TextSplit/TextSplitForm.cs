@@ -13,9 +13,8 @@ namespace TextSplit
     public interface ITextSplitForm
     {
         string[] FilePath { get; set; }
-        string[] FileContent { get; set; }
-        int FilesQuantity { get; set; }
-        //bool WasEnglishContentChange { set; }
+        string[] FileContent { get; set; }        
+        int[] FilesToDo { get; set; }
         void SetSymbolCount(int[] count);
           
         event EventHandler FilesOpenClick;
@@ -26,29 +25,29 @@ namespace TextSplit
     }
 
     public partial class TextSplitForm : Form, ITextSplitForm
-    {
-        //private bool wasEnglishContentChange;        
+    {               
         public string[] FilePath { get; set; }
         public string[] FileContent { get; set; }
         public Label[] lblSymbolCount;
-        public int FilesQuantity { get; set; }
+        public int[] FilesToDo { get; set; }
         public int[] count;
-        public int filesQuantity;
-
+        public int filesQuantity = 3;//Please remember - the quantity of the working files must be declared here
 
         public TextSplitForm()
-        {            
+        {
+            MessageBox.Show("Form Started", "Form in progress", MessageBoxButtons.OK, MessageBoxIcon.Information);
             InitializeComponent();
+
             butOpenFiles.Click += new EventHandler(butOpenFiles_Click);
             butSaveFiles.Click += butSaveFiles_Click;
             fldEnglishContent.TextChanged += fldEnglishContent_TextChanged;
             butSelectEnglishFile.Click += butSelectEnglishFile_Click;
             numFont.ValueChanged += numFont_ValueChanged;
-            FormClosing += TextSplitForm_FormClosing;
-            filesQuantity = FilesQuantity;
+
+            FormClosing += TextSplitForm_FormClosing;            
             FilePath = new string[filesQuantity];
-            FileContent = new string[filesQuantity];            
-            count = new int[filesQuantity];
+            FileContent = new string[filesQuantity];
+            FilesToDo = new int[filesQuantity];            
             lblSymbolCount = new Label[] { lblSymbolCount1, lblSymbolCount2, lblSymbolCount3 };
         }
 
