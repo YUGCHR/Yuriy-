@@ -9,12 +9,15 @@ namespace TextSplitLibrary
 {
     public interface IFileManager
     {
-        string[] GetContent(string[] FilePath);
-        string[] GetContent(string[] FilePath, Encoding encoding);
-        void SaveContent(string[] FileContent, string[] FilePath);
-        void SaveContent(string[] FileContent, string[] FilePath, Encoding encoding);
-        int[] GetSymbolCount(string[] FileContent);
-        bool[] IsExist(string[] FilePath);
+        string[] GetContents(string[] FilesPath, int[] FilesToDo);
+        string[] GetContents(string[] FilesPath, int[] FilesToDo, Encoding encoding);
+        //to add third method for one file
+        void SaveContents(string[] FilesContent, string[] FilePath, int[] FilesToDo);
+        void SaveContents(string[] FilesContent, string[] FilePath, int[] FilesToDo, Encoding encoding);
+        //to add third method for one file
+        int[] GetSymbolCounts(string[] FilesContent);
+        int GetSymbolCounts(string[] FilesContent, int i);
+        bool[] IsFilesExist(string[] FilesPath);
         int[] FilesToDo { get; set; }
 
     }
@@ -22,8 +25,8 @@ namespace TextSplitLibrary
     {
         public int[] FilesToDo { get; set; }        
         private readonly Encoding _defaultEncoding = Encoding.GetEncoding(1251);
-        public string[] FilePath;
-        public string[] FileContent;        
+        public string[] FilesPath;
+        public string[] FilesContent;        
         public int filesQuantity;
 
         public FileManager()
@@ -32,56 +35,81 @@ namespace TextSplitLibrary
             //FilePath = new string[filesQuantity];
             //FileContent = new string[filesQuantity];            
         }
-
-        public bool[] IsExist(string[] filePath)
+        #region IsFileExists
+        public bool[] IsFilesExist(string[] filesPath)
         {            
-            bool[] isExist = new bool[filesQuantity];
+            bool[] isFilesExist = new bool[filesQuantity];
             for (int i = 0; i < filesQuantity; i++)
             {
-                string currentFilePath = filePath[i];
-                isExist[i] = File.Exists(currentFilePath);
+                string currentFilePath = filesPath[i];
+                isFilesExist[i] = File.Exists(currentFilePath);
             }
-            return isExist;
+            return isFilesExist;
         }
-
-        public string[] GetContent(string[] filePath)
+        #endregion
+        #region GetContent
+        public string[] GetContents(string[] filesPath, int[] filesToDo)
         {            
-                return GetContent(filePath, _defaultEncoding); 
+                return GetContents(filesPath, filesToDo, _defaultEncoding); 
         }
 
-        public string[] GetContent(string[] filePath, Encoding encoding)
+        public string[] GetContents(string[] filesPath, int[] filesToDo, Encoding encoding)
         {
-            string[] getContent = new string[filesQuantity];
+            string[] getContents = new string[filesQuantity];
             for (int i = 0; i < filesQuantity; i++)
             {
-                getContent[i] = File.ReadAllText(filePath[i], encoding);
+                if (filesToDo[i] != 0)
+                {
+                    getContents[i] = GetContent(filesPath, i, _defaultEncoding);
+                }                    
             }
-            return getContent;
+            return getContents;
         }
 
-        public void SaveContent(string[] fileContent, string[] filePath)
+        public string GetContent(string[] filesPath, int i, Encoding encoding)
         {
-            SaveContent(fileContent, filePath, _defaultEncoding);
+            return File.ReadAllText(filesPath[i], encoding);            
+        }
+        #endregion
+        #region SaveContent
+        public void SaveContents(string[] filesContent, string[] filesPath, int[] filesToDo)
+        {
+            SaveContents(filesContent, filesPath, filesToDo, _defaultEncoding);
         }
 
-        public void SaveContent(string[] fileContent, string[] filePath, Encoding encoding)
+        public void SaveContents(string[] filesContent, string[] filesPath, int[] filesToDo, Encoding encoding)
         {
             for (int i = 0; i < filesQuantity; i++)
             {
-                File.WriteAllText(filePath[i], fileContent[i], encoding);//вынести в метод единичного сохранения и сделать перегруженный с номером i
+                if (filesToDo[i] != 0)
+                {
+                    SaveContent(filesContent, filesPath, i, _defaultEncoding);
+                }
             }            
         }
 
-        public int[] GetSymbolCount(string[] fileContent)
+        public void SaveContent(string[] filesContent, string[] filesPath, int i, Encoding encoding)
         {
-            int[] count = new int[filesQuantity];
+            File.WriteAllText(filesPath[i], filesContent[i], encoding);
+        }
+        #endregion
+        #region GetSymbolCount
+        public int[] GetSymbolCounts(string[] filesContent)
+        {
+            int[] counts = new int[filesQuantity];
             for (int i = 0; i < filesQuantity; i++)
             {
-                count[i] = fileContent[i].Length;
+                counts[i] = GetSymbolCounts(filesContent, i);
             }            
-            return count;
+            return counts;
         }
-    }    
+        public int GetSymbolCounts(string[] filesContent, int i)
+        {            
+            return filesContent[i].Length;            
+        }
+
+        #endregion
+    }
 }
 
 

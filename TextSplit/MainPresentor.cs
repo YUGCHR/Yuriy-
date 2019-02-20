@@ -13,7 +13,8 @@ namespace TextSplit
         private readonly ITextSplitForm _view; 
         private readonly IFileManager _manager;
         private readonly IMessageService _messageService;
-        
+
+
         private bool wasEnglishContentChange = false;
         private int filesQuantity;
 
@@ -25,11 +26,11 @@ namespace TextSplit
             _manager = manager;
             _messageService = service;
             
-            int[] FilesToDo = _view.FilesToDo;
-            filesQuantity = FilesToDo.Length;
-            int[] count = new int[filesQuantity];
-            _view.SetSymbolCount(count);
-            _manager.FilesToDo = FilesToDo;
+            int[] filesToDo = _view.FilesToDo;
+            filesQuantity = filesToDo.Length;
+            int[] counts = new int[filesQuantity];
+            _view.SetSymbolCount(counts, _view.FilesToDo);
+            _manager.FilesToDo = filesToDo;
 
             _view.EnglishContentChanged += new EventHandler (_view_EnglishContentChanged);
             _view.FilesOpenClick += new EventHandler (_view_FilesOpenClick);
@@ -65,29 +66,23 @@ namespace TextSplit
         private void _view_FilesOpenClick(object sender, EventArgs e)
         {
             try
-            {
-                //string[] content = new string[filesQuantity];
-                //string[] filePath = _view.FilePath;
-                //int[] count = new int[filesQuantity];
+            {                
+                int[] counts = new int[filesQuantity];
                 wasEnglishContentChange = false;
-                bool[] isExist = new bool[filesQuantity];
+                bool[] isFilesExist = new bool[filesQuantity];
 
-                isExist = _manager.IsExist(filePath);
-
+                isFilesExist = _manager.IsFilesExist(_view.FilesPath);
+                //_messageService.ShowTrace("Received filePath", filesPath[i]); //traced
                 for (int i = 0; i < filesQuantity; i++)
-                {
-                    _messageService.ShowTrace("Received filePath", filePath[i]); //traced
-                    
-                    if (!isExist[i])
+                    if (!isFilesExist[i])
                     {
                         _messageService.ShowExclamation("Selected file does not exist!");
                         return;
-                    }                    
-                }
-                _view.FileContent = content;
-                _view.SetSymbolCount(count);
-                _manager.GetContent(filePath);
-            }
+                    }
+                counts = _manager.GetSymbolCounts(_manager.GetContents(_view.FilesPath, _view.FilesToDo));
+                _view.SetSymbolCount(counts, _view.FilesToDo);
+                _view.FilesContent = _manager.GetContents(_view.FilesPath, _view.FilesToDo);
+            }            
             catch (Exception ex)
             {
                 _messageService.ShowError(ex.Message);
@@ -96,11 +91,11 @@ namespace TextSplit
 
         void _view_EnglishContentChanged(object sender, EventArgs e)
         {
-            string[] content = _view.FileContent;                        
-            //int[] count = _manager.GetSymbolCount(content[]);
+            string[] contents = _view.FilesContent;                        
+            int[] counts = _manager.GetSymbolCounts(contents[]);
             _messageService.ShowTrace(wasEnglishContentChange.ToString(), " - EnglishContentWasChanged");
-            //_view.SetSymbolCount(count[]);
-            wasEnglishContentChange = true;
+            _view.SetSymbolCount(counts, _view.FilesToDo);
+            wasEnglishContentChange = true;//we need also the array here
         }
     }
 }

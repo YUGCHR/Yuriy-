@@ -34,12 +34,12 @@ namespace TextSplit
             MessageBox.Show(fldEnglishFilePath.Text, "fldEnglishFilePath", MessageBoxButtons.OK, MessageBoxIcon.Information);
             MessageBox.Show(fldRussianFilePath.Text, "fldRussianFilePath", MessageBoxButtons.OK, MessageBoxIcon.Information);
             MessageBox.Show(fldResultFilePath.Text, "fldResultFilePath", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            this.parentForm.FilePath[0] = fldEnglishFilePath.Text;
-            this.parentForm.FilePath[1] = fldResultFilePath.Text;
-            this.parentForm.FilePath[2] = fldResultFilePath.Text;
-            MessageBox.Show(this.parentForm.FilePath[0], " - FilePath[0] after", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            MessageBox.Show(this.parentForm.FilePath[1], " - FilePath[1] after", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            MessageBox.Show(this.parentForm.FilePath[2], " - FilePath[2] after", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            this.parentForm.FilesPath[0] = fldEnglishFilePath.Text;
+            this.parentForm.FilesPath[1] = fldResultFilePath.Text;
+            this.parentForm.FilesPath[2] = fldResultFilePath.Text;
+            MessageBox.Show(this.parentForm.FilesPath[0], " - FilePath[0] after", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(this.parentForm.FilesPath[1], " - FilePath[1] after", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(this.parentForm.FilesPath[2], " - FilePath[2] after", MessageBoxButtons.OK, MessageBoxIcon.Information);
             this.Close();
             MessageBox.Show("taki.Closed", "this.Closed", MessageBoxButtons.OK, MessageBoxIcon.Information);
             //this.parentForm.FilePath[1] = fldRussianFilePath.Text;

@@ -12,10 +12,10 @@ namespace TextSplit
 {
     public interface ITextSplitForm
     {
-        string[] FilePath { get; set; }
-        string[] FileContent { get; set; }        
+        string[] FilesPath { get; set; }
+        string[] FilesContent { get; set; }        
         int[] FilesToDo { get; set; }
-        void SetSymbolCount(int[] count);
+        void SetSymbolCount(int[] counts, int[] filesToDo);
           
         event EventHandler FilesOpenClick;
         event EventHandler FilesSaveClick;
@@ -26,11 +26,11 @@ namespace TextSplit
 
     public partial class TextSplitForm : Form, ITextSplitForm
     {               
-        public string[] FilePath { get; set; }
-        public string[] FileContent { get; set; }
-        public Label[] lblSymbolCount;
+        public string[] FilesPath { get; set; }
+        public string[] FilesContent { get; set; }
+        public Label[] lblSymbolsCount;
         public int[] FilesToDo { get; set; }
-        public int[] count;
+        public int[] counts;
         public int filesQuantity = 3;//Please remember - the quantity of the working files must be declared here
 
         public TextSplitForm()
@@ -45,10 +45,10 @@ namespace TextSplit
             numFont.ValueChanged += numFont_ValueChanged;
 
             FormClosing += TextSplitForm_FormClosing;            
-            FilePath = new string[filesQuantity];
-            FileContent = new string[filesQuantity];
+            FilesPath = new string[filesQuantity];
+            FilesContent = new string[filesQuantity];
             FilesToDo = new int[filesQuantity];            
-            lblSymbolCount = new Label[] { lblSymbolCount1, lblSymbolCount2, lblSymbolCount3 };
+            lblSymbolsCount = new Label[] { lblSymbolCount1, lblSymbolCount2, lblSymbolCount3 };
         }
 
         #region Events forwarding
@@ -93,14 +93,15 @@ namespace TextSplit
         //    set { fldEnglishContent.Text = value; }
         //}
 
-        public void SetSymbolCount(int[] count)
+        public void SetSymbolCount(int[] count, int[] filesToDo)
         {
             for (int i = 0; i < filesQuantity; i++)
             {
-                //count[i] = i;
-                MessageBox.Show(i.ToString(), "SetSymbolCount", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                lblSymbolCount[i].Text = i.ToString();
-                    //count[i].ToString();                
+                if (filesToDo[i] != 0)
+                {
+                    MessageBox.Show(count[i].ToString(), "SetSymbolCount", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    lblSymbolsCount[i].Text = count[i].ToString();
+                }                
             }            
         }
 
@@ -124,8 +125,8 @@ namespace TextSplit
 
             //if (dlg.ShowDialog() == DialogResult.OK)
             //{
-            MessageBox.Show(FilePath[0], "FilePathArray received", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            fldEnglishFilePath.Text = FilePath[0];
+            MessageBox.Show(FilesPath[0], "FilePathArray received", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            fldEnglishFilePath.Text = FilesPath[0];
             MessageBox.Show(fldEnglishFilePath.Text, "EnglishFilePath received", MessageBoxButtons.OK, MessageBoxIcon.Information);
             //if (FilesOpenClick != null)
             FilesOpenClick(this, EventArgs.Empty);            
