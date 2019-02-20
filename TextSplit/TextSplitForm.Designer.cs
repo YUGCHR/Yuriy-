@@ -35,10 +35,13 @@
             this.butSaveFiles = new System.Windows.Forms.Button();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.lblSymbolCount = new System.Windows.Forms.ToolStripStatusLabel();
+            this.lblSymbolCountOld = new System.Windows.Forms.ToolStripStatusLabel();
             this.butOpenFiles = new System.Windows.Forms.Button();
             this.butSelectEnglishFile = new System.Windows.Forms.Button();
             this.fldEnglishFilePath = new System.Windows.Forms.TextBox();
+            this.lblSymbolCount1 = new System.Windows.Forms.Label();
+            this.lblSymbolCount2 = new System.Windows.Forms.Label();
+            this.lblSymbolCount3 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.numFont)).BeginInit();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -109,7 +112,7 @@
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1,
-            this.lblSymbolCount});
+            this.lblSymbolCountOld});
             this.statusStrip1.Location = new System.Drawing.Point(0, 471);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(756, 22);
@@ -122,10 +125,10 @@
             this.toolStripStatusLabel1.Size = new System.Drawing.Size(101, 17);
             this.toolStripStatusLabel1.Text = "Symbols Quantity";
             // 
-            // lblSymbolCount
+            // lblSymbolCountOld
             // 
-            this.lblSymbolCount.Name = "lblSymbolCount";
-            this.lblSymbolCount.Size = new System.Drawing.Size(0, 17);
+            this.lblSymbolCountOld.Name = "lblSymbolCountOld";
+            this.lblSymbolCountOld.Size = new System.Drawing.Size(0, 17);
             // 
             // butOpenFiles
             // 
@@ -156,11 +159,41 @@
             this.fldEnglishFilePath.Size = new System.Drawing.Size(566, 20);
             this.fldEnglishFilePath.TabIndex = 9;
             // 
+            // lblSymbolCount1
+            // 
+            this.lblSymbolCount1.AutoSize = true;
+            this.lblSymbolCount1.Location = new System.Drawing.Point(126, 405);
+            this.lblSymbolCount1.Name = "lblSymbolCount1";
+            this.lblSymbolCount1.Size = new System.Drawing.Size(41, 13);
+            this.lblSymbolCount1.TabIndex = 12;
+            this.lblSymbolCount1.Text = "English";
+            // 
+            // lblSymbolCount2
+            // 
+            this.lblSymbolCount2.AutoSize = true;
+            this.lblSymbolCount2.Location = new System.Drawing.Point(126, 425);
+            this.lblSymbolCount2.Name = "lblSymbolCount2";
+            this.lblSymbolCount2.Size = new System.Drawing.Size(45, 13);
+            this.lblSymbolCount2.TabIndex = 12;
+            this.lblSymbolCount2.Text = "Russian";
+            // 
+            // lblSymbolCount3
+            // 
+            this.lblSymbolCount3.AutoSize = true;
+            this.lblSymbolCount3.Location = new System.Drawing.Point(126, 447);
+            this.lblSymbolCount3.Name = "lblSymbolCount3";
+            this.lblSymbolCount3.Size = new System.Drawing.Size(27, 13);
+            this.lblSymbolCount3.TabIndex = 12;
+            this.lblSymbolCount3.Text = "Split";
+            // 
             // TextSplitForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(756, 493);
+            this.Controls.Add(this.lblSymbolCount3);
+            this.Controls.Add(this.lblSymbolCount2);
+            this.Controls.Add(this.lblSymbolCount1);
             this.Controls.Add(this.butOpenFiles);
             this.Controls.Add(this.butSelectEnglishFile);
             this.Controls.Add(this.fldEnglishFilePath);
@@ -189,10 +222,13 @@
         private System.Windows.Forms.Button butSaveFiles;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
-        private System.Windows.Forms.ToolStripStatusLabel lblSymbolCount;
+        private System.Windows.Forms.ToolStripStatusLabel lblSymbolCountOld;
         private System.Windows.Forms.Button butOpenFiles;
         private System.Windows.Forms.Button butSelectEnglishFile;
         private System.Windows.Forms.TextBox fldEnglishFilePath;
+        private System.Windows.Forms.Label lblSymbolCount1;
+        private System.Windows.Forms.Label lblSymbolCount2;
+        private System.Windows.Forms.Label lblSymbolCount3;
     }
 }
 

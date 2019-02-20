@@ -14,8 +14,9 @@ namespace TextSplit
         private readonly IFileManager _manager;
         private readonly IMessageService _messageService;
 
-        private string _currentFilePath;
+        //private string _currentFilePath;
         private bool wasEnglishContentChange = false;
+        private int i = 3;//Quantity of working files
 
         public MainPresentor(ITextSplitForm view, IFileManager manager, IMessageService service)
         {
@@ -23,7 +24,10 @@ namespace TextSplit
             _manager = manager;
             _messageService = service;
 
-            _view.SetSymbolCount(0);            
+            int filesQuantity = _view.FilesQuantity;
+            _manager.FilesQuantity = filesQuantity;
+            int[] count = new int[3];
+            _view.SetSymbolCount(count[]);            
 
             _view.EnglishContentChanged += new EventHandler (_view_EnglishContentChanged);
             _view.FilesOpenClick += new EventHandler (_view_FilesOpenClick);
@@ -44,8 +48,8 @@ namespace TextSplit
         {
             try
             {
-                string content = _view.EnglishContent;
-                _manager.SaveContent(content, _currentFilePath);
+                //string content = _view.FileContent;
+                //_manager.SaveContent(content, _currentFilePath);
                 _messageService.ShowMessage("File saved sucessfully!");
                 wasEnglishContentChange = false;
                 _messageService.ShowTrace(wasEnglishContentChange.ToString(), " - EnglishContentSaved!");
@@ -71,13 +75,18 @@ namespace TextSplit
                     return;
                 }
 
-                _currentFilePath = filePath[0];
+                //_currentFilePath = filePath[0];
 
-                string content = _manager.GetContent(filePath[0]);
-                int count = _manager.GetSymbolCount(content);
 
-                _view.EnglishContent = content;
-                _view.SetSymbolCount(count);
+                string[] content = new string[i];
+                int[] count = new int[i];
+                    _manager.GetContent(filePath[0]);
+                
+                    
+                    //_manager.GetSymbolCount(content[]);
+
+                _view.FileContent = content;
+                _view.SetSymbolCount(count[]);
             }
             catch (Exception ex)
             {
@@ -87,10 +96,10 @@ namespace TextSplit
 
         void _view_EnglishContentChanged(object sender, EventArgs e)
         {
-            string content = _view.EnglishContent;                        
-            int count = _manager.GetSymbolCount(content);
+            string[] content = _view.FileContent;                        
+            //int[] count = _manager.GetSymbolCount(content[]);
             _messageService.ShowTrace(wasEnglishContentChange.ToString(), " - EnglishContentWasChanged");
-            _view.SetSymbolCount(count);
+            //_view.SetSymbolCount(count[]);
             wasEnglishContentChange = true;
         }
     }
