@@ -18,12 +18,13 @@ namespace TextSplit
             MessageBox.Show("Please remember - the quantity of the working files must be declared in the Form", "Program in progress", MessageBoxButtons.OK, MessageBoxIcon.Information);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-
-            TextSplitForm form = new TextSplitForm();
+            
+            TextSplitOpenForm open = new TextSplitOpenForm();
+            TextSplitForm form = new TextSplitForm(open);
             MessageService service = new MessageService();
             FileManager manager = new FileManager();
             MessageBox.Show("All Modules Declared", "Program in progress", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            MainPresentor presentor = new MainPresentor(form, manager, service);
+            MainPresentor presentor = new MainPresentor(form, open, manager, service);
             MessageBox.Show("Main Called", "Program in progress", MessageBoxButtons.OK, MessageBoxIcon.Information);
             Application.Run(form);
             MessageBox.Show("Run Form Started", "Program in progress", MessageBoxButtons.OK, MessageBoxIcon.Information);

@@ -18,16 +18,17 @@ namespace TextSplit
         int FilesQuantity { get; set; }
         void SetSymbolCount(int[] counts, int[] filesToDo);
           
-        event EventHandler FilesOpenClick;
+        //event EventHandler FilesOpenClick;
         event EventHandler FilesSaveClick;
         event EventHandler EnglishContentChanged;
-        //event EventHandler TextSplitFormClosing;
+        
         event EventHandler <FormClosingEventArgs> TextSplitFormClosing;
+        //event EventHandler <FormClosingEventArgs> TextSplitOpenFormClosing;
     }
 
     public partial class TextSplitForm : Form, ITextSplitForm
     {
-        
+        private readonly ITextSplitOpenForm _open;
         public string[] FilesPath { get; set; }
         public string[] FilesContent { get; set; }
         public Label[] lblSymbolsCount;
@@ -36,23 +37,25 @@ namespace TextSplit
         public int FilesQuantity { get; set; }
         public int filesQuantity = 3;//Please remember - the quantity of the working files must be declared here
 
-        public TextSplitForm()
+        public TextSplitForm(ITextSplitOpenForm open)
         {
             MessageBox.Show("Form Class Constructor Started", "Form in progress", MessageBoxButtons.OK, MessageBoxIcon.Information);
             InitializeComponent();
-            
+
+            _open = open;
             butOpenFiles.Click += new EventHandler(butOpenFiles_Click);
             butSaveFiles.Click += butSaveFiles_Click;
             fldEnglishContent.TextChanged += fldEnglishContent_TextChanged;
-            butSelectEnglishFile.Click += butSelectEnglishFile_Click;
+            //butSelectEnglishFile.Click += butSelectEnglishFile_Click;
             numFont.ValueChanged += numFont_ValueChanged;
-            FormClosing += TextSplitForm_FormClosing;
+            FormClosing += TextSplitForm_FormClosing;            
+
             FilesQuantity = filesQuantity;
             FilesToDo = new int[filesQuantity];
-            FilesPath = new string[filesQuantity];
+            FilesPath = new string[3] { "eng", "rus", "res" }; 
             FilesContent = new string[filesQuantity];
             
-            lblSymbolsCount = new Label[] { lblSymbolCount1, lblSymbolCount2, lblSymbolCount3 };
+            lblSymbolsCount = new Label[] { lblSymbolCount1, lblSymbolCount2, lblSymbolCount3 };                        
         }
 
         #region Events forwarding
@@ -69,11 +72,17 @@ namespace TextSplit
             messageBoxCS.AppendLine();
             MessageBox.Show(messageBoxCS.ToString(), "FormClosing Event");
         }
-                
+
+        private void _open_TextSplitOpenFormClosing(object sender, FormClosingEventArgs e)
+        {
+            MessageBox.Show("after TextSplitOpenFormClosing", "TextSplitForm", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            //e.Cancel = wasEnglishContentChange;
+        }
+
         void butOpenFiles_Click(object sender, EventArgs e)
         {
             MessageBox.Show("butOpenFiles_Click - Started", "butOpenFiles_Click", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            TextSplitOpenForm openForm = new TextSplitOpenForm(this);
+            TextSplitOpenForm openForm = new TextSplitOpenForm();
             MessageBox.Show("openForm.Show will start now", "openForm.Show", MessageBoxButtons.OK, MessageBoxIcon.Information);
             openForm.Show();
             MessageBox.Show("after openForm.Show now", "openForm.Show", MessageBoxButtons.OK, MessageBoxIcon.Information);            
@@ -109,26 +118,29 @@ namespace TextSplit
             }            
         }
         
-        public event EventHandler FilesOpenClick;
+        //public event EventHandler FilesOpenClick;
         public event EventHandler FilesSaveClick;
         public event EventHandler EnglishContentChanged;
         //public event EventHandler TextSplitFormClosing;
-        public event EventHandler<FormClosingEventArgs> TextSplitFormClosing;
+        public event EventHandler <FormClosingEventArgs> TextSplitFormClosing;
+        //public event EventHandler <FormClosingEventArgs> TextSplitOpenFormClosing;
         #endregion
 
-        private void butSelectEnglishFile_Click(object sender, EventArgs e)//сразу открыть файлы?
-        {
-            //OpenFileDialog dlg = new OpenFileDialog();
-            //dlg.Filter = "Text files|*.txt|All files|*.*";
+        
 
-            //if (dlg.ShowDialog() == DialogResult.OK)
-            //{
-            MessageBox.Show(FilesPath[0], "FilePathArray received", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            fldEnglishFilePath.Text = FilesPath[0];
-            MessageBox.Show(fldEnglishFilePath.Text, "EnglishFilePath received", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            //if (FilesOpenClick != null)
-            FilesOpenClick(this, EventArgs.Empty);            
-        }
+        //private void butSelectEnglishFile_Click(object sender, EventArgs e)//сразу открыть файлы?
+        //{
+        //    //OpenFileDialog dlg = new OpenFileDialog();
+        //    //dlg.Filter = "Text files|*.txt|All files|*.*";
+
+        //    //if (dlg.ShowDialog() == DialogResult.OK)
+        //    //{
+        //    MessageBox.Show(FilesPath[0], "FilePathArray received", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        //    fldEnglishFilePath.Text = FilesPath[0];
+        //    MessageBox.Show(fldEnglishFilePath.Text, "EnglishFilePath received", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        //    //if (FilesOpenClick != null)
+        //    FilesOpenClick(this, EventArgs.Empty);            
+        //}
 
         private void numFont_ValueChanged(object sender, EventArgs e)
         {            

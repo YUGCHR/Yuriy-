@@ -10,19 +10,20 @@ namespace TextSplit
 {
     public class MainPresentor
     {
-        private readonly ITextSplitForm _view; 
+        private readonly ITextSplitForm _view;
+        private readonly ITextSplitOpenForm _open;
         private readonly IFileManager _manager;
         private readonly IMessageService _messageService;
 
 
         private bool wasEnglishContentChange = false;
         private int filesQuantity;
-
-
-        public MainPresentor(ITextSplitForm view, IFileManager manager, IMessageService service)
+        
+        public MainPresentor(ITextSplitForm view, ITextSplitOpenForm open, IFileManager manager, IMessageService service)
         {
             MessageBox.Show("Main Started", "Main in progress", MessageBoxButtons.OK, MessageBoxIcon.Information);
             _view = view;
+            _open = open;
             _manager = manager;
             _messageService = service;
 
@@ -33,11 +34,19 @@ namespace TextSplit
             int[] counts = new int[filesQuantity];
             _view.SetSymbolCount(counts, _view.FilesToDo);
             _manager.FilesToDo = filesToDo;
+            _open.FilesPath = _view.FilesPath;
 
             _view.EnglishContentChanged += new EventHandler (_view_EnglishContentChanged);
-            _view.FilesOpenClick += new EventHandler (_view_FilesOpenClick);
+            //_view.FilesOpenClick += new EventHandler (_view_FilesOpenClick);
             _view.FilesSaveClick += new EventHandler (_view_FilesSaveClick);            
             _view.TextSplitFormClosing += new EventHandler<FormClosingEventArgs>(_view_TextSplitFormClosing);
+
+            MessageBox.Show(_view.FilesPath[0], " - FilePath[0] form", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(_open.FilesPath[0], " - FilePath[0] open", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(_view.FilesPath[1], " - FilePath[2] form", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(_open.FilesPath[1], " - FilePath[0] open", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(_view.FilesPath[2], " - FilePath[1] form", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(_open.FilesPath[2], " - FilePath[2] open", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void _view_TextSplitFormClosing(object sender, FormClosingEventArgs e)
