@@ -28,7 +28,7 @@ namespace TextSplit
 
     public partial class TextSplitForm : Form, ITextSplitForm
     {
-        private readonly ITextSplitOpenForm _open;
+        //private readonly ITextSplitOpenForm _open;
         public string[] FilesPath { get; set; }
         public string[] FilesContent { get; set; }
         public Label[] lblSymbolsCount;
@@ -42,7 +42,7 @@ namespace TextSplit
             MessageBox.Show("Form Class Constructor Started", "Form in progress", MessageBoxButtons.OK, MessageBoxIcon.Information);
             InitializeComponent();
 
-            _open = open;
+            //_open = open;
             butOpenFiles.Click += new EventHandler(butOpenFiles_Click);
             butSaveFiles.Click += butSaveFiles_Click;
             fldEnglishContent.TextChanged += fldEnglishContent_TextChanged;
@@ -84,6 +84,9 @@ namespace TextSplit
             MessageBox.Show("butOpenFiles_Click - Started", "butOpenFiles_Click", MessageBoxButtons.OK, MessageBoxIcon.Information);
             TextSplitOpenForm openForm = new TextSplitOpenForm();
             MessageBox.Show("openForm.Show will start now", "openForm.Show", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(FilesPath[0], " - FilePath[0] form", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(FilesPath[1], " - FilePath[2] form", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(FilesPath[2], " - FilePath[1] form", MessageBoxButtons.OK, MessageBoxIcon.Information);
             openForm.Show();
             MessageBox.Show("after openForm.Show now", "openForm.Show", MessageBoxButtons.OK, MessageBoxIcon.Information);            
         }
