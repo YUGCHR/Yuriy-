@@ -11,3 +11,5 @@ namespace TextSplit
         public const int LanguagesQuantity = 3;
     }
 }
+
+

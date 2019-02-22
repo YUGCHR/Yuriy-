@@ -22,7 +22,7 @@ namespace TextSplit
             TextSplitOpenForm open = new TextSplitOpenForm();
             TextSplitForm form = new TextSplitForm(open);
             MessageService service = new MessageService();
-            FileManager manager = new FileManager();
+            FileManager manager = new FileManager(service, Declaration.LanguagesQuantity);
             MessageBox.Show("All Modules Declared", "Program in progress", MessageBoxButtons.OK, MessageBoxIcon.Information);
             MainPresentor presentor = new MainPresentor(form, open, manager, service);
             MessageBox.Show("Main Called", "Program in progress", MessageBoxButtons.OK, MessageBoxIcon.Information);

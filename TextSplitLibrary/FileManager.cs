@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace TextSplitLibrary
 {
@@ -20,22 +19,26 @@ namespace TextSplitLibrary
         int GetSymbolCounts(string[] FilesContent, int i);
         bool[] IsFilesExist(string[] FilesPath);
         int[] FilesToDo { get; set; }
-        int FilesQuantity { get; set; }
-
+        
     }
     public class FileManager : IFileManager
     {
+        private readonly IMessageService _messageService;        
+
         public int[] FilesToDo { get; set; }        
         private readonly Encoding _defaultEncoding = Encoding.GetEncoding(1251);
         public string[] FilesPath;
-        public string[] FilesContent;
-        public int FilesQuantity { get; set; }
-        public int filesQuantity;//Declaration.LanguagesQuantity;
+        public string[] FilesContent;        
+        private readonly int filesQuantity;//Declaration.LanguagesQuantity;
 
-        public FileManager()
+        public FileManager(IMessageService service, int filesQuantity)
         {
-            filesQuantity = FilesQuantity;
-            MessageBox.Show(filesQuantity.ToString(), "FileManager - filesQuantity", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            _messageService = service;
+            this.filesQuantity = filesQuantity;            
+            _messageService.ShowTrace(filesQuantity.ToString(),"FileManager - filesQuantity");
+            FilesPath = new string[filesQuantity];
+            FilesContent = new string[filesQuantity];
+            FilesToDo = new int[filesQuantity];           
         }
         
 

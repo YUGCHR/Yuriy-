@@ -4,16 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using TextSplitLibrary;
 
 namespace TextSplit
-{
-    public interface IMessageService
-    {
-        void ShowMessage(string message);
-        void ShowExclamation(string exclamation);
-        void ShowError(string error);
-        void ShowTrace(string tracePointNumber, string tracePointName);
-    }
+{    
     public class MessageService: IMessageService
     {
         public void ShowMessage(string message)

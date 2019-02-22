@@ -81,10 +81,12 @@ namespace TextSplit
 
         void butOpenFiles_Click(object sender, EventArgs e)//обрабатываем нажатие кнопки Open, которое означает открытие вспомогательной формы
         {
-            MessageBox.Show("butOpenFiles_Click - Started", "butOpenFiles_Click", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("butOpenFiles_Click - Started", "Forms.butOpenFiles_Click", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("FilesOpenClick - Called", "Forms.butOpenFiles_Click", MessageBoxButtons.OK, MessageBoxIcon.Information);
             if (FilesOpenClick != null) FilesOpenClick(this, EventArgs.Empty);
+            MessageBox.Show("FilesOpenClick - Finished", "Forms.butOpenFiles_Click", MessageBoxButtons.OK, MessageBoxIcon.Information);
             TextSplitOpenForm openForm = new TextSplitOpenForm();
-            MessageBox.Show("openForm.Show will start now", "openForm.Show", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("openForm new is on, .Show will start now", "Forms.butOpenFiles_Click", MessageBoxButtons.OK, MessageBoxIcon.Information);
             MessageBox.Show(FilesPath[0], " - FilePath[0] form", MessageBoxButtons.OK, MessageBoxIcon.Information);
             MessageBox.Show(FilesPath[1], " - FilePath[2] form", MessageBoxButtons.OK, MessageBoxIcon.Information);
             MessageBox.Show(FilesPath[2], " - FilePath[1] form", MessageBoxButtons.OK, MessageBoxIcon.Information);
