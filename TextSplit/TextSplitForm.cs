@@ -12,13 +12,14 @@ namespace TextSplit
 {
     public interface ITextSplitForm
     {
-        string[] FilesPath { get; set; }
-        string[] FilesContent { get; set; }        
-        int[] FilesToDo { get; set; }
-        int FilesQuantity { get; set; }
+        //string[] FilesPath { get; set; }
+        //string[] FilesContent { get; set; }        
+        //int[] FilesToDo { get; set; }
+        //int FilesQuantity { get; set; }
+        void SetFilesContent(string[] filesPath, string[] filesContent, int[] filesToDo);
         void SetSymbolCount(int[] counts, int[] filesToDo);
           
-        //event EventHandler FilesOpenClick;
+        event EventHandler FilesOpenClick;
         event EventHandler FilesSaveClick;
         event EventHandler EnglishContentChanged;
         
@@ -30,12 +31,11 @@ namespace TextSplit
     {
         //private readonly ITextSplitOpenForm _open;
         public string[] FilesPath { get; set; }
-        public string[] FilesContent { get; set; }
-        public Label[] lblSymbolsCount;
+        public string[] FilesContent { get; set; }        
         public int[] FilesToDo { get; set; }
         public int[] counts;
-        public int FilesQuantity { get; set; }
-        public int filesQuantity = 3;//Please remember - the quantity of the working files must be declared here
+        public Label[] lblSymbolsCount;        
+        public int filesQuantity = Declaration.LanguagesQuantity;
 
         public TextSplitForm(ITextSplitOpenForm open)
         {
@@ -50,7 +50,7 @@ namespace TextSplit
             numFont.ValueChanged += numFont_ValueChanged;
             FormClosing += TextSplitForm_FormClosing;            
 
-            FilesQuantity = filesQuantity;
+            //FilesQuantity = filesQuantity;
             FilesToDo = new int[filesQuantity];
             FilesPath = new string[3] { "eng", "rus", "res" }; 
             FilesContent = new string[filesQuantity];
@@ -79,9 +79,10 @@ namespace TextSplit
             //e.Cancel = wasEnglishContentChange;
         }
 
-        void butOpenFiles_Click(object sender, EventArgs e)
+        void butOpenFiles_Click(object sender, EventArgs e)//обрабатываем нажатие кнопки Open, которое означает открытие вспомогательной формы
         {
             MessageBox.Show("butOpenFiles_Click - Started", "butOpenFiles_Click", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            if (FilesOpenClick != null) FilesOpenClick(this, EventArgs.Empty);
             TextSplitOpenForm openForm = new TextSplitOpenForm();
             MessageBox.Show("openForm.Show will start now", "openForm.Show", MessageBoxButtons.OK, MessageBoxIcon.Information);
             MessageBox.Show(FilesPath[0], " - FilePath[0] form", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -108,6 +109,10 @@ namespace TextSplit
         //    get { return fldEnglishContent.Text; }
         //    set { fldEnglishContent.Text = value; }
         //}
+        public void SetFilesContent(string[] filesPath, string[] filesContent, int[] filesToDo)
+        {
+
+        }
 
         public void SetSymbolCount(int[] count, int[] filesToDo)
         {
@@ -121,7 +126,7 @@ namespace TextSplit
             }            
         }
         
-        //public event EventHandler FilesOpenClick;
+        public event EventHandler FilesOpenClick;
         public event EventHandler FilesSaveClick;
         public event EventHandler EnglishContentChanged;
         //public event EventHandler TextSplitFormClosing;

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace TextSplitLibrary
 {
@@ -29,11 +30,12 @@ namespace TextSplitLibrary
         public string[] FilesPath;
         public string[] FilesContent;
         public int FilesQuantity { get; set; }
-        public int filesQuantity;
+        public int filesQuantity;//Declaration.LanguagesQuantity;
 
         public FileManager()
         {
             filesQuantity = FilesQuantity;
+            MessageBox.Show(filesQuantity.ToString(), "FileManager - filesQuantity", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         
 
