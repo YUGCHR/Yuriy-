@@ -25,11 +25,11 @@ namespace TextSplit
             MessageBox.Show(error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
-        public void ShowTrace(string tracePointNum, string tracePointNam)
+        public void ShowTrace(string tracePointName, string tracePointValue, string tracePointPlace)
         {
-            string[] tracePointArray = { tracePointNum, tracePointNam };
-            string tracePoint = String.Join(" - \r\n ", tracePointArray);
-            MessageBox.Show(tracePoint, "Trace Point", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            string[] tracePointArray = { tracePointName, tracePointValue };
+            string tracePointMessage = String.Join(" - \r\n ", tracePointArray);
+            MessageBox.Show(tracePointMessage, tracePointPlace, MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 }

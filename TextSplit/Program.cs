@@ -20,8 +20,8 @@ namespace TextSplit
             Application.SetCompatibleTextRenderingDefault(false);
             
             TextSplitOpenForm open = new TextSplitOpenForm();
-            TextSplitForm form = new TextSplitForm(open);
             MessageService service = new MessageService();
+            TextSplitForm form = new TextSplitForm(service, open);            
             FileManager manager = new FileManager(service, Declaration.LanguagesQuantity);
             MessageBox.Show("All Modules Declared", "Program in progress", MessageBoxButtons.OK, MessageBoxIcon.Information);
             MainPresentor presentor = new MainPresentor(form, open, manager, service);

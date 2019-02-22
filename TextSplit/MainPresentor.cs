@@ -18,7 +18,13 @@ namespace TextSplit
 
         private bool wasEnglishContentChange = false;
         private int filesQuantity;
-        
+
+        private int[] filesToDo;
+        private int[] counts;
+        private string[] filesPath;
+        private string[] filesContent;
+
+
         public MainPresentor(ITextSplitForm view, ITextSplitOpenForm open, IFileManager manager, IMessageService service)
         {
             MessageBox.Show("Main Started", "Main in progress", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -26,22 +32,15 @@ namespace TextSplit
             _open = open;
             _manager = manager;
             _messageService = service;
+            
+            filesQuantity = Declaration.LanguagesQuantity;
+            filesToDo = new int[filesQuantity];
+            counts = new int[filesQuantity];
+            _view.SetSymbolCount(counts, filesToDo);//move?
 
-            _manager.FilesQuantity = Declaration.LanguagesQuantity;
-
-            int[] filesToDo = _view.FilesToDo;
-            filesQuantity = filesToDo.Length;
-            int[] counts = new int[filesQuantity];
-            _view.SetSymbolCount(counts, _view.FilesToDo);
-            _manager.FilesToDo = filesToDo;
-
-            MessageBox.Show(_view.FilesPath[0], " - FilePath[0] form", MessageBoxButtons.OK, MessageBoxIcon.Information);            
-            MessageBox.Show(_view.FilesPath[1], " - FilePath[2] form", MessageBoxButtons.OK, MessageBoxIcon.Information);            
-            MessageBox.Show(_view.FilesPath[2], " - FilePath[1] form", MessageBoxButtons.OK, MessageBoxIcon.Information);            
-            _open.FilesPath = _view.FilesPath;
-            MessageBox.Show(_open.FilesPath[0], " - FilePath[0] open", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            MessageBox.Show(_open.FilesPath[1], " - FilePath[0] open", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            MessageBox.Show(_open.FilesPath[2], " - FilePath[2] open", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            filesPath = new string[filesQuantity];
+            filesContent = new string[filesQuantity];            
+            _view.ManageFilesContent(filesPath, filesContent, filesToDo);//move?
 
             _view.EnglishContentChanged += new EventHandler (_view_EnglishContentChanged);
             _view.FilesOpenClick += new EventHandler (_view_FilesOpenClick);
@@ -52,11 +51,11 @@ namespace TextSplit
 
         private void _view_TextSplitFormClosing(object sender, FormClosingEventArgs e)
         {            
-            _messageService.ShowTrace("Closing attempt catched", "!!!");
+            _messageService.ShowTrace("Closing attempt", "catched", "Main - _view_TextSplitFormClosing");
             //var formArgs = (FormClosingEventArgs)e;
             e.Cancel = wasEnglishContentChange;
             //_view.WasEnglishContentChange = wasEnglishContentChange;
-            _messageService.ShowTrace(wasEnglishContentChange.ToString(), " - Returned - Was English Content Change?");            
+            _messageService.ShowTrace("wasEnglishContentChange", wasEnglishContentChange.ToString(), "Main - _view_TextSplitFormClosing");            
         }
 
         private void _view_FilesSaveClick(object sender, EventArgs e)
@@ -67,7 +66,7 @@ namespace TextSplit
                 //_manager.SaveContent(content, _currentFilePath);
                 _messageService.ShowMessage("File saved sucessfully!");
                 wasEnglishContentChange = false;
-                _messageService.ShowTrace(wasEnglishContentChange.ToString(), " - EnglishContentSaved!");
+                _messageService.ShowTrace("wasEnglishContentChange", wasEnglishContentChange.ToString(), "Main - _view_FilesSaveClick");
             }
             catch (Exception ex)
             {
@@ -78,22 +77,32 @@ namespace TextSplit
         private void _view_FilesOpenClick(object sender, EventArgs e)
         {
             try
-            {                
+            {
+                MessageBox.Show("_view_FilesOpenClick started now", "Main", MessageBoxButtons.OK, MessageBoxIcon.Information);                
+                filesPath = new string[] {"filesPath-0", "filesPath-1", "filesPath-2"};//Testing of array delivery to Form
+                MessageBox.Show(filesPath[0], "Main-_view_FilesOpenClick - FilePath[0]", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(filesPath[1], "Main-_view_FilesOpenClick - FilePath[2]", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(filesPath[2], "Main-_view_FilesOpenClick - FilePath[1]", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                _view.ManageFilesContent(filesPath, filesContent, filesToDo);
                 int[] counts = new int[filesQuantity];
                 wasEnglishContentChange = false;
                 bool[] isFilesExist = new bool[filesQuantity];
 
-                isFilesExist = _manager.IsFilesExist(_view.FilesPath);
-                //_messageService.ShowTrace("Received filePath", filesPath[i]); //traced
+                isFilesExist = _manager.IsFilesExist(filesPath);
+
                 for (int i = 0; i < filesQuantity; i++)
-                    if (!isFilesExist[i])
-                    {
+                { 
+                    _messageService.ShowTrace("Received filePath", filesPath[i], "Main-_view_FilesOpenClick"); //traced
+
+                if (!isFilesExist[i])
+                    {                        
                         _messageService.ShowExclamation("Selected file does not exist!");
                         return;
                     }
-                counts = _manager.GetSymbolCounts(_manager.GetContents(_view.FilesPath, _view.FilesToDo));
-                _view.SetSymbolCount(counts, _view.FilesToDo);
-                _view.FilesContent = _manager.GetContents(_view.FilesPath, _view.FilesToDo);
+                    //counts = _manager.GetSymbolCounts(_manager.GetContents(_view.FilesPath, _view.FilesToDo));
+                    //_view.SetSymbolCount(counts, filesToDo);
+                    //_view.FilesContent = _manager.GetContents(_view.FilesPath, _view.FilesToDo);
+                }
             }            
             catch (Exception ex)
             {
@@ -103,10 +112,10 @@ namespace TextSplit
 
         void _view_EnglishContentChanged(object sender, EventArgs e)
         {
-            string[] contents = _view.FilesContent;                        
-            int[] counts = _manager.GetSymbolCounts(contents);
-            _messageService.ShowTrace(wasEnglishContentChange.ToString(), " - EnglishContentWasChanged");
-            _view.SetSymbolCount(counts, _view.FilesToDo);
+            //string[] contents = _view.FilesContent;                        
+            //int[] counts = _manager.GetSymbolCounts(contents);
+            _messageService.ShowTrace("wasEnglishContentChange", wasEnglishContentChange.ToString(), "Main - EnglishContentWasChanged");
+            //_view.SetSymbolCount(counts, _view.FilesToDo);
             wasEnglishContentChange = true;//we need also the array here
         }
     }

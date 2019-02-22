@@ -11,6 +11,6 @@ namespace TextSplitLibrary
         void ShowMessage(string message);
         void ShowExclamation(string exclamation);
         void ShowError(string error);
-        void ShowTrace(string tracePointNumber, string tracePointName);
+        void ShowTrace(string tracePointName, string tracePointValue, string tracePointPlace);
     }
 }

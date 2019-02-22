@@ -35,7 +35,7 @@ namespace TextSplitLibrary
         {
             _messageService = service;
             this.filesQuantity = filesQuantity;            
-            _messageService.ShowTrace(filesQuantity.ToString(),"FileManager - filesQuantity");
+            _messageService.ShowTrace("filesQuantity - ", filesQuantity.ToString(),"FileManager");
             FilesPath = new string[filesQuantity];
             FilesContent = new string[filesQuantity];
             FilesToDo = new int[filesQuantity];           

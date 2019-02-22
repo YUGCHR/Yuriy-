@@ -6,7 +6,9 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TextSplitLibrary;
 using System.Windows.Forms;
+
 
 namespace TextSplit
 {
@@ -16,7 +18,7 @@ namespace TextSplit
         //string[] FilesContent { get; set; }        
         //int[] FilesToDo { get; set; }
         //int FilesQuantity { get; set; }
-        void SetFilesContent(string[] filesPath, string[] filesContent, int[] filesToDo);
+        void ManageFilesContent(string[] filesPath, string[] filesContent, int[] filesToDo);
         void SetSymbolCount(int[] counts, int[] filesToDo);
           
         event EventHandler FilesOpenClick;
@@ -29,7 +31,7 @@ namespace TextSplit
 
     public partial class TextSplitForm : Form, ITextSplitForm
     {
-        //private readonly ITextSplitOpenForm _open;
+        private readonly IMessageService _messageService;
         public string[] FilesPath { get; set; }
         public string[] FilesContent { get; set; }        
         public int[] FilesToDo { get; set; }
@@ -37,8 +39,9 @@ namespace TextSplit
         public Label[] lblSymbolsCount;        
         public int filesQuantity = Declaration.LanguagesQuantity;
 
-        public TextSplitForm(ITextSplitOpenForm open)
+        public TextSplitForm(IMessageService service, ITextSplitOpenForm open)
         {
+            _messageService = service;
             MessageBox.Show("Form Class Constructor Started", "Form in progress", MessageBoxButtons.OK, MessageBoxIcon.Information);
             InitializeComponent();
 
@@ -49,10 +52,9 @@ namespace TextSplit
             //butSelectEnglishFile.Click += butSelectEnglishFile_Click;
             numFont.ValueChanged += numFont_ValueChanged;
             FormClosing += TextSplitForm_FormClosing;            
-
-            //FilesQuantity = filesQuantity;
+            
             FilesToDo = new int[filesQuantity];
-            FilesPath = new string[3] { "eng", "rus", "res" }; 
+            FilesPath = new string[filesQuantity];
             FilesContent = new string[filesQuantity];
             
             lblSymbolsCount = new Label[] { lblSymbolCount1, lblSymbolCount2, lblSymbolCount3 };                        
@@ -83,7 +85,7 @@ namespace TextSplit
         {
             MessageBox.Show("butOpenFiles_Click - Started", "Forms.butOpenFiles_Click", MessageBoxButtons.OK, MessageBoxIcon.Information);
             MessageBox.Show("FilesOpenClick - Called", "Forms.butOpenFiles_Click", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            if (FilesOpenClick != null) FilesOpenClick(this, EventArgs.Empty);
+            if (FilesOpenClick != null) FilesOpenClick(this, EventArgs.Empty);//Received 3 arrays from Main
             MessageBox.Show("FilesOpenClick - Finished", "Forms.butOpenFiles_Click", MessageBoxButtons.OK, MessageBoxIcon.Information);
             TextSplitOpenForm openForm = new TextSplitOpenForm();
             MessageBox.Show("openForm new is on, .Show will start now", "Forms.butOpenFiles_Click", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -111,9 +113,13 @@ namespace TextSplit
         //    get { return fldEnglishContent.Text; }
         //    set { fldEnglishContent.Text = value; }
         //}
-        public void SetFilesContent(string[] filesPath, string[] filesContent, int[] filesToDo)
+        public void ManageFilesContent(string[] filesPath, string[] filesContent, int[] filesToDo)
         {
-
+            _messageService.ShowTrace("Received filePath", filesPath[0], "Form-ManageFilesContent"); //traced
+            FilesPath = filesPath;
+            _messageService.ShowTrace("FilePath set", FilesPath[0], "Form-ManageFilesContent"); //traced
+            FilesContent = filesContent;
+            FilesToDo = filesToDo;
         }
 
         public void SetSymbolCount(int[] count, int[] filesToDo)
