@@ -6,42 +6,35 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TextSplitLibrary;
 using System.Windows.Forms;
 
 namespace TextSplit
 {
     public interface ITextSplitOpenForm
     {
-        string[] FilesPath { get; set; }
-        //int FilesQuantity { get; set; }
+        void ManageFilesContent(string[] filesPath, string[] filesContent, int[] filesToDo);        
         event EventHandler<FormClosingEventArgs> TextSplitOpenFormClosing;
     }
 
     public partial class TextSplitOpenForm : Form, ITextSplitOpenForm
     {
-        public string[] _filesPath;
-        public string[] FilesPath { get { return _filesPath; } set { _filesPath = value; } }
-        //public int FilesQuantity { get; set; }
-        //private TextSplitForm parentForm;
-        public int filesQuantity = Declaration.LanguagesQuantity;
-        
+        private readonly IMessageService _messageService;
+        public string[] FilesPath { get; set; }
+        public string[] FilesContent { get; set; }
+        public int[] FilesToDo { get; set; }        
+        public int filesQuantity = Declaration.LanguagesQuantity;        
 
-        public TextSplitOpenForm()
+        public TextSplitOpenForm(IMessageService service)
         {
-            //parentForm = f;
+            _messageService = service;
 
             InitializeComponent();
-            MessageBox.Show("InitializeComponent", "TextSplitOpenForm", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("InitializeComponent", "TextSplitOpenForm", MessageBoxButtons.OK, MessageBoxIcon.Information);            
             
-            //filesQuantity = FilesQuantity;            
-            MessageBox.Show(filesQuantity.ToString(), "TextSplitOpenForm - filesQuantity", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-            //FilesPath = new string[filesQuantity];
-            _filesPath = new string[filesQuantity];            
-
-            MessageBox.Show(_filesPath[0], "TextSplitOpenForm - _filesPath[0] Open", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            MessageBox.Show(_filesPath[1], "TextSplitOpenForm - _filesPath[2] Open", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            MessageBox.Show(_filesPath[2], "TextSplitOpenForm - _filesPath[1] Open", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            FilesToDo = new int[filesQuantity];
+            FilesPath = new string[filesQuantity];
+            FilesContent = new string[filesQuantity];
 
             butOpenAllFiles.Click += new EventHandler(butOpenAllFiles_Click);
             butSelectEnglishFile.Click += butSelectEnglishFile_Click;
@@ -65,30 +58,38 @@ namespace TextSplit
         }
 
         void butOpenAllFiles_Click(object sender, EventArgs e)
-        {
-            _filesPath = FilesPath;
+        {           
             MessageBox.Show("butOpenAllFiles_Click - Started", "TextSplitOpenForm", MessageBoxButtons.OK, MessageBoxIcon.Information);                       
             MessageBox.Show(fldEnglishFilePath.Text, "TextSplitOpenForm-butOpenAllFiles_Click - fldEnglishFilePath", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            MessageBox.Show(_filesPath[0], "TextSplitOpenForm-butOpenAllFiles_Click - _filesPath[0] before", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            _filesPath[0] = fldEnglishFilePath.Text;
-            MessageBox.Show(_filesPath[0], "TextSplitOpenForm-butOpenAllFiles_Click - _filesPath[0] after", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            MessageBox.Show(fldRussianFilePath.Text, "fldRussianFilePath", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            MessageBox.Show(_filesPath[1], "TextSplitOpenForm-butOpenAllFiles_Click - _filesPath[1] before", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            _filesPath[1] = fldRussianFilePath.Text;
-            MessageBox.Show(_filesPath[1], "TextSplitOpenForm-butOpenAllFiles_Click - _filesPath[1] after", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            MessageBox.Show(fldResultFilePath.Text, "fldResultFilePath", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            MessageBox.Show(_filesPath[2], "TextSplitOpenForm-butOpenAllFiles_Click - _filesPath[2] before", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            _filesPath[2] = fldResultFilePath.Text;
-            MessageBox.Show(_filesPath[2], "TextSplitOpenForm-butOpenAllFiles_Click - _filesPath[2] after", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            //MessageBox.Show(_filesPath[0], "TextSplitOpenForm-butOpenAllFiles_Click - _filesPath[0] before", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            FilesPath[0] = fldEnglishFilePath.Text;
+            //MessageBox.Show(_filesPath[0], "TextSplitOpenForm-butOpenAllFiles_Click - _filesPath[0] after", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            //MessageBox.Show(fldRussianFilePath.Text, "fldRussianFilePath", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            //MessageBox.Show(_filesPath[1], "TextSplitOpenForm-butOpenAllFiles_Click - _filesPath[1] before", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            FilesPath[1] = fldRussianFilePath.Text;
+            //MessageBox.Show(_filesPath[1], "TextSplitOpenForm-butOpenAllFiles_Click - _filesPath[1] after", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            //MessageBox.Show(fldResultFilePath.Text, "fldResultFilePath", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            //MessageBox.Show(_filesPath[2], "TextSplitOpenForm-butOpenAllFiles_Click - _filesPath[2] before", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            FilesPath[2] = fldResultFilePath.Text;
+            //MessageBox.Show(_filesPath[2], "TextSplitOpenForm-butOpenAllFiles_Click - _filesPath[2] after", MessageBoxButtons.OK, MessageBoxIcon.Information);
             this.Close();
             MessageBox.Show("taki.Closed", "TextSplitOpenForm", MessageBoxButtons.OK, MessageBoxIcon.Information);
             //this.parentForm.FilePath[1] = fldRussianFilePath.Text;
             //this.parentForm.FilePath[2] = fldResultFilePath.Text;
         }
 
+        public void ManageFilesContent(string[] filesPath, string[] filesContent, int[] filesToDo)
+        {
+            _messageService.ShowTrace("Received filePath", filesPath[0], "Form-ManageFilesContent", 2); //traced
+            FilesPath = filesPath;
+            _messageService.ShowTrace("FilePath set", FilesPath[0], "Form-ManageFilesContent", 2); //traced
+            FilesContent = filesContent;
+            FilesToDo = filesToDo;
+        }
+
         private void butSelectEnglishFile_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(_filesPath[0], "TextSplitOpenForm-butSelectEnglishFile_Click - _filePath[0] form", MessageBoxButtons.OK, MessageBoxIcon.Information);            
+            MessageBox.Show(FilesPath[0], "TextSplitOpenForm-butSelectEnglishFile_Click - _filePath[0] form", MessageBoxButtons.OK, MessageBoxIcon.Information);            
             OpenFileDialog dlg = new OpenFileDialog();
             dlg.Filter = "Text files|*.txt|All files|*.*";
 

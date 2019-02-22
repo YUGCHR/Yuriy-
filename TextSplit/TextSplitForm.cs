@@ -37,7 +37,7 @@ namespace TextSplit
         public int[] FilesToDo { get; set; }
         public int[] counts;
         public Label[] lblSymbolsCount;        
-        public int filesQuantity = Declaration.LanguagesQuantity;
+        public int filesQuantity = Declaration.LanguagesQuantity;        
 
         public TextSplitForm(IMessageService service, ITextSplitOpenForm open)
         {
@@ -83,11 +83,12 @@ namespace TextSplit
 
         void butOpenFiles_Click(object sender, EventArgs e)//обрабатываем нажатие кнопки Open, которое означает открытие вспомогательной формы
         {
-            MessageBox.Show("butOpenFiles_Click - Started", "Forms.butOpenFiles_Click", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            MessageBox.Show("FilesOpenClick - Called", "Forms.butOpenFiles_Click", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            _messageService.ShowTrace("butOpenFiles_Click - ", "Started", "Forms.butOpenFiles_Click", 1); //traced
+            _messageService.ShowTrace("FilesOpenClick - ", "Called", "Forms.butOpenFiles_Click", 1); //traced
+            
             if (FilesOpenClick != null) FilesOpenClick(this, EventArgs.Empty);//Received 3 arrays from Main
             MessageBox.Show("FilesOpenClick - Finished", "Forms.butOpenFiles_Click", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            TextSplitOpenForm openForm = new TextSplitOpenForm();
+            TextSplitOpenForm openForm = new TextSplitOpenForm(_messageService);
             MessageBox.Show("openForm new is on, .Show will start now", "Forms.butOpenFiles_Click", MessageBoxButtons.OK, MessageBoxIcon.Information);
             MessageBox.Show(FilesPath[0], " - FilePath[0] form", MessageBoxButtons.OK, MessageBoxIcon.Information);
             MessageBox.Show(FilesPath[1], " - FilePath[2] form", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -115,9 +116,9 @@ namespace TextSplit
         //}
         public void ManageFilesContent(string[] filesPath, string[] filesContent, int[] filesToDo)
         {
-            _messageService.ShowTrace("Received filePath", filesPath[0], "Form-ManageFilesContent"); //traced
+            _messageService.ShowTrace("Received filePath", filesPath[0], "Form-ManageFilesContent", 1); //traced
             FilesPath = filesPath;
-            _messageService.ShowTrace("FilePath set", FilesPath[0], "Form-ManageFilesContent"); //traced
+            _messageService.ShowTrace("FilePath set", FilesPath[0], "Form-ManageFilesContent", 1); //traced
             FilesContent = filesContent;
             FilesToDo = filesToDo;
         }

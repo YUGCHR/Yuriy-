@@ -18,9 +18,9 @@ namespace TextSplit
             MessageBox.Show("static void Main started", "Program in progress", MessageBoxButtons.OK, MessageBoxIcon.Information);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            
-            TextSplitOpenForm open = new TextSplitOpenForm();
+
             MessageService service = new MessageService();
+            TextSplitOpenForm open = new TextSplitOpenForm(service);
             TextSplitForm form = new TextSplitForm(service, open);            
             FileManager manager = new FileManager(service, Declaration.LanguagesQuantity);
             MessageBox.Show("All Modules Declared", "Program in progress", MessageBoxButtons.OK, MessageBoxIcon.Information);

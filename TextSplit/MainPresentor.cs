@@ -10,6 +10,7 @@ namespace TextSplit
 {
     public class MainPresentor
     {
+        private int showLevel = 3;//0 - no message, 1 - Trace message, 2 - Value message, 3 - ???
         private readonly ITextSplitForm _view;
         private readonly ITextSplitOpenForm _open;
         private readonly IFileManager _manager;
@@ -51,11 +52,11 @@ namespace TextSplit
 
         private void _view_TextSplitFormClosing(object sender, FormClosingEventArgs e)
         {            
-            _messageService.ShowTrace("Closing attempt", "catched", "Main - _view_TextSplitFormClosing");
+            _messageService.ShowTrace("Closing attempt", "catched", "Main - _view_TextSplitFormClosing", showLevel);
             //var formArgs = (FormClosingEventArgs)e;
             e.Cancel = wasEnglishContentChange;
             //_view.WasEnglishContentChange = wasEnglishContentChange;
-            _messageService.ShowTrace("wasEnglishContentChange", wasEnglishContentChange.ToString(), "Main - _view_TextSplitFormClosing");            
+            _messageService.ShowTrace("wasEnglishContentChange", wasEnglishContentChange.ToString(), "Main - _view_TextSplitFormClosing", showLevel);            
         }
 
         private void _view_FilesSaveClick(object sender, EventArgs e)
@@ -66,7 +67,7 @@ namespace TextSplit
                 //_manager.SaveContent(content, _currentFilePath);
                 _messageService.ShowMessage("File saved sucessfully!");
                 wasEnglishContentChange = false;
-                _messageService.ShowTrace("wasEnglishContentChange", wasEnglishContentChange.ToString(), "Main - _view_FilesSaveClick");
+                _messageService.ShowTrace("wasEnglishContentChange", wasEnglishContentChange.ToString(), "Main - _view_FilesSaveClick", showLevel);
             }
             catch (Exception ex)
             {
@@ -77,12 +78,10 @@ namespace TextSplit
         private void _view_FilesOpenClick(object sender, EventArgs e)
         {
             try
-            {
-                MessageBox.Show("_view_FilesOpenClick started now", "Main", MessageBoxButtons.OK, MessageBoxIcon.Information);                
-                filesPath = new string[] {"filesPath-0", "filesPath-1", "filesPath-2"};//Testing of array delivery to Form
-                MessageBox.Show(filesPath[0], "Main-_view_FilesOpenClick - FilePath[0]", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                MessageBox.Show(filesPath[1], "Main-_view_FilesOpenClick - FilePath[2]", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                MessageBox.Show(filesPath[2], "Main-_view_FilesOpenClick - FilePath[1]", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            {                
+                _messageService.ShowTrace("_view_FilesOpenClick", "started now", "Main", showLevel);
+                filesPath = new string[] {"XXX-0", "XXX-1", "XXX-2"};//Testing of array delivery to Form
+                _messageService.ShowTrace("filesPath", filesPath, "Main!!!!!!!!!!!!!!!", showLevel);                
                 _view.ManageFilesContent(filesPath, filesContent, filesToDo);
                 int[] counts = new int[filesQuantity];
                 wasEnglishContentChange = false;
@@ -92,7 +91,7 @@ namespace TextSplit
 
                 for (int i = 0; i < filesQuantity; i++)
                 { 
-                    _messageService.ShowTrace("Received filePath", filesPath[i], "Main-_view_FilesOpenClick"); //traced
+                    _messageService.ShowTrace("Received filePath", filesPath[i], "Main-_view_FilesOpenClick", showLevel); //traced
 
                 if (!isFilesExist[i])
                     {                        
@@ -114,7 +113,7 @@ namespace TextSplit
         {
             //string[] contents = _view.FilesContent;                        
             //int[] counts = _manager.GetSymbolCounts(contents);
-            _messageService.ShowTrace("wasEnglishContentChange", wasEnglishContentChange.ToString(), "Main - EnglishContentWasChanged");
+            _messageService.ShowTrace("wasEnglishContentChange", wasEnglishContentChange.ToString(), "Main - EnglishContentWasChanged", showLevel);
             //_view.SetSymbolCount(counts, _view.FilesToDo);
             wasEnglishContentChange = true;//we need also the array here
         }
