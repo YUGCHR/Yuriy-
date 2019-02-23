@@ -9,6 +9,7 @@ namespace TextSplit
     class Declaration
     {
         public const int LanguagesQuantity = 3;
+        public const int ShowMessagesLevel = -3;//0 - no messages, 1 - Trace messages, 2 - Value messages, -1 - Print mesaages...
     }
 }
 

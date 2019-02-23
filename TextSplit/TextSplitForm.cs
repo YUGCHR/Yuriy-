@@ -6,6 +6,8 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
+using System.Reflection;
 using TextSplitLibrary;
 using System.Windows.Forms;
 
@@ -14,14 +16,10 @@ namespace TextSplit
 {
     public interface ITextSplitForm
     {
-        //string[] FilesPath { get; set; }
-        //string[] FilesContent { get; set; }        
-        //int[] FilesToDo { get; set; }
-        //int FilesQuantity { get; set; }
         void ManageFilesContent(string[] filesPath, string[] filesContent, int[] filesToDo);
         void SetSymbolCount(int[] counts, int[] filesToDo);
           
-        event EventHandler FilesOpenClick;
+        event EventHandler FormOpenClick;
         event EventHandler FilesSaveClick;
         event EventHandler EnglishContentChanged;
         
@@ -37,12 +35,13 @@ namespace TextSplit
         public int[] FilesToDo { get; set; }
         public int[] counts;
         public Label[] lblSymbolsCount;        
-        public int filesQuantity = Declaration.LanguagesQuantity;        
+        public int filesQuantity = Declaration.LanguagesQuantity;
+        public int showMessagesLevel = Declaration.ShowMessagesLevel;
 
         public TextSplitForm(IMessageService service, ITextSplitOpenForm open)
         {
             _messageService = service;
-            MessageBox.Show("Form Class Constructor Started", "Form in progress", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " Started", CurrentClassName, showMessagesLevel);            
             InitializeComponent();
 
             //_open = open;
@@ -72,29 +71,29 @@ namespace TextSplit
             messageBoxCS.AppendLine();
             messageBoxCS.AppendFormat("{0} = {1}", "Cancel", e.Cancel);
             messageBoxCS.AppendLine();
-            MessageBox.Show(messageBoxCS.ToString(), "FormClosing Event");
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " messageBoxCS = ", messageBoxCS.ToString(), CurrentClassName, showMessagesLevel);            
         }
 
         private void _open_TextSplitOpenFormClosing(object sender, FormClosingEventArgs e)
-        {
-            MessageBox.Show("after TextSplitOpenFormClosing", "TextSplitForm", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        {            
+            _messageService.ShowTrace("after TextSplitOpenFormClosing ", "(Closed)", CurrentClassName, showMessagesLevel);
             //e.Cancel = wasEnglishContentChange;
         }
 
         void butOpenFiles_Click(object sender, EventArgs e)//обрабатываем нажатие кнопки Open, которое означает открытие вспомогательной формы
         {
-            _messageService.ShowTrace("butOpenFiles_Click - ", "Started", "Forms.butOpenFiles_Click", 1); //traced
-            _messageService.ShowTrace("FilesOpenClick - ", "Called", "Forms.butOpenFiles_Click", 1); //traced
-            
-            if (FilesOpenClick != null) FilesOpenClick(this, EventArgs.Empty);//Received 3 arrays from Main
-            MessageBox.Show("FilesOpenClick - Finished", "Forms.butOpenFiles_Click", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " Started", CurrentClassName, showMessagesLevel);
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " FilesOpenClick Called", CurrentClassName, showMessagesLevel);            
+            if (FormOpenClick != null) FormOpenClick(this, EventArgs.Empty);//Received 3 arrays from Main            
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "FilesOpenClick Finished", CurrentClassName, showMessagesLevel);
+
             TextSplitOpenForm openForm = new TextSplitOpenForm(_messageService);
-            MessageBox.Show("openForm new is on, .Show will start now", "Forms.butOpenFiles_Click", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            MessageBox.Show(FilesPath[0], " - FilePath[0] form", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            MessageBox.Show(FilesPath[1], " - FilePath[2] form", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            MessageBox.Show(FilesPath[2], " - FilePath[1] form", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "openForm will start now", CurrentClassName, showMessagesLevel);
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesPath array - ", FilesPath, CurrentClassName, showMessagesLevel);
+            
             openForm.Show();
-            MessageBox.Show("after openForm.Show now", "openForm.Show", MessageBoxButtons.OK, MessageBoxIcon.Information);            
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "after openForm.Show", CurrentClassName, showMessagesLevel);            
         }
 
         private void butSaveFiles_Click(object sender, EventArgs e)
@@ -116,9 +115,9 @@ namespace TextSplit
         //}
         public void ManageFilesContent(string[] filesPath, string[] filesContent, int[] filesToDo)
         {
-            _messageService.ShowTrace("Received filePath", filesPath[0], "Form-ManageFilesContent", 1); //traced
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " Received filesPath - ", filesPath, CurrentClassName, showMessagesLevel); //traced
             FilesPath = filesPath;
-            _messageService.ShowTrace("FilePath set", FilesPath[0], "Form-ManageFilesContent", 1); //traced
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilePath set - ", FilesPath, CurrentClassName, showMessagesLevel); //traced
             FilesContent = filesContent;
             FilesToDo = filesToDo;
         }
@@ -128,14 +127,14 @@ namespace TextSplit
             for (int i = 0; i < filesQuantity; i++)
             {
                 if (filesToDo[i] != 0)
-                {
-                    MessageBox.Show(count[i].ToString(), "SetSymbolCount", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                {                    
+                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), count[i].ToString(), CurrentClassName, showMessagesLevel);
                     lblSymbolsCount[i].Text = count[i].ToString();
                 }                
             }            
         }
         
-        public event EventHandler FilesOpenClick;
+        public event EventHandler FormOpenClick;
         public event EventHandler FilesSaveClick;
         public event EventHandler EnglishContentChanged;
         //public event EventHandler TextSplitFormClosing;
@@ -165,5 +164,10 @@ namespace TextSplit
                 fldEnglishContent.Font = new Font("Calibri", (float)numFont.Value);
             }
         }
+
+        public static string CurrentClassName
+        {
+            get { return MethodBase.GetCurrentMethod().DeclaringType.Name; }
+        }        
     }
 }

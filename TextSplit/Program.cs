@@ -19,15 +19,14 @@ namespace TextSplit
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            MessageService service = new MessageService();
+            FileManager manager = new FileManager(Declaration.LanguagesQuantity);
+            MessageService service = new MessageService(manager);
             TextSplitOpenForm open = new TextSplitOpenForm(service);
             TextSplitForm form = new TextSplitForm(service, open);            
-            FileManager manager = new FileManager(service, Declaration.LanguagesQuantity);
             MessageBox.Show("All Modules Declared", "Program in progress", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            MainPresentor presentor = new MainPresentor(form, open, manager, service);
+            MainPresentor presentor = new MainPresentor(form, open, manager, service);            
             MessageBox.Show("Main Called", "Program in progress", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            Application.Run(form);
-            MessageBox.Show("Run Form Started", "Program in progress", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            Application.Run(form);            
         }
     }
 }

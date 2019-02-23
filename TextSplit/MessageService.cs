@@ -7,9 +7,16 @@ using System.Windows.Forms;
 using TextSplitLibrary;
 
 namespace TextSplit
-{    
-    public class MessageService: IMessageService
+{
+    public class MessageService : IMessageService
     {
+        private readonly IFileManager _manager;
+
+        public MessageService(IFileManager manager)
+        {
+            _manager = manager;
+        }
+            
         public void ShowMessage(string message)
         {
             MessageBox.Show(message, "Message", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -27,29 +34,44 @@ namespace TextSplit
 
         public void ShowTrace(string tracePointName, string tracePointValue, string tracePointPlace, int showLevel)
         {            
-            if (showLevel > 0)
-            {
-                string[] tracePointArray = { tracePointName, tracePointValue };
-                string tracePointMessage = String.Join(" - \r\n ", tracePointArray);
-                MessageBox.Show(tracePointMessage, tracePointPlace, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            if (showLevel != 0)
+            {                
+                if (showLevel > 0)
+                {
+                    string[] tracePointArray = { tracePointName, tracePointValue };
+                    string tracePointMessage = String.Join(" - \r\n ", tracePointArray);
+                    MessageBox.Show(tracePointMessage, tracePointPlace, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
+                {                    
+                    //MessageBox.Show(tracePointMessage, tracePointPlace, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    _manager.AppendContent(tracePointName, tracePointValue, tracePointPlace);
+                }
             }
             
         }
 
         public void ShowTrace(string tracePointName, string[] tracePointValue, string tracePointPlace, int showLevel)
         {
-            int ii = tracePointValue.Length;            
-            string tracePointMessage = "";
-            if (showLevel > 1)
+            if (showLevel != 0)
             {
-                for (int i = 0; i < ii; i++)
+                int ii = tracePointValue.Length;
+                string tracePointMessage = "";
+                if (showLevel > 1)
                 {
-                    string[] tracePointArray = { tracePointMessage, tracePointValue[i] };                    
-                    tracePointMessage = String.Join("\r\n", tracePointArray);                    
+                    for (int i = 0; i < ii; i++)
+                    {
+                        string[] tracePointArray = { tracePointMessage, tracePointValue[i] };
+                        tracePointMessage = String.Join("\r\n", tracePointArray);
+                    }
+                    ShowTrace(tracePointName, tracePointMessage, tracePointPlace, showLevel);
                 }
-                ShowTrace(tracePointName, tracePointMessage, tracePointPlace, showLevel);                
-            }
+                else
+                {
+                    _manager.AppendContent(tracePointName, tracePointValue, tracePointPlace);
+                }
 
+            }
         }
     }
 }

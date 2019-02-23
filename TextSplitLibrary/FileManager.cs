@@ -19,26 +19,69 @@ namespace TextSplitLibrary
         int GetSymbolCounts(string[] FilesContent, int i);
         bool[] IsFilesExist(string[] FilesPath);
         int[] FilesToDo { get; set; }
-        
+        void AppendContent(string tracePointName, string tracePointValue, string tracePointPlace);
+        void AppendContent(string tracePointName, string tracePointValue, string tracePointPlace, Encoding encoding);
+        void AppendContent(string tracePointName, string[] tracePointValue, string tracePointPlace);
+        void AppendContent(string tracePointName, string[] tracePointValue, string tracePointPlace, Encoding encoding);
     }
     public class FileManager : IFileManager
     {
-        private readonly IMessageService _messageService;        
+        //private readonly IMessageService _messageService;        
 
         public int[] FilesToDo { get; set; }        
         private readonly Encoding _defaultEncoding = Encoding.GetEncoding(1251);
         public string[] FilesPath;
         public string[] FilesContent;        
-        private readonly int filesQuantity;//Declaration.LanguagesQuantity;
+        private readonly int filesQuantity;//Declaration.LanguagesQuantity;        
+        private string logFilePathName;
+        private bool isLogFileExist;
+        private string addZeros;
+        string logFilePath = Directory.GetCurrentDirectory();//Will check log-file existing        
 
-        public FileManager(IMessageService service, int filesQuantity)
+        public FileManager(int filesQuantity)//IMessageService service
         {
-            _messageService = service;
+            //_messageService = service;
             this.filesQuantity = filesQuantity;            
-            _messageService.ShowTrace("filesQuantity - ", filesQuantity.ToString(),"FileManager", 1);
+            //_messageService.ShowTrace("filesQuantity - ", filesQuantity.ToString(),"FileManager", 1);
             FilesPath = new string[filesQuantity];
             FilesContent = new string[filesQuantity];
-            FilesToDo = new int[filesQuantity];           
+            FilesToDo = new int[filesQuantity];
+            string[] logFilePathandName = { logFilePath, "log.txt" };
+            logFilePathName = String.Join("\\", logFilePathandName);
+            isLogFileExist = File.Exists(logFilePathName);
+
+            if (!isLogFileExist)
+            {                
+                File.AppendAllText(logFilePathName, "0000 LogFile Created \r\n", _defaultEncoding);
+            }
+            else
+            {                
+                StreamReader logFileNameNumber = new StreamReader(logFilePathName, _defaultEncoding);
+                Console.WriteLine($"logFileNameNumber = {logFileNameNumber}");
+                string fisrtFileLine = logFileNameNumber.ReadLine();
+                Console.WriteLine($"fisrtFileLine = {fisrtFileLine}");
+                string logFileNameNumber4 = fisrtFileLine.Remove(4);
+                Console.WriteLine($"logFileNameNumber4 = {logFileNameNumber4}");
+                int logFileNameNumberInt = Convert.ToInt32(logFileNameNumber4);
+                Console.WriteLine($"logFileNameNumberInt = {logFileNameNumberInt}");
+                logFileNameNumberInt++;                
+                if (logFileNameNumberInt < 10) addZeros = "000";                
+                else if (logFileNameNumberInt < 100) addZeros = "00";
+                else if (logFileNameNumberInt < 1000) addZeros = "0";
+                else return;
+                Console.WriteLine($"logFileNameNumberInt = {logFileNameNumberInt}");
+                string nextFileLine = Convert.ToString(logFileNameNumberInt);
+                Console.WriteLine($"nextFileLine = {nextFileLine}");
+                string nextFileName = "log" + addZeros + nextFileLine + ".txt";
+                Console.WriteLine($"nextFileName = {nextFileName}");
+                string[] nextFilePathandName = { logFilePath, nextFileName };
+                string nextLogFilePathName = String.Join("\\", nextFilePathandName);
+                Console.WriteLine($"nextLogFilePathName = {nextLogFilePathName}");
+                Console.Read();
+                File.AppendAllText(nextLogFilePathName, nextFileLine + " LogFile Created \r\n", _defaultEncoding);
+                logFilePathName = nextLogFilePathName;
+                Console.Read();
+            }
         }
         
 
@@ -115,6 +158,38 @@ namespace TextSplitLibrary
             return filesContent[i].Length;            
         }
 
+        #endregion
+        #region AppendContent
+        
+        public void AppendContent(string tracePointName, string tracePointValue, string tracePointPlace)
+        {
+            AppendContent(tracePointName, tracePointValue, tracePointPlace, _defaultEncoding);
+        }
+
+        public void AppendContent(string tracePointName, string tracePointValue, string tracePointPlace, Encoding encoding)
+        {
+            string[] traceMessage = { "\r\n tracePointPlace - ", tracePointPlace, "\r\n ----------------- tracePointName - ", tracePointName, tracePointValue };
+            string fileLineAppend = String.Join(" ", traceMessage);            
+            File.AppendAllText(logFilePathName, fileLineAppend, encoding);
+        }
+
+        public void AppendContent(string tracePointName, string[] tracePointValue, string tracePointPlace)
+        {
+            AppendContent(tracePointName, tracePointValue, tracePointPlace, _defaultEncoding);
+        }
+
+        public void AppendContent(string tracePointName, string[] tracePointValue, string tracePointPlace, Encoding encoding)
+        {            
+            string tracePointValues = String.Join(" *** ", tracePointValue);
+
+            string[] traceMessage = { "\r\n tracePointPlace - ", tracePointPlace, "\r\n --- tracePointName - ", tracePointName, "\r\n" };
+            string fileLineAppend = String.Join("", traceMessage);
+            File.AppendAllText(logFilePathName, fileLineAppend, encoding);
+
+            traceMessage = new string[] { "", tracePointValues };
+            fileLineAppend = String.Join(" ", traceMessage);            
+            File.AppendAllText(logFilePathName, fileLineAppend, encoding);
+        }
         #endregion
     }
 }
