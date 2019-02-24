@@ -24,10 +24,10 @@ namespace TextSplit
     public partial class TextSplitOpenForm : Form, ITextSplitOpenForm
     {
         private readonly IMessageService _messageService;
-        public string[] FilesPath { get; set; }
+        public string[] FilesPath;// { get; set; }
         public string[] FilesContent { get; set; }
         public int[] FilesToDo { get; set; }
-
+       
         private int filesQuantity;
         private int showMessagesLevel;
 
@@ -41,8 +41,8 @@ namespace TextSplit
             filesQuantity = Declaration.LanguagesQuantity;
             showMessagesLevel = Declaration.ShowMessagesLevel;
 
-            InitializeComponent();            
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "InitializeComponent", CurrentClassName, showMessagesLevel);
+            InitializeComponent();
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "InitializeComponent", CurrentClassName, 3);// showMessagesLevel);
 
             FilesToDo = new int[filesQuantity];
             FilesPath = new string[filesQuantity];
@@ -53,6 +53,15 @@ namespace TextSplit
             butSelectRussianFile.Click += ButSelectRussianFile_Click;
             butSelectResultFile.Click += ButSelectResultFile_Click;
             FormClosing += TextSplitOpenForm_FormClosing;            
+        }
+
+        public string[] GetFilesPath()
+        {
+            FilesPath[0] = fldEnglishFilePath.Text;
+            FilesPath[1] = fldRussianFilePath.Text;
+            FilesPath[2] = fldResultFilePath.Text;
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesPath[] = ", FilesPath, CurrentClassName, showMessagesLevel);
+            return FilesPath;
         }
 
         private void TextSplitOpenForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -78,20 +87,14 @@ namespace TextSplit
             FilesPath[2] = fldResultFilePath.Text;
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesPath[] = ", FilesPath, CurrentClassName, 3);//showMessagesLevel);
             
-            //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesOpenClick = ", AllOpenFilesClick.ToString(), CurrentClassName, 3);//showMessagesLevel);
-            //if (AllOpenFilesClick != null) 
-            AllOpenFilesClick(this, EventArgs.Empty);
-            //this.Close();            
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesOpenClick = ", AllOpenFilesClick.ToString(), CurrentClassName, 3);//showMessagesLevel);
+            if (AllOpenFilesClick != null) AllOpenFilesClick(this, EventArgs.Empty);
+            this.Close();            
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "taki.Closed", CurrentClassName, showMessagesLevel);
             //this.parentForm.FilePath[1] = fldRussianFilePath.Text;
             //this.parentForm.FilePath[2] = fldResultFilePath.Text;
         }
-
-        public string[] GetFilesPath()
-        {
-            return FilesPath;
-        }
-
+        
         //public void FormOpenClick()
         //{
 

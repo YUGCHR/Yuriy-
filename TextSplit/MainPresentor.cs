@@ -12,7 +12,7 @@ namespace TextSplit
     public class MainPresentor
     {        
         private readonly ITextSplitForm _view;
-        private readonly ITextSplitOpenForm _open;
+        private ITextSplitOpenForm _open;
         private readonly IFileManager _manager;
         private readonly IMessageService _messageService;
 
@@ -31,7 +31,7 @@ namespace TextSplit
         public MainPresentor(ITextSplitForm view, ITextSplitOpenForm open, IFileManager manager, IMessageService service)
         {            
             _view = view;
-            _open = open;
+            _open = open;            
             _manager = manager;
             _messageService = service;
             
@@ -49,7 +49,7 @@ namespace TextSplit
             //_view.ManageFilesContent(filesPath, filesContent, filesToDo);//move?
 
             _view.OpenTextSplitOpenForm += new EventHandler(_view_OpenTextSplitOpenForm);
-            _open.AllOpenFilesClick += new EventHandler(_open_FilesOpenClick);
+            //_open.AllOpenFilesClick += new EventHandler(_open_FilesOpenClick);            
             _view.EnglishContentChanged += new EventHandler (_view_EnglishContentChanged);            
             _view.FilesSaveClick += new EventHandler (_view_FilesSaveClick);            
             _view.TextSplitFormClosing += new EventHandler<FormClosingEventArgs>(_view_TextSplitFormClosing);
@@ -66,10 +66,12 @@ namespace TextSplit
         }
 
         void _view_OpenTextSplitOpenForm(object sender, EventArgs e)//обрабатываем нажатие кнопки Open, которое означает открытие вспомогательной формы
-        {            
+        {
             TextSplitOpenForm openForm = new TextSplitOpenForm(_messageService);
+            _open = openForm;
+            _open.AllOpenFilesClick += new EventHandler(_open_FilesOpenClick);
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "openForm will start now", CurrentClassName, showMessagesLevel);
-            openForm.Show();            
+            openForm.Show();
         }
 
         private void _view_FilesSaveClick(object sender, EventArgs e)
