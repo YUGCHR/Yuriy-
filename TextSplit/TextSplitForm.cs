@@ -21,6 +21,7 @@ namespace TextSplit
           
         //event EventHandler FormOpenClick;
         event EventHandler FilesSaveClick;
+        event EventHandler OpenTextSplitOpenForm;
         event EventHandler EnglishContentChanged;
         
         event EventHandler <FormClosingEventArgs> TextSplitFormClosing;
@@ -40,12 +41,13 @@ namespace TextSplit
 
         //public event EventHandler FormOpenClick;
         public event EventHandler FilesSaveClick;
+        public event EventHandler OpenTextSplitOpenForm;
         public event EventHandler EnglishContentChanged;
         //public event EventHandler TextSplitFormClosing;
         public event EventHandler<FormClosingEventArgs> TextSplitFormClosing;
         //public event EventHandler <FormClosingEventArgs> TextSplitOpenFormClosing;
 
-        public TextSplitForm(IMessageService service, ITextSplitOpenForm open)
+        public TextSplitForm(IMessageService service)
         {
             _messageService = service;
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " Started", CurrentClassName, showMessagesLevel);            
@@ -92,15 +94,8 @@ namespace TextSplit
             //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " Started", CurrentClassName, showMessagesLevel);
             //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " FormOpenClick Called", CurrentClassName, showMessagesLevel);            
             //if (FormOpenClick != null) FormOpenClick(this, EventArgs.Empty);//Received 3 arrays from Main            
-            //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "FormOpenClick Finished", CurrentClassName, showMessagesLevel);
-
-            TextSplitOpenForm openForm = new TextSplitOpenForm(_messageService);
-
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "openForm will start now", CurrentClassName, showMessagesLevel);
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesPath array - ", FilesPath, CurrentClassName, showMessagesLevel);
-            
-            openForm.Show();
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "after openForm.Show", CurrentClassName, showMessagesLevel);            
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " OpenTextSplitOpenForm will call now - " + OpenTextSplitOpenForm.ToString(), CurrentClassName, 3);// showMessagesLevel);
+            if (OpenTextSplitOpenForm != null) OpenTextSplitOpenForm(this, EventArgs.Empty);                      
         }
 
         private void butSaveFiles_Click(object sender, EventArgs e)

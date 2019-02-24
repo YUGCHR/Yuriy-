@@ -48,9 +48,9 @@ namespace TextSplit
             filesContent = new string[filesQuantity];
             //_view.ManageFilesContent(filesPath, filesContent, filesToDo);//move?
 
+            _view.OpenTextSplitOpenForm += new EventHandler(_view_OpenTextSplitOpenForm);
             _open.AllOpenFilesClick += new EventHandler(_open_FilesOpenClick);
-            _view.EnglishContentChanged += new EventHandler (_view_EnglishContentChanged);
-            
+            _view.EnglishContentChanged += new EventHandler (_view_EnglishContentChanged);            
             _view.FilesSaveClick += new EventHandler (_view_FilesSaveClick);            
             _view.TextSplitFormClosing += new EventHandler<FormClosingEventArgs>(_view_TextSplitFormClosing);
             
@@ -63,6 +63,13 @@ namespace TextSplit
             e.Cancel = wasEnglishContentChange;
             //_view.WasEnglishContentChange = wasEnglishContentChange;
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " wasEnglishContentChange = ", wasEnglishContentChange.ToString(), CurrentClassName, showMessagesLevel);            
+        }
+
+        void _view_OpenTextSplitOpenForm(object sender, EventArgs e)//обрабатываем нажатие кнопки Open, которое означает открытие вспомогательной формы
+        {            
+            TextSplitOpenForm openForm = new TextSplitOpenForm(_messageService);
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "openForm will start now", CurrentClassName, showMessagesLevel);
+            openForm.Show();            
         }
 
         private void _view_FilesSaveClick(object sender, EventArgs e)

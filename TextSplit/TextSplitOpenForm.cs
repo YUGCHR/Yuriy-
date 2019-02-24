@@ -77,8 +77,10 @@ namespace TextSplit
             FilesPath[1] = fldRussianFilePath.Text;            
             FilesPath[2] = fldResultFilePath.Text;
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesPath[] = ", FilesPath, CurrentClassName, 3);//showMessagesLevel);
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesOpenClick = ", AllOpenFilesClick.ToString(), CurrentClassName, 3);//showMessagesLevel);
-            if (AllOpenFilesClick != null) AllOpenFilesClick(this, EventArgs.Empty);
+            
+            //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesOpenClick = ", AllOpenFilesClick.ToString(), CurrentClassName, 3);//showMessagesLevel);
+            //if (AllOpenFilesClick != null) 
+            AllOpenFilesClick(this, EventArgs.Empty);
             //this.Close();            
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "taki.Closed", CurrentClassName, showMessagesLevel);
             //this.parentForm.FilePath[1] = fldRussianFilePath.Text;
