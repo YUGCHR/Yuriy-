@@ -94,13 +94,13 @@ namespace TextSplit
             //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " Started", CurrentClassName, showMessagesLevel);
             //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " FormOpenClick Called", CurrentClassName, showMessagesLevel);            
             //if (FormOpenClick != null) FormOpenClick(this, EventArgs.Empty);//Received 3 arrays from Main            
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " OpenTextSplitOpenForm will call now - " + OpenTextSplitOpenForm.ToString(), CurrentClassName, 3);// showMessagesLevel);
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " OpenTextSplitOpenForm will call now - " + OpenTextSplitOpenForm.ToString(), CurrentClassName, showMessagesLevel);
             if (OpenTextSplitOpenForm != null) OpenTextSplitOpenForm(this, EventArgs.Empty);                      
         }
 
         private void butSaveFiles_Click(object sender, EventArgs e)
         {
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesSaveClick = ", FilesSaveClick.ToString(), CurrentClassName, 3);//showMessagesLevel);
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesSaveClick = ", FilesSaveClick.ToString(), CurrentClassName, showMessagesLevel);
             if (FilesSaveClick != null) FilesSaveClick(this, EventArgs.Empty);
         }
 
@@ -118,9 +118,9 @@ namespace TextSplit
         //}
         public void ManageFilesContent(string[] filesPath, string[] filesContent, int[] filesToDo)
         {
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " Received filesPath - ", filesPath, CurrentClassName, showMessagesLevel); //traced
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " Received filesPath - ", filesPath, CurrentClassName, showMessagesLevel);
             FilesPath = filesPath;
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilePath set - ", FilesPath, CurrentClassName, showMessagesLevel); //traced
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilePath set - ", FilesPath, CurrentClassName, showMessagesLevel);
             FilesContent = filesContent;
             FilesToDo = filesToDo;
         }

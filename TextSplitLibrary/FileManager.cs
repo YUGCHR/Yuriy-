@@ -152,7 +152,15 @@ namespace TextSplitLibrary
         }
 
         public void AppendContent(string tracePointName, string[] tracePointValue, string tracePointPlace, Encoding encoding)
-        {            
+        {
+            int ii = tracePointValue.Length;            
+
+            for (int i = 0; i < ii; i++)
+            {
+                string tracePointValueCut = tracePointValue[i].Remove(32);
+                tracePointValue[i] = tracePointValueCut;
+            }
+            
             string tracePointValues = String.Join(" *** ", tracePointValue);
 
             string[] traceMessage = { "\r\n tracePointPlace - ", tracePointPlace, "\r\n --- tracePointName - ", tracePointName, "\r\n" };

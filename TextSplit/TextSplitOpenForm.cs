@@ -42,7 +42,7 @@ namespace TextSplit
             showMessagesLevel = Declaration.ShowMessagesLevel;
 
             InitializeComponent();
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "InitializeComponent", CurrentClassName, 3);// showMessagesLevel);
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "InitializeComponent", CurrentClassName, showMessagesLevel);
 
             FilesToDo = new int[filesQuantity];
             FilesPath = new string[filesQuantity];
@@ -80,14 +80,14 @@ namespace TextSplit
 
         void butAllFilesOpen_Click(object sender, EventArgs e)
         {            
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Start", CurrentClassName, 3);//showMessagesLevel);       
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Start", CurrentClassName, showMessagesLevel);       
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " fldEnglishFilePath = ", fldEnglishFilePath.Text, CurrentClassName, showMessagesLevel);
             FilesPath[0] = fldEnglishFilePath.Text;            
             FilesPath[1] = fldRussianFilePath.Text;            
             FilesPath[2] = fldResultFilePath.Text;
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesPath[] = ", FilesPath, CurrentClassName, 3);//showMessagesLevel);
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesPath[] = ", FilesPath, CurrentClassName, showMessagesLevel);
             
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesOpenClick = ", AllOpenFilesClick.ToString(), CurrentClassName, 3);//showMessagesLevel);
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesOpenClick = ", AllOpenFilesClick.ToString(), CurrentClassName, showMessagesLevel);
             if (AllOpenFilesClick != null) AllOpenFilesClick(this, EventArgs.Empty);
             this.Close();            
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "taki.Closed", CurrentClassName, showMessagesLevel);

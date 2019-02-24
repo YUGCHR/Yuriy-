@@ -52,8 +52,7 @@ namespace TextSplit
             //_open.AllOpenFilesClick += new EventHandler(_open_FilesOpenClick);            
             _view.EnglishContentChanged += new EventHandler (_view_EnglishContentChanged);            
             _view.FilesSaveClick += new EventHandler (_view_FilesSaveClick);            
-            _view.TextSplitFormClosing += new EventHandler<FormClosingEventArgs>(_view_TextSplitFormClosing);
-            
+            _view.TextSplitFormClosing += new EventHandler<FormClosingEventArgs>(_view_TextSplitFormClosing);            
         }
 
         private void _view_TextSplitFormClosing(object sender, FormClosingEventArgs e)
@@ -95,26 +94,39 @@ namespace TextSplit
         {
             try
             {
-                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Start", CurrentClassName, 3);//showMessagesLevel);
-                //filesPath = new string[] { "(Path-0)", "(Path-1)", "(Path-2)" };//Testing of array delivery to Form                
+                //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Start", CurrentClassName, 3);//showMessagesLevel);                
                 filesPath = _open.GetFilesPath();
-                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " filesPath value = ", filesPath, CurrentClassName, 3);//showMessagesLevel);
+                //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " filesPath value = ", filesPath, CurrentClassName, 3);//showMessagesLevel);
                 int[] counts = new int[filesQuantity];
                 wasEnglishContentChange = false;
                 bool[] isFilesExist = new bool[filesQuantity];
                 isFilesExist = _manager.IsFilesExist(filesPath);
-                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " Received filePath = ", filesPath, CurrentClassName, showMessagesLevel);
+                
                 for (int i = 0; i < filesQuantity; i++)
                 {
-                    if (!isFilesExist[i])
-                    {                        
-                        _messageService.ShowExclamation("Selected file does not exist!");
-                        return;
+                    //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " isFilesExist[i] = ", isFilesExist[i].ToString(), CurrentClassName, 3);// showMessagesLevel);
+
+                    if (isFilesExist[i])
+                    {
+                        filesToDo[i] = 1;
+                        //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " filesToDo[i] = ", filesToDo[i].ToString(), CurrentClassName, 3);// showMessagesLevel);
+                    } 
+                    else
+                    {
+                        filesToDo[i] = 0;
+                        //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " ELSE filesToDo[i] = ", filesToDo[i].ToString(), CurrentClassName, 3);// showMessagesLevel);
+                        if (i<2) _messageService.ShowExclamation("Selected file does not exist!");//If the result file is not exist we need to create it here!
                     }
-                    //counts = _manager.GetSymbolCounts(_manager.GetContents(_view.FilesPath, _view.FilesToDo));
-                    //_view.SetSymbolCount(counts, filesToDo);
-                    //_view.FilesContent = _manager.GetContents(_view.FilesPath, _view.FilesToDo);
                 }
+
+                filesContent = _manager.GetContents(filesPath, filesToDo);
+                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " filesContent[] value = ", filesContent, CurrentClassName, 3);//showMessagesLevel);
+
+                //counts = _manager.GetSymbolCounts(_manager.GetContents(filesPath, filesToDo));
+
+                //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " counts[] value = ", counts.ToString(), CurrentClassName, 3);//showMessagesLevel);
+                _view.SetSymbolCount(counts, filesToDo);
+                
             }            
             catch (Exception ex)
             {
