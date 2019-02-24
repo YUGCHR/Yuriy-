@@ -15,18 +15,18 @@ namespace TextSplit
         [STAThread]
         static void Main()
         {            
-            MessageBox.Show("static void Main started", "Program in progress", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            //MessageBox.Show("static void Main started", "Program in progress", MessageBoxButtons.OK, MessageBoxIcon.Information);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
             FileManager manager = new FileManager(Declaration.LanguagesQuantity);
             MessageService service = new MessageService(manager);
             TextSplitOpenForm open = new TextSplitOpenForm(service);
-            TextSplitForm form = new TextSplitForm(service, open);            
-            MessageBox.Show("All Modules Declared", "Program in progress", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            MainPresentor presentor = new MainPresentor(form, open, manager, service);            
+            TextSplitForm view = new TextSplitForm(service, open);            
+            //MessageBox.Show("All Modules Declared", "Program in progress", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MainPresentor presentor = new MainPresentor(view, open, manager, service);            
             MessageBox.Show("Main Called", "Program in progress", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            Application.Run(form);            
+            Application.Run(view);            
         }
     }
 }

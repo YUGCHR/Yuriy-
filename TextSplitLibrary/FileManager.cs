@@ -52,36 +52,9 @@ namespace TextSplitLibrary
 
             if (!isLogFileExist)
             {                
-                File.AppendAllText(logFilePathName, "0000 LogFile Created \r\n", _defaultEncoding);
+                File.AppendAllText(logFilePathName, "LogFile Created \r\n", _defaultEncoding);
             }
-            else
-            {                
-                StreamReader logFileNameNumber = new StreamReader(logFilePathName, _defaultEncoding);
-                Console.WriteLine($"logFileNameNumber = {logFileNameNumber}");
-                string fisrtFileLine = logFileNameNumber.ReadLine();
-                Console.WriteLine($"fisrtFileLine = {fisrtFileLine}");
-                string logFileNameNumber4 = fisrtFileLine.Remove(4);
-                Console.WriteLine($"logFileNameNumber4 = {logFileNameNumber4}");
-                int logFileNameNumberInt = Convert.ToInt32(logFileNameNumber4);
-                Console.WriteLine($"logFileNameNumberInt = {logFileNameNumberInt}");
-                logFileNameNumberInt++;                
-                if (logFileNameNumberInt < 10) addZeros = "000";                
-                else if (logFileNameNumberInt < 100) addZeros = "00";
-                else if (logFileNameNumberInt < 1000) addZeros = "0";
-                else return;
-                Console.WriteLine($"logFileNameNumberInt = {logFileNameNumberInt}");
-                string nextFileLine = Convert.ToString(logFileNameNumberInt);
-                Console.WriteLine($"nextFileLine = {nextFileLine}");
-                string nextFileName = "log" + addZeros + nextFileLine + ".txt";
-                Console.WriteLine($"nextFileName = {nextFileName}");
-                string[] nextFilePathandName = { logFilePath, nextFileName };
-                string nextLogFilePathName = String.Join("\\", nextFilePathandName);
-                Console.WriteLine($"nextLogFilePathName = {nextLogFilePathName}");
-                Console.Read();
-                File.AppendAllText(nextLogFilePathName, nextFileLine + " LogFile Created \r\n", _defaultEncoding);
-                logFilePathName = nextLogFilePathName;
-                Console.Read();
-            }
+            
         }
         
 

@@ -16,10 +16,10 @@ namespace TextSplit
 {
     public interface ITextSplitForm
     {
-        void ManageFilesContent(string[] filesPath, string[] filesContent, int[] filesToDo);
+        //void ManageFilesContent(string[] filesPath, string[] filesContent, int[] filesToDo);
         void SetSymbolCount(int[] counts, int[] filesToDo);
           
-        event EventHandler FormOpenClick;
+        //event EventHandler FormOpenClick;
         event EventHandler FilesSaveClick;
         event EventHandler EnglishContentChanged;
         
@@ -38,6 +38,13 @@ namespace TextSplit
         public int filesQuantity = Declaration.LanguagesQuantity;
         public int showMessagesLevel = Declaration.ShowMessagesLevel;
 
+        //public event EventHandler FormOpenClick;
+        public event EventHandler FilesSaveClick;
+        public event EventHandler EnglishContentChanged;
+        //public event EventHandler TextSplitFormClosing;
+        public event EventHandler<FormClosingEventArgs> TextSplitFormClosing;
+        //public event EventHandler <FormClosingEventArgs> TextSplitOpenFormClosing;
+
         public TextSplitForm(IMessageService service, ITextSplitOpenForm open)
         {
             _messageService = service;
@@ -45,7 +52,7 @@ namespace TextSplit
             InitializeComponent();
 
             //_open = open;
-            butOpenFiles.Click += new EventHandler(butOpenFiles_Click);
+            butFilesOpen.Click += new EventHandler(butFilesOpen_Click);
             butSaveFiles.Click += butSaveFiles_Click;
             fldEnglishContent.TextChanged += fldEnglishContent_TextChanged;
             //butSelectEnglishFile.Click += butSelectEnglishFile_Click;
@@ -74,18 +81,18 @@ namespace TextSplit
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " messageBoxCS = ", messageBoxCS.ToString(), CurrentClassName, showMessagesLevel);            
         }
 
-        private void _open_TextSplitOpenFormClosing(object sender, FormClosingEventArgs e)
-        {            
-            _messageService.ShowTrace("after TextSplitOpenFormClosing ", "(Closed)", CurrentClassName, showMessagesLevel);
-            //e.Cancel = wasEnglishContentChange;
-        }
+        //private void _open_TextSplitOpenFormClosing(object sender, FormClosingEventArgs e)
+        //{            
+        //    _messageService.ShowTrace("after TextSplitOpenFormClosing ", "(Closed)", CurrentClassName, showMessagesLevel);
+        //    //e.Cancel = wasEnglishContentChange;
+        //}
 
-        void butOpenFiles_Click(object sender, EventArgs e)//обрабатываем нажатие кнопки Open, которое означает открытие вспомогательной формы
+        void butFilesOpen_Click(object sender, EventArgs e)//обрабатываем нажатие кнопки Open, которое означает открытие вспомогательной формы
         {
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " Started", CurrentClassName, showMessagesLevel);
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " FilesOpenClick Called", CurrentClassName, showMessagesLevel);            
-            if (FormOpenClick != null) FormOpenClick(this, EventArgs.Empty);//Received 3 arrays from Main            
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "FilesOpenClick Finished", CurrentClassName, showMessagesLevel);
+            //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " Started", CurrentClassName, showMessagesLevel);
+            //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " FormOpenClick Called", CurrentClassName, showMessagesLevel);            
+            //if (FormOpenClick != null) FormOpenClick(this, EventArgs.Empty);//Received 3 arrays from Main            
+            //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "FormOpenClick Finished", CurrentClassName, showMessagesLevel);
 
             TextSplitOpenForm openForm = new TextSplitOpenForm(_messageService);
 
@@ -98,6 +105,7 @@ namespace TextSplit
 
         private void butSaveFiles_Click(object sender, EventArgs e)
         {
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesSaveClick = ", FilesSaveClick.ToString(), CurrentClassName, 3);//showMessagesLevel);
             if (FilesSaveClick != null) FilesSaveClick(this, EventArgs.Empty);
         }
 
@@ -132,14 +140,7 @@ namespace TextSplit
                     lblSymbolsCount[i].Text = count[i].ToString();
                 }                
             }            
-        }
-        
-        public event EventHandler FormOpenClick;
-        public event EventHandler FilesSaveClick;
-        public event EventHandler EnglishContentChanged;
-        //public event EventHandler TextSplitFormClosing;
-        public event EventHandler <FormClosingEventArgs> TextSplitFormClosing;
-        //public event EventHandler <FormClosingEventArgs> TextSplitOpenFormClosing;
+        }        
         #endregion
 
         

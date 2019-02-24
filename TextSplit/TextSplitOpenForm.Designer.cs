@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.butOpenAllFiles = new System.Windows.Forms.Button();
+            this.butAllFilesOpen = new System.Windows.Forms.Button();
             this.butSelectEnglishFile = new System.Windows.Forms.Button();
             this.fldEnglishFilePath = new System.Windows.Forms.TextBox();
             this.butSelectRussianFile = new System.Windows.Forms.Button();
@@ -37,15 +37,15 @@
             this.fldResultFilePath = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
-            // butOpenAllFiles
+            // butAllFilesOpen
             // 
-            this.butOpenAllFiles.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.butOpenAllFiles.Location = new System.Drawing.Point(633, 90);
-            this.butOpenAllFiles.Name = "butOpenAllFiles";
-            this.butOpenAllFiles.Size = new System.Drawing.Size(185, 23);
-            this.butOpenAllFiles.TabIndex = 6;
-            this.butOpenAllFiles.Text = "Open All Files and Return";
-            this.butOpenAllFiles.UseVisualStyleBackColor = true;
+            this.butAllFilesOpen.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.butAllFilesOpen.Location = new System.Drawing.Point(633, 90);
+            this.butAllFilesOpen.Name = "butAllFilesOpen";
+            this.butAllFilesOpen.Size = new System.Drawing.Size(185, 23);
+            this.butAllFilesOpen.TabIndex = 6;
+            this.butAllFilesOpen.Text = "Open All Files";
+            this.butAllFilesOpen.UseVisualStyleBackColor = true;
             // 
             // butSelectEnglishFile
             // 
@@ -108,12 +108,12 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(830, 187);
+            this.ClientSize = new System.Drawing.Size(830, 139);
             this.Controls.Add(this.butSelectResultFile);
             this.Controls.Add(this.fldResultFilePath);
             this.Controls.Add(this.butSelectRussianFile);
             this.Controls.Add(this.fldRussianFilePath);
-            this.Controls.Add(this.butOpenAllFiles);
+            this.Controls.Add(this.butAllFilesOpen);
             this.Controls.Add(this.butSelectEnglishFile);
             this.Controls.Add(this.fldEnglishFilePath);
             this.Name = "TextSplitOpenForm";
@@ -130,6 +130,6 @@
         private System.Windows.Forms.TextBox fldRussianFilePath;
         private System.Windows.Forms.Button butSelectResultFile;
         private System.Windows.Forms.TextBox fldResultFilePath;
-        private System.Windows.Forms.Button butOpenAllFiles;
+        private System.Windows.Forms.Button butAllFilesOpen;
     }
 }

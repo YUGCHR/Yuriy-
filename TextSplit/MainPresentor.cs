@@ -37,18 +37,20 @@ namespace TextSplit
             
             showMessagesLevel = Declaration.ShowMessagesLevel;
             filesQuantity = Declaration.LanguagesQuantity;
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " Started", CurrentClassName, showMessagesLevel);
+            string mainStart = "******************************************************************************************************************************************* \r\n";
+            _messageService.ShowTrace(mainStart + MethodBase.GetCurrentMethod().ToString(), " Started", CurrentClassName, showMessagesLevel);
 
             filesToDo = new int[filesQuantity];
             counts = new int[filesQuantity];
             _view.SetSymbolCount(counts, filesToDo);//move?
 
             filesPath = new string[filesQuantity];
-            filesContent = new string[filesQuantity];            
-            _view.ManageFilesContent(filesPath, filesContent, filesToDo);//move?
+            filesContent = new string[filesQuantity];
+            //_view.ManageFilesContent(filesPath, filesContent, filesToDo);//move?
 
+            _open.AllOpenFilesClick += new EventHandler(_open_FilesOpenClick);
             _view.EnglishContentChanged += new EventHandler (_view_EnglishContentChanged);
-            _open.FilesOpenClick += new EventHandler (_view_FilesOpenClick);
+            
             _view.FilesSaveClick += new EventHandler (_view_FilesSaveClick);            
             _view.TextSplitFormClosing += new EventHandler<FormClosingEventArgs>(_view_TextSplitFormClosing);
             
@@ -65,6 +67,7 @@ namespace TextSplit
 
         private void _view_FilesSaveClick(object sender, EventArgs e)
         {
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Start", CurrentClassName, 3);//showMessagesLevel);
             try
             {
                 //string content = _view.FileContent;
@@ -79,14 +82,14 @@ namespace TextSplit
             }
         }
 
-        private void _view_FilesOpenClick(object sender, EventArgs e)
+        private void _open_FilesOpenClick(object sender, EventArgs e)
         {
             try
-            {                
-                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Start", CurrentClassName, showMessagesLevel);
+            {
+                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Start", CurrentClassName, 3);//showMessagesLevel);
                 //filesPath = new string[] { "(Path-0)", "(Path-1)", "(Path-2)" };//Testing of array delivery to Form                
                 filesPath = _open.GetFilesPath();
-                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " filesPath value = ", filesPath, CurrentClassName, showMessagesLevel);
+                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " filesPath value = ", filesPath, CurrentClassName, 3);//showMessagesLevel);
                 int[] counts = new int[filesQuantity];
                 wasEnglishContentChange = false;
                 bool[] isFilesExist = new bool[filesQuantity];

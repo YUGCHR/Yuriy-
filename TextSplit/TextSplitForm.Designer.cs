@@ -35,7 +35,7 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblSymbolCountOld = new System.Windows.Forms.ToolStripStatusLabel();
-            this.butOpenFiles = new System.Windows.Forms.Button();
+            this.butFilesOpen = new System.Windows.Forms.Button();
             this.butSelectEnglishFile = new System.Windows.Forms.Button();
             this.lblSymbolCount1 = new System.Windows.Forms.Label();
             this.lblSymbolCount2 = new System.Windows.Forms.Label();
@@ -126,20 +126,20 @@
             this.lblSymbolCountOld.Name = "lblSymbolCountOld";
             this.lblSymbolCountOld.Size = new System.Drawing.Size(0, 17);
             // 
-            // butOpenFiles
+            // butFilesOpen
             // 
-            this.butOpenFiles.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.butOpenFiles.Location = new System.Drawing.Point(951, 413);
-            this.butOpenFiles.Name = "butOpenFiles";
-            this.butOpenFiles.Size = new System.Drawing.Size(182, 23);
-            this.butOpenFiles.TabIndex = 11;
-            this.butOpenFiles.Text = "Open All Files";
-            this.butOpenFiles.UseVisualStyleBackColor = true;
+            this.butFilesOpen.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.butFilesOpen.Location = new System.Drawing.Point(951, 14);
+            this.butFilesOpen.Name = "butFilesOpen";
+            this.butFilesOpen.Size = new System.Drawing.Size(182, 23);
+            this.butFilesOpen.TabIndex = 11;
+            this.butFilesOpen.Text = "Open All Files";
+            this.butFilesOpen.UseVisualStyleBackColor = true;
             // 
             // butSelectEnglishFile
             // 
             this.butSelectEnglishFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.butSelectEnglishFile.Location = new System.Drawing.Point(977, 12);
+            this.butSelectEnglishFile.Location = new System.Drawing.Point(240, 14);
             this.butSelectEnglishFile.Name = "butSelectEnglishFile";
             this.butSelectEnglishFile.Size = new System.Drawing.Size(75, 23);
             this.butSelectEnglishFile.TabIndex = 10;
@@ -273,7 +273,7 @@
             this.Controls.Add(this.lblSymbolCount3);
             this.Controls.Add(this.lblSymbolCount2);
             this.Controls.Add(this.lblSymbolCount1);
-            this.Controls.Add(this.butOpenFiles);
+            this.Controls.Add(this.butFilesOpen);
             this.Controls.Add(this.butSelectEnglishFile);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.butSaveFiles);
@@ -298,7 +298,7 @@
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
         private System.Windows.Forms.ToolStripStatusLabel lblSymbolCountOld;
-        private System.Windows.Forms.Button butOpenFiles;
+        private System.Windows.Forms.Button butFilesOpen;
         private System.Windows.Forms.Button butSelectEnglishFile;
         private System.Windows.Forms.Label lblSymbolCount1;
         private System.Windows.Forms.Label lblSymbolCount2;
