@@ -16,13 +16,14 @@ namespace TextSplit
 {
     public interface ITextSplitForm
     {
-        void ManageFilesContent(string[] filesPath, string[] filesContent, int[] filesToDo);
+        void SetFilesContent(string[] filesPath, string[] filesContent, int[] filesToDo);
         void SetSymbolCount(int[] counts, int[] filesToDo);
-          
+        int[] FilesToDo { get; set; }
+
         //event EventHandler FormOpenClick;
         event EventHandler FilesSaveClick;
         event EventHandler OpenTextSplitOpenForm;
-        event EventHandler EnglishContentChanged;
+        event EventHandler ContentChanged;
         
         event EventHandler <FormClosingEventArgs> TextSplitFormClosing;
         //event EventHandler <FormClosingEventArgs> TextSplitOpenFormClosing;
@@ -35,20 +36,21 @@ namespace TextSplit
         public string[] FilesContent { get; set; }        
         public int[] FilesToDo { get; set; }
         public int[] counts;
-        public Label[] lblSymbolsCount;        
+        public Label[] lblSymbolsCount;
+        //public string TextBoxName { get; set; }
         public int filesQuantity = Declaration.LanguagesQuantity;
         public int showMessagesLevel = Declaration.ShowMessagesLevel;
 
         //public event EventHandler FormOpenClick;
         public event EventHandler FilesSaveClick;
         public event EventHandler OpenTextSplitOpenForm;
-        public event EventHandler EnglishContentChanged;
+        public event EventHandler ContentChanged;
         //public event EventHandler TextSplitFormClosing;
         public event EventHandler<FormClosingEventArgs> TextSplitFormClosing;
         //public event EventHandler <FormClosingEventArgs> TextSplitOpenFormClosing;
 
         public TextSplitForm(IMessageService service)
-        {
+        {            
             _messageService = service;
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " Started", CurrentClassName, showMessagesLevel);            
             InitializeComponent();
@@ -56,9 +58,10 @@ namespace TextSplit
             //_open = open;
             butFilesOpen.Click += new EventHandler(butFilesOpen_Click);
             butSaveFiles.Click += butSaveFiles_Click;
-            fldEnglishContent.TextChanged += fldContent_TextChanged;
-            fldRussianContent.TextChanged += fldContent_TextChanged;
-            fldResultContent.TextChanged += fldContent_TextChanged;
+           
+            fld0EnglishContent.TextChanged += fldContent_TextChanged;
+            fld1RussianContent.TextChanged += fldContent_TextChanged;
+            fld2ResultContent.TextChanged += fldContent_TextChanged;
 
             //butSelectEnglishFile.Click += butSelectEnglishFile_Click;
             numFont.ValueChanged += numFont_ValueChanged;
@@ -101,6 +104,7 @@ namespace TextSplit
             if (OpenTextSplitOpenForm != null) OpenTextSplitOpenForm(this, EventArgs.Empty);                      
         }
 
+        
         private void butSaveFiles_Click(object sender, EventArgs e)
         {
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesSaveClick = ", FilesSaveClick.ToString(), CurrentClassName, showMessagesLevel);
@@ -109,11 +113,14 @@ namespace TextSplit
 
         private void fldContent_TextChanged(object sender, EventArgs e)
         {
-            TextBox textBox = sender as TextBox;
-            string textBoxName = textBox.Name;
-                        
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " chName - " + textBoxName, CurrentClassName, 3);// showMessagesLevel);
-            if (EnglishContentChanged != null) EnglishContentChanged(this, EventArgs.Empty);
+            Array.Clear(FilesToDo, 0, FilesToDo.Length);
+            TextBox textBox = sender as TextBox;            
+            string TextBoxName = textBox.Name;
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " TextBoxName - " + TextBoxName, CurrentClassName, 3);// showMessagesLevel);
+            int i = Convert.ToInt32(TextBoxName.Substring(3, 1));//set apart the number of the textbox name - it is the 4-th symbol of the name
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " i from TextBoxName - " + i.ToString(), CurrentClassName, 3);// showMessagesLevel);
+            FilesToDo[i] = 1;            
+            if (ContentChanged != null) ContentChanged(this, EventArgs.Empty);
         }
         #endregion
 
@@ -123,16 +130,16 @@ namespace TextSplit
         //    get { return fldEnglishContent.Text; }
         //    set { fldEnglishContent.Text = value; }
         //}
-        public void ManageFilesContent(string[] filesPath, string[] filesContent, int[] filesToDo)
+        public void SetFilesContent(string[] filesPath, string[] filesContent, int[] filesToDo)
         {
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " Received filesPath - ", filesPath, CurrentClassName, showMessagesLevel);
             FilesPath = filesPath;
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilePath set - ", FilesPath, CurrentClassName, showMessagesLevel);
             FilesContent = filesContent;
             FilesToDo = filesToDo;
-            if (FilesToDo[0] != 0) fldEnglishContent.Text = FilesContent[0];
-            if (FilesToDo[1] != 0) fldRussianContent.Text = FilesContent[0];
-            if (FilesToDo[2] != 0) fldResultContent.Text = FilesContent[0];
+            if (FilesToDo[0] != 0) fld0EnglishContent.Text = FilesContent[0];
+            if (FilesToDo[1] != 0) fld1RussianContent.Text = FilesContent[1];
+            if (FilesToDo[2] != 0) fld2ResultContent.Text = FilesContent[2];
         }
 
         public void SetSymbolCount(int[] count, int[] filesToDo)
@@ -167,7 +174,7 @@ namespace TextSplit
         private void numFont_ValueChanged(object sender, EventArgs e)
         {            
             {
-                fldEnglishContent.Font = new Font("Calibri", (float)numFont.Value);
+                fld0EnglishContent.Font = new Font("Calibri", (float)numFont.Value);
             }
         }
 

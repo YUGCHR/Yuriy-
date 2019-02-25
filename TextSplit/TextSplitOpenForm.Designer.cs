@@ -30,11 +30,11 @@
         {
             this.butAllFilesOpen = new System.Windows.Forms.Button();
             this.butSelectEnglishFile = new System.Windows.Forms.Button();
-            this.fldEnglishFilePath = new System.Windows.Forms.TextBox();
+            this.fld0EnglishFilePath = new System.Windows.Forms.TextBox();
             this.butSelectRussianFile = new System.Windows.Forms.Button();
-            this.fldRussianFilePath = new System.Windows.Forms.TextBox();
+            this.fld1RussianFilePath = new System.Windows.Forms.TextBox();
             this.butSelectResultFile = new System.Windows.Forms.Button();
-            this.fldResultFilePath = new System.Windows.Forms.TextBox();
+            this.fld2ResultFilePath = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // butAllFilesOpen
@@ -57,14 +57,14 @@
             this.butSelectEnglishFile.Text = "Select English File";
             this.butSelectEnglishFile.UseVisualStyleBackColor = true;
             // 
-            // fldEnglishFilePath
+            // fld0EnglishFilePath
             // 
-            this.fldEnglishFilePath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.fld0EnglishFilePath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.fldEnglishFilePath.Location = new System.Drawing.Point(31, 12);
-            this.fldEnglishFilePath.Name = "fldEnglishFilePath";
-            this.fldEnglishFilePath.Size = new System.Drawing.Size(596, 20);
-            this.fldEnglishFilePath.TabIndex = 4;
+            this.fld0EnglishFilePath.Location = new System.Drawing.Point(31, 12);
+            this.fld0EnglishFilePath.Name = "fld0EnglishFilePath";
+            this.fld0EnglishFilePath.Size = new System.Drawing.Size(596, 20);
+            this.fld0EnglishFilePath.TabIndex = 4;
             // 
             // butSelectRussianFile
             // 
@@ -76,14 +76,14 @@
             this.butSelectRussianFile.Text = "Select Russian File";
             this.butSelectRussianFile.UseVisualStyleBackColor = true;
             // 
-            // fldRussianFilePath
+            // fld1RussianFilePath
             // 
-            this.fldRussianFilePath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.fld1RussianFilePath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.fldRussianFilePath.Location = new System.Drawing.Point(31, 38);
-            this.fldRussianFilePath.Name = "fldRussianFilePath";
-            this.fldRussianFilePath.Size = new System.Drawing.Size(596, 20);
-            this.fldRussianFilePath.TabIndex = 7;
+            this.fld1RussianFilePath.Location = new System.Drawing.Point(31, 38);
+            this.fld1RussianFilePath.Name = "fld1RussianFilePath";
+            this.fld1RussianFilePath.Size = new System.Drawing.Size(596, 20);
+            this.fld1RussianFilePath.TabIndex = 7;
             // 
             // butSelectResultFile
             // 
@@ -95,14 +95,14 @@
             this.butSelectResultFile.Text = "Select Result File";
             this.butSelectResultFile.UseVisualStyleBackColor = true;
             // 
-            // fldResultFilePath
+            // fld2ResultFilePath
             // 
-            this.fldResultFilePath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.fld2ResultFilePath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.fldResultFilePath.Location = new System.Drawing.Point(31, 64);
-            this.fldResultFilePath.Name = "fldResultFilePath";
-            this.fldResultFilePath.Size = new System.Drawing.Size(596, 20);
-            this.fldResultFilePath.TabIndex = 9;
+            this.fld2ResultFilePath.Location = new System.Drawing.Point(31, 64);
+            this.fld2ResultFilePath.Name = "fld2ResultFilePath";
+            this.fld2ResultFilePath.Size = new System.Drawing.Size(596, 20);
+            this.fld2ResultFilePath.TabIndex = 9;
             // 
             // TextSplitOpenForm
             // 
@@ -110,12 +110,12 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(830, 139);
             this.Controls.Add(this.butSelectResultFile);
-            this.Controls.Add(this.fldResultFilePath);
+            this.Controls.Add(this.fld2ResultFilePath);
             this.Controls.Add(this.butSelectRussianFile);
-            this.Controls.Add(this.fldRussianFilePath);
+            this.Controls.Add(this.fld1RussianFilePath);
             this.Controls.Add(this.butAllFilesOpen);
             this.Controls.Add(this.butSelectEnglishFile);
-            this.Controls.Add(this.fldEnglishFilePath);
+            this.Controls.Add(this.fld0EnglishFilePath);
             this.Name = "TextSplitOpenForm";
             this.Text = "TextSplitOpenForm";
             this.ResumeLayout(false);
@@ -125,11 +125,11 @@
 
         #endregion
         private System.Windows.Forms.Button butSelectEnglishFile;
-        private System.Windows.Forms.TextBox fldEnglishFilePath;
+        private System.Windows.Forms.TextBox fld0EnglishFilePath;
         private System.Windows.Forms.Button butSelectRussianFile;
-        private System.Windows.Forms.TextBox fldRussianFilePath;
+        private System.Windows.Forms.TextBox fld1RussianFilePath;
         private System.Windows.Forms.Button butSelectResultFile;
-        private System.Windows.Forms.TextBox fldResultFilePath;
+        private System.Windows.Forms.TextBox fld2ResultFilePath;
         private System.Windows.Forms.Button butAllFilesOpen;
     }
 }

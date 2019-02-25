@@ -48,7 +48,7 @@ namespace TextSplit
 
             _view.OpenTextSplitOpenForm += new EventHandler(_view_OpenTextSplitOpenForm);
             //_open.AllOpenFilesClick += new EventHandler(_open_FilesOpenClick);            
-            _view.EnglishContentChanged += new EventHandler (_view_EnglishContentChanged);            
+            _view.ContentChanged += new EventHandler (_view_ContentChanged);            
             _view.FilesSaveClick += new EventHandler (_view_FilesSaveClick);            
             _view.TextSplitFormClosing += new EventHandler<FormClosingEventArgs>(_view_TextSplitFormClosing);            
         }
@@ -112,7 +112,7 @@ namespace TextSplit
                 _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " filesContent[] value = ", filesContent, CurrentClassName, showMessagesLevel);
                 counts = _manager.GetSymbolCounts(filesContent);
                 _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " counts[] value = ", counts[0].ToString(), CurrentClassName, showMessagesLevel);
-                _view.ManageFilesContent(filesPath, filesContent, filesToDo);
+                _view.SetFilesContent(filesPath, filesContent, filesToDo);
                 _view.SetSymbolCount(counts, filesToDo);
                 
             }            
@@ -122,13 +122,22 @@ namespace TextSplit
             }
         }
 
-        void _view_EnglishContentChanged(object sender, EventArgs e)
+        void _view_ContentChanged(object sender, EventArgs e)
         {
-            //string[] contents = _view.FilesContent;                        
-            //int[] counts = _manager.GetSymbolCounts(contents);
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + "wasEnglishContentChange", wasEnglishContentChange.ToString(), CurrentClassName, showMessagesLevel);
-            //_view.SetSymbolCount(counts, _view.FilesToDo);
-            wasEnglishContentChange = true;//we need also the array here
+            for (int i = 0; i < filesQuantity; i++)
+            {
+                if (_view.FilesToDo[i] != 0)
+                {
+                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " _view.FilesToDo[i] - ", _view.FilesToDo[i].ToString(), CurrentClassName, 3);// showMessagesLevel);
+                }
+                
+                
+                //string[] contents = _view.FilesContent;                        
+                //int[] counts = _manager.GetSymbolCounts(contents);
+                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + "wasEnglishContentChange", wasEnglishContentChange.ToString(), CurrentClassName, showMessagesLevel);
+                //_view.SetSymbolCount(counts, _view.FilesToDo);
+                wasEnglishContentChange = true;//we need also the array here
+            }
         }
         
         public static string CurrentClassName

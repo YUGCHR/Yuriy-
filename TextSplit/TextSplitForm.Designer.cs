@@ -30,7 +30,7 @@
         {
             this.label2 = new System.Windows.Forms.Label();
             this.numFont = new System.Windows.Forms.NumericUpDown();
-            this.fldEnglishContent = new System.Windows.Forms.TextBox();
+            this.fld0EnglishContent = new System.Windows.Forms.TextBox();
             this.butSaveFiles = new System.Windows.Forms.Button();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
@@ -40,8 +40,8 @@
             this.lblSymbolCount1 = new System.Windows.Forms.Label();
             this.lblSymbolCount2 = new System.Windows.Forms.Label();
             this.lblSymbolCount3 = new System.Windows.Forms.Label();
-            this.fldResultContent = new System.Windows.Forms.TextBox();
-            this.fldRussianContent = new System.Windows.Forms.TextBox();
+            this.fld2ResultContent = new System.Windows.Forms.TextBox();
+            this.fld1RussianContent = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
@@ -83,16 +83,17 @@
             0,
             0});
             // 
-            // fldEnglishContent
+            // fld0EnglishContent
             // 
-            this.fldEnglishContent.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.fld0EnglishContent.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
-            this.fldEnglishContent.Location = new System.Drawing.Point(19, 52);
-            this.fldEnglishContent.Multiline = true;
-            this.fldEnglishContent.Name = "fldEnglishContent";
-            this.fldEnglishContent.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.fldEnglishContent.Size = new System.Drawing.Size(367, 325);
-            this.fldEnglishContent.TabIndex = 6;
+            this.fld0EnglishContent.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.fld0EnglishContent.Location = new System.Drawing.Point(19, 52);
+            this.fld0EnglishContent.Multiline = true;
+            this.fld0EnglishContent.Name = "fld0EnglishContent";
+            this.fld0EnglishContent.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.fld0EnglishContent.Size = new System.Drawing.Size(367, 325);
+            this.fld0EnglishContent.TabIndex = 6;
             // 
             // butSaveFiles
             // 
@@ -176,26 +177,27 @@
             this.lblSymbolCount3.TabIndex = 12;
             this.lblSymbolCount3.Text = "Split";
             // 
-            // fldResultContent
+            // fld2ResultContent
             // 
-            this.fldResultContent.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)));
-            this.fldResultContent.Location = new System.Drawing.Point(392, 52);
-            this.fldResultContent.Multiline = true;
-            this.fldResultContent.Name = "fldResultContent";
-            this.fldResultContent.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.fldResultContent.Size = new System.Drawing.Size(367, 325);
-            this.fldResultContent.TabIndex = 13;
+            this.fld2ResultContent.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)));
+            this.fld2ResultContent.Location = new System.Drawing.Point(392, 52);
+            this.fld2ResultContent.Multiline = true;
+            this.fld2ResultContent.Name = "fld2ResultContent";
+            this.fld2ResultContent.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.fld2ResultContent.Size = new System.Drawing.Size(367, 325);
+            this.fld2ResultContent.TabIndex = 13;
             // 
-            // fldRussianContent
+            // fld1RussianContent
             // 
-            this.fldRussianContent.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.fld1RussianContent.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.fldRussianContent.Location = new System.Drawing.Point(766, 52);
-            this.fldRussianContent.Multiline = true;
-            this.fldRussianContent.Name = "fldRussianContent";
-            this.fldRussianContent.ScrollBars = System.Windows.Forms.ScrollBars.Both;
-            this.fldRussianContent.Size = new System.Drawing.Size(367, 325);
-            this.fldRussianContent.TabIndex = 14;
+            this.fld1RussianContent.Font = new System.Drawing.Font("Verdana", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.fld1RussianContent.Location = new System.Drawing.Point(766, 52);
+            this.fld1RussianContent.Multiline = true;
+            this.fld1RussianContent.Name = "fld1RussianContent";
+            this.fld1RussianContent.ScrollBars = System.Windows.Forms.ScrollBars.Both;
+            this.fld1RussianContent.Size = new System.Drawing.Size(367, 325);
+            this.fld1RussianContent.TabIndex = 14;
             // 
             // label3
             // 
@@ -268,8 +270,8 @@
             this.Controls.Add(this.label5);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
-            this.Controls.Add(this.fldRussianContent);
-            this.Controls.Add(this.fldResultContent);
+            this.Controls.Add(this.fld1RussianContent);
+            this.Controls.Add(this.fld2ResultContent);
             this.Controls.Add(this.lblSymbolCount3);
             this.Controls.Add(this.lblSymbolCount2);
             this.Controls.Add(this.lblSymbolCount1);
@@ -277,7 +279,7 @@
             this.Controls.Add(this.butSelectEnglishFile);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.butSaveFiles);
-            this.Controls.Add(this.fldEnglishContent);
+            this.Controls.Add(this.fld0EnglishContent);
             this.Controls.Add(this.numFont);
             this.Controls.Add(this.label2);
             this.Name = "TextSplitForm";
@@ -293,7 +295,7 @@
         #endregion
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.NumericUpDown numFont;
-        private System.Windows.Forms.TextBox fldEnglishContent;
+        private System.Windows.Forms.TextBox fld0EnglishContent;
         private System.Windows.Forms.Button butSaveFiles;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
@@ -303,8 +305,8 @@
         private System.Windows.Forms.Label lblSymbolCount1;
         private System.Windows.Forms.Label lblSymbolCount2;
         private System.Windows.Forms.Label lblSymbolCount3;
-        private System.Windows.Forms.TextBox fldResultContent;
-        private System.Windows.Forms.TextBox fldRussianContent;
+        private System.Windows.Forms.TextBox fld2ResultContent;
+        private System.Windows.Forms.TextBox fld1RussianContent;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label5;

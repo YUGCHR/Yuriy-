@@ -25,7 +25,7 @@ namespace TextSplit
     {
         private readonly IMessageService _messageService;
         public string[] FilesPath;// { get; set; }
-        public string[] FilesContent { get; set; }
+        //public string[] FilesContent { get; set; }
         public int[] FilesToDo { get; set; }
        
         private int filesQuantity;
@@ -46,7 +46,7 @@ namespace TextSplit
 
             FilesToDo = new int[filesQuantity];
             FilesPath = new string[filesQuantity];
-            FilesContent = new string[filesQuantity];
+            //FilesContent = new string[filesQuantity];
 
             butAllFilesOpen.Click += new EventHandler (butAllFilesOpen_Click);
             butSelectEnglishFile.Click += butSelectEnglishFile_Click;
@@ -57,9 +57,9 @@ namespace TextSplit
 
         public string[] GetFilesPath()
         {
-            FilesPath[0] = fldEnglishFilePath.Text;
-            FilesPath[1] = fldRussianFilePath.Text;
-            FilesPath[2] = fldResultFilePath.Text;
+            FilesPath[0] = fld0EnglishFilePath.Text;
+            FilesPath[1] = fld1RussianFilePath.Text;
+            FilesPath[2] = fld2ResultFilePath.Text;
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesPath[] = ", FilesPath, CurrentClassName, showMessagesLevel);
             return FilesPath;
         }
@@ -81,10 +81,10 @@ namespace TextSplit
         void butAllFilesOpen_Click(object sender, EventArgs e)
         {            
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Start", CurrentClassName, showMessagesLevel);       
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " fldEnglishFilePath = ", fldEnglishFilePath.Text, CurrentClassName, showMessagesLevel);
-            FilesPath[0] = fldEnglishFilePath.Text;            
-            FilesPath[1] = fldRussianFilePath.Text;            
-            FilesPath[2] = fldResultFilePath.Text;
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " fldEnglishFilePath = ", fld0EnglishFilePath.Text, CurrentClassName, showMessagesLevel);
+            FilesPath[0] = fld0EnglishFilePath.Text;            
+            FilesPath[1] = fld1RussianFilePath.Text;            
+            FilesPath[2] = fld2ResultFilePath.Text;
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesPath[] = ", FilesPath, CurrentClassName, showMessagesLevel);
             
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesOpenClick = ", AllOpenFilesClick.ToString(), CurrentClassName, showMessagesLevel);
@@ -117,8 +117,9 @@ namespace TextSplit
 
             if (dlg.ShowDialog() == DialogResult.OK)
             {
-                fldEnglishFilePath.Text = dlg.FileName;
-                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " fldEnglishFilePath = ", fldEnglishFilePath.Text, CurrentClassName, showMessagesLevel);                
+                fld0EnglishFilePath.Text = dlg.FileName;
+
+                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " fldEnglishFilePath = ", fld0EnglishFilePath.Text, CurrentClassName, showMessagesLevel);                
             }
         }
 
@@ -129,8 +130,8 @@ namespace TextSplit
 
             if (dlg.ShowDialog() == DialogResult.OK)
             {
-                fldRussianFilePath.Text = dlg.FileName;
-                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " fldRussianFilePath = ", fldRussianFilePath.Text, CurrentClassName, showMessagesLevel);
+                fld1RussianFilePath.Text = dlg.FileName;
+                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " fldRussianFilePath = ", fld1RussianFilePath.Text, CurrentClassName, showMessagesLevel);
             }
 
         }
@@ -142,8 +143,8 @@ namespace TextSplit
 
             if (dlg.ShowDialog() == DialogResult.OK)
             {
-                fldResultFilePath.Text = dlg.FileName;
-                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " fldResultFilePath = ", fldResultFilePath.Text, CurrentClassName, showMessagesLevel);
+                fld2ResultFilePath.Text = dlg.FileName;
+                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " fldResultFilePath = ", fld2ResultFilePath.Text, CurrentClassName, showMessagesLevel);
             }
         }       
 
