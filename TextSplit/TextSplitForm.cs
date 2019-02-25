@@ -16,7 +16,7 @@ namespace TextSplit
 {
     public interface ITextSplitForm
     {
-        //void ManageFilesContent(string[] filesPath, string[] filesContent, int[] filesToDo);
+        void ManageFilesContent(string[] filesPath, string[] filesContent, int[] filesToDo);
         void SetSymbolCount(int[] counts, int[] filesToDo);
           
         //event EventHandler FormOpenClick;
@@ -56,7 +56,10 @@ namespace TextSplit
             //_open = open;
             butFilesOpen.Click += new EventHandler(butFilesOpen_Click);
             butSaveFiles.Click += butSaveFiles_Click;
-            fldEnglishContent.TextChanged += fldEnglishContent_TextChanged;
+            fldEnglishContent.TextChanged += fldContent_TextChanged;
+            fldRussianContent.TextChanged += fldContent_TextChanged;
+            fldResultContent.TextChanged += fldContent_TextChanged;
+
             //butSelectEnglishFile.Click += butSelectEnglishFile_Click;
             numFont.ValueChanged += numFont_ValueChanged;
             FormClosing += TextSplitForm_FormClosing;            
@@ -104,8 +107,12 @@ namespace TextSplit
             if (FilesSaveClick != null) FilesSaveClick(this, EventArgs.Empty);
         }
 
-        private void fldEnglishContent_TextChanged(object sender, EventArgs e)
+        private void fldContent_TextChanged(object sender, EventArgs e)
         {
+            TextBox textBox = sender as TextBox;
+            string textBoxName = textBox.Name;
+                        
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " chName - " + textBoxName, CurrentClassName, 3);// showMessagesLevel);
             if (EnglishContentChanged != null) EnglishContentChanged(this, EventArgs.Empty);
         }
         #endregion
@@ -123,6 +130,9 @@ namespace TextSplit
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilePath set - ", FilesPath, CurrentClassName, showMessagesLevel);
             FilesContent = filesContent;
             FilesToDo = filesToDo;
+            if (FilesToDo[0] != 0) fldEnglishContent.Text = FilesContent[0];
+            if (FilesToDo[1] != 0) fldRussianContent.Text = FilesContent[0];
+            if (FilesToDo[2] != 0) fldResultContent.Text = FilesContent[0];
         }
 
         public void SetSymbolCount(int[] count, int[] filesToDo)

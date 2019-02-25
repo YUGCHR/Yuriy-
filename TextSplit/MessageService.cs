@@ -45,7 +45,6 @@ namespace TextSplit
                 }
                 else
                 {                    
-                    //MessageBox.Show(tracePointMessage, tracePointPlace, MessageBoxButtons.OK, MessageBoxIcon.Information);
                     _manager.AppendContent(tracePointName, tracePointValue, tracePointPlace);
                 }
             }

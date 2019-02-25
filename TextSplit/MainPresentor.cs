@@ -14,9 +14,7 @@ namespace TextSplit
         private readonly ITextSplitForm _view;
         private ITextSplitOpenForm _open;
         private readonly IFileManager _manager;
-        private readonly IMessageService _messageService;
-
-        
+        private readonly IMessageService _messageService;        
 
         private bool wasEnglishContentChange = false;
         private int filesQuantity;
@@ -34,10 +32,10 @@ namespace TextSplit
             _open = open;            
             _manager = manager;
             _messageService = service;
-            
+
             showMessagesLevel = Declaration.ShowMessagesLevel;
             filesQuantity = Declaration.LanguagesQuantity;
-            string mainStart = "******************************************************************************************************************************************* \r\n";
+            string mainStart = "******************************************************************************************************************************************* \r\n";//Log-file separator
             _messageService.ShowTrace(mainStart + MethodBase.GetCurrentMethod().ToString(), " Started", CurrentClassName, showMessagesLevel);
 
             filesToDo = new int[filesQuantity];
@@ -75,7 +73,7 @@ namespace TextSplit
 
         private void _view_FilesSaveClick(object sender, EventArgs e)
         {
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Start", CurrentClassName, 3);//showMessagesLevel);
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Start", CurrentClassName, showMessagesLevel);
             try
             {
                 //string content = _view.FileContent;
@@ -94,9 +92,9 @@ namespace TextSplit
         {
             try
             {
-                //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Start", CurrentClassName, 3);//showMessagesLevel);                
+                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Start", CurrentClassName, showMessagesLevel);                
                 filesPath = _open.GetFilesPath();
-                //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " filesPath value = ", filesPath, CurrentClassName, 3);//showMessagesLevel);
+                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " filesPath value = ", filesPath, CurrentClassName, showMessagesLevel);
                 int[] counts = new int[filesQuantity];
                 wasEnglishContentChange = false;
                 bool[] isFilesExist = new bool[filesQuantity];
@@ -104,27 +102,17 @@ namespace TextSplit
                 
                 for (int i = 0; i < filesQuantity; i++)
                 {
-                    //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " isFilesExist[i] = ", isFilesExist[i].ToString(), CurrentClassName, 3);// showMessagesLevel);
-
-                    if (isFilesExist[i])
-                    {
-                        filesToDo[i] = 1;
-                        //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " filesToDo[i] = ", filesToDo[i].ToString(), CurrentClassName, 3);// showMessagesLevel);
-                    } 
-                    else
-                    {
-                        filesToDo[i] = 0;
-                        //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " ELSE filesToDo[i] = ", filesToDo[i].ToString(), CurrentClassName, 3);// showMessagesLevel);
-                        if (i<2) _messageService.ShowExclamation("Selected file does not exist!");//If the result file is not exist we need to create it here!
-                    }
+                    if (isFilesExist[i]) filesToDo[i] = 1;
+                    else filesToDo[i] = 0;                        
+                    if (i<2) _messageService.ShowExclamation("Selected file does not exist!");
+                    //!!! - If the result file is not exist we need to create it here!                    
                 }
 
-                filesContent = _manager.GetContents(filesPath, filesToDo);
-                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " filesContent[] value = ", filesContent, CurrentClassName, 3);//showMessagesLevel);
-
-                //counts = _manager.GetSymbolCounts(_manager.GetContents(filesPath, filesToDo));
-
-                //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " counts[] value = ", counts.ToString(), CurrentClassName, 3);//showMessagesLevel);
+                filesContent = _manager.GetContents(filesPath, filesToDo);                
+                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " filesContent[] value = ", filesContent, CurrentClassName, showMessagesLevel);
+                counts = _manager.GetSymbolCounts(filesContent);
+                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " counts[] value = ", counts[0].ToString(), CurrentClassName, showMessagesLevel);
+                _view.ManageFilesContent(filesPath, filesContent, filesToDo);
                 _view.SetSymbolCount(counts, filesToDo);
                 
             }            

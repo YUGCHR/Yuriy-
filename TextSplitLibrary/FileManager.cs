@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using System.Windows.Forms; //Delete after finishing
 using System.Threading.Tasks;
 
 namespace TextSplitLibrary
@@ -32,17 +33,15 @@ namespace TextSplitLibrary
         private readonly Encoding _defaultEncoding = Encoding.GetEncoding(1251);
         public string[] FilesPath;
         public string[] FilesContent;        
-        private readonly int filesQuantity;//Declaration.LanguagesQuantity;        
+        private readonly int filesQuantity;//we will reveice the value from Declaration.LanguagesQuantity;
         private string logFilePathName;
-        private bool isLogFileExist;
-        private string addZeros;
+        private bool isLogFileExist;        
         string logFilePath = Directory.GetCurrentDirectory();//Will check log-file existing        
 
-        public FileManager(int filesQuantity)//IMessageService service
-        {
-            //_messageService = service;
+        public FileManager(int filesQuantity) //IMessageService service
+        {            
             this.filesQuantity = filesQuantity;            
-            //_messageService.ShowTrace("filesQuantity - ", filesQuantity.ToString(),"FileManager", 1);
+            
             FilesPath = new string[filesQuantity];
             FilesContent = new string[filesQuantity];
             FilesToDo = new int[filesQuantity];
@@ -118,17 +117,24 @@ namespace TextSplitLibrary
         #endregion
         #region GetSymbolCount
         public int[] GetSymbolCounts(string[] filesContent)
-        {
-            int[] counts = new int[filesQuantity];
-            for (int i = 0; i < filesQuantity; i++)
+        {            
+            if (filesContent != null)
             {
-                counts[i] = GetSymbolCounts(filesContent, i);
-            }            
-            return counts;
+                //MessageBox.Show("Start - filesContent not null", "GetSymbolCounts", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                int[] counts = new int[filesQuantity];
+                for (int i = 0; i < filesQuantity; i++)
+                {
+                    counts[i] = GetSymbolCounts(filesContent, i);
+                }
+                return counts;
+            }
+            else return null;
         }
         public int GetSymbolCounts(string[] filesContent, int i)
-        {            
-            return filesContent[i].Length;            
+        {
+            //MessageBox.Show(i.ToString(), "GetSymbolCounts - Last", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            if (filesContent[i] != null) return filesContent[i].Length;
+            else return 0;
         }
 
         #endregion
