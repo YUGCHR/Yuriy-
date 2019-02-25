@@ -53,56 +53,43 @@ namespace TextSplit
         }
 
         public void ShowTrace(string tracePointName, string[] tracePointValue, string tracePointPlace, int showLevel)
-        {
-            bool haveDone = false;
+        {            
             if (showLevel != 0)
             {
-                int ii = tracePointValue.Length;
-                MessageBox.Show(MethodBase.GetCurrentMethod().ToString()+ " ii = " + ii.ToString(), CurrentClassName, MessageBoxButtons.OK, MessageBoxIcon.Information);
-                string tracePointMessage = "";
-                if (showLevel > 1)
+                if (tracePointValue != null)
                 {
-                    for (int i = 0; i < ii; i++)
+                    int ii = tracePointValue.Length;
+                    string tracePointMessage = "";
+                    if (showLevel > 1)
                     {
-                        MessageBox.Show(MethodBase.GetCurrentMethod().ToString() + " i = " + i.ToString(), CurrentClassName, MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                        string tracePointValueCut = "";// = tracePointValue[i].Substring(0, 10);//It is need to add Substring to the non-array method
-                        int count = 0;
-                        char charStop = '.';
-                        foreach (char tracePointValueSymbol in tracePointValue[i])
+                        for (int i = 0; i < ii; i++)
                         {
-                            if (!haveDone) haveDone = tracePointValueSymbol.Equals(charStop) | (count > 100);
-                            MessageBox.Show(MethodBase.GetCurrentMethod().ToString() + "tracePointValueSymbol - count => " + tracePointValueSymbol.ToString() + count.ToString(), CurrentClassName, MessageBoxButtons.OK, MessageBoxIcon.Information);
-                            count++;
-                            MessageBox.Show(MethodBase.GetCurrentMethod().ToString() + "haveDone => " + haveDone.ToString(), CurrentClassName, MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                            bool haveDoneOff = Char.IsControl(tracePointValueSymbol) & haveDone;
-
-                                if (haveDoneOff)
+                            if (tracePointValue[i] != null)
+                            {
+                                string tracePointValueCut = "";
+                                int count = 0;
+                                foreach (char tracePointValueSymbol in tracePointValue[i])
                                 {
-                                    MessageBox.Show(MethodBase.GetCurrentMethod().ToString() + " tracePointValueSymbol - EOL = " + tracePointValueSymbol.ToString(), CurrentClassName, MessageBoxButtons.OK, MessageBoxIcon.Information);
-                                    break;
+                                    if (count < 100)
+                                    {
+                                        tracePointValueCut = tracePointValueCut + tracePointValueSymbol;
+                                        count++;
+                                    }
                                 }
-                                else
-                                {
-                                    MessageBox.Show(MethodBase.GetCurrentMethod().ToString() + " tracePointValueCut = " + tracePointValueCut, CurrentClassName, MessageBoxButtons.OK, MessageBoxIcon.Information);
-                                    tracePointValueCut = tracePointValueCut + tracePointValueSymbol;
-                                    MessageBox.Show(MethodBase.GetCurrentMethod().ToString() + " tracePointValueCut = " + tracePointValueCut, CurrentClassName, MessageBoxButtons.OK, MessageBoxIcon.Information);
-                                    continue;
-                                }                                                       
+                                string[] tracePointArray = { tracePointMessage, tracePointValueCut };
+                                tracePointMessage = String.Join("\r\n", tracePointArray);
+                            }
+                            
                         }
-
-                        MessageBox.Show(MethodBase.GetCurrentMethod().ToString() + " tracePointValueCut = " + tracePointValueCut, CurrentClassName, MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        string[] tracePointArray = { tracePointMessage, tracePointValueCut };
-                        tracePointMessage = String.Join("\r\n", tracePointArray);
+                        ShowTrace(tracePointName, tracePointMessage, tracePointPlace, showLevel);
                     }
-                    ShowTrace(tracePointName, tracePointMessage, tracePointPlace, showLevel);
+                    else
+                    {
+                        MessageBox.Show(MethodBase.GetCurrentMethod().ToString() + " _manager.AppendContent will Call ", CurrentClassName, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        _manager.AppendContent(tracePointName, tracePointValue, tracePointPlace);
+                    }
                 }
-                else
-                {
-                    MessageBox.Show(MethodBase.GetCurrentMethod().ToString() + " _manager.AppendContent will Call ", CurrentClassName, MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    _manager.AppendContent(tracePointName, tracePointValue, tracePointPlace);
-                }
+                
 
             }
         }
