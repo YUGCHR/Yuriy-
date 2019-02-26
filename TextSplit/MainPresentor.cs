@@ -19,6 +19,9 @@ namespace TextSplit
         private bool wasEnglishContentChange = false;
         private int filesQuantity;
         private int showMessagesLevel;
+        private int resultFileNumber;
+        private string resultFileName;
+        private int iBreakpoint; //Index value in the cycle breakpoint
 
         private int[] filesToDo;
         private int[] counts;
@@ -35,6 +38,9 @@ namespace TextSplit
 
             showMessagesLevel = Declaration.ShowMessagesLevel;
             filesQuantity = Declaration.LanguagesQuantity;
+            resultFileNumber = Declaration.ResultFileNumber;//index of the Resalt File
+            resultFileName = Declaration.ResultFileName;
+
             string mainStart = "******************************************************************************************************************************************* \r\n";//Log-file separator
             _messageService.ShowTrace(mainStart + MethodBase.GetCurrentMethod().ToString(), " Started", CurrentClassName, showMessagesLevel);
 
@@ -99,22 +105,67 @@ namespace TextSplit
                 wasEnglishContentChange = false;
                 bool[] isFilesExist = new bool[filesQuantity];
                 isFilesExist = _manager.IsFilesExist(filesPath);
-                
-                for (int i = 0; i < filesQuantity; i++)
+                Array.Clear(filesToDo, 0, filesToDo.Length);//Array must be still clear after Act of Creation
+                iBreakpoint = -1;//Breakpoint reset - everithing allright
+
+                for (int i = 0; i < filesQuantity; i++) //all files pathes to check and prepare filesToDo to open them
                 {
-                    if (isFilesExist[i]) filesToDo[i] = 1;
-                    else filesToDo[i] = 0;                        
-                    if (i<2) _messageService.ShowExclamation("Selected file does not exist!");
-                    //!!! - If the result file is not exist we need to create it here!                    
+                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " isFilesExist[i] value = ", isFilesExist[i].ToString(), CurrentClassName, 3);// showMessagesLevel);
+                    
+                    if (isFilesExist[i]) filesToDo[i] = (int)WhatNeedDoWithFiles.ReadFirst;//if file exist we will read (open) it
+                    else
+                    {
+                        filesToDo[i] = (int)WhatNeedDoWithFiles.StopProcessing;//if file does not exist we would like to return to OpenForm, but if resultFile does not exist, we will create it
+                        _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " file does not exist we would like to return to OpenForm, but if resultFile does not exist, we will create it ==> filesToDo[i] value = ", filesToDo[i].ToString(), CurrentClassName, 3);// showMessagesLevel);
+                        iBreakpoint = (i == resultFileNumber) ? -1 : i;
+                        _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " resultFile exist ==> iBreakpoint = ", iBreakpoint.ToString(), CurrentClassName, 3);// showMessagesLevel);
+                        break;
+                    } 
                 }
 
-                filesContent = _manager.GetContents(filesPath, filesToDo);                
-                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " filesContent[] value = ", filesContent, CurrentClassName, showMessagesLevel);
-                counts = _manager.GetSymbolCounts(filesContent);
-                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " counts[] value = ", counts[0].ToString(), CurrentClassName, showMessagesLevel);
-                _view.SetFilesContent(filesPath, filesContent, filesToDo);
-                _view.SetSymbolCount(counts, filesToDo);
+                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " Cycle for ended, check the iBreakpoint = ", iBreakpoint.ToString(), CurrentClassName, 3);// showMessagesLevel);
+
+                if (iBreakpoint >= 0) //That's not the way to do things - you must select both source files
+                {
+                    _messageService.ShowExclamation("The source file does not exist, please select it!");//return to OpenForm for all necessary file selection
+                    
+                }
+                else //all files are existed and we are ready to open them
+                {
+                    if (isFilesExist[resultFileNumber]) //if resultFile does not exist, we will create it in the path of the first selected file (with 0 index)
+                    {
+                        filesToDo[resultFileNumber] = (int)WhatNeedDoWithFiles.ReadFirst;//the selected result file needs in processing
+                        _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " resultFile exist ==> iBreakpoint = ", iBreakpoint.ToString(), CurrentClassName, 3);// showMessagesLevel);
+                    }
+                    else
+                    {
+                        _messageService.ShowExclamation("The Result file does not exist, it will be created now!");
+                        //!!! - If the result file is not exist we need to create it here               
+                        
+                        filesPath[resultFileNumber] = _manager.CreateFile(filesPath[0], resultFileName);
+                        //вернуть ситуацию, что файл уже есть и принять решение, что с этим делать - перезаписать или идти открывать существующий
+
+                        if (isFilesExist[resultFileNumber])
+                        {
+                             
+                            iBreakpoint = -1;//Breakpoint reset - the result file created
+                            filesToDo[resultFileNumber] = (int)WhatNeedDoWithFiles.ReadFirst;//the created result file needs in processing
+                            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " Creation of resultFile ended, WhatNeedDoWithFiles.ReadFirst = ", WhatNeedDoWithFiles.ReadFirst.ToString(), CurrentClassName, 3);// showMessagesLevel);
+                        }
+                    }
+                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " If ended, check the iBreakpoint = ", iBreakpoint.ToString(), CurrentClassName, 3);// showMessagesLevel);
+                    filesContent = _manager.GetContents(filesPath, filesToDo);
+                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " filesContent[] value = ", filesContent, CurrentClassName, showMessagesLevel);
+                    counts = _manager.GetSymbolCounts(filesContent);
+                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " counts[] value = ", counts[0].ToString(), CurrentClassName, showMessagesLevel);
+                    _view.SetFilesContent(filesPath, filesContent, filesToDo);
+                    _view.SetSymbolCount(counts, filesToDo);
+                }
+
                 
+
+
+                        
             }            
             catch (Exception ex)
             {

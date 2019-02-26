@@ -24,6 +24,7 @@ namespace TextSplitLibrary
         void AppendContent(string tracePointName, string tracePointValue, string tracePointPlace, Encoding encoding);
         void AppendContent(string tracePointName, string[] tracePointValue, string tracePointPlace);
         void AppendContent(string tracePointName, string[] tracePointValue, string tracePointPlace, Encoding encoding);
+        string CreateFile(string filesPath, string resultFileName);
     }
     public class FileManager : IFileManager
     {
@@ -80,7 +81,7 @@ namespace TextSplitLibrary
             string[] getContents = new string[filesQuantity];
             for (int i = 0; i < filesQuantity; i++)
             {
-                if (filesToDo[i] != 0)
+                if (filesToDo[i] == (int)WhatNeedDoWithFiles.ReadFirst)
                 {
                     getContents[i] = GetContent(filesPath, i, _defaultEncoding);
                 }                    
@@ -88,7 +89,7 @@ namespace TextSplitLibrary
             return getContents;
         }
 
-        public string GetContent(string[] filesPath, int i, Encoding encoding)
+        public string GetContent(string[] filesPath, int i, Encoding encoding)//This method cannot be access outside so we do not need to check isFileExist
         {
             return File.ReadAllText(filesPath[i], encoding);            
         }
@@ -145,17 +146,17 @@ namespace TextSplitLibrary
             AppendContent(tracePointName, tracePointValue, tracePointPlace, _defaultEncoding);
         }
 
-        public void AppendContent(string tracePointName, string tracePointValue, string tracePointPlace, Encoding encoding)
-        {
-            string[] traceMessage = { "\r\n tracePointPlace - ", tracePointPlace, "\r\n ----------------- tracePointName - ", tracePointName, tracePointValue };
-            string fileLineAppend = String.Join(" ", traceMessage);            
-            File.AppendAllText(logFilePathName, fileLineAppend, encoding);
-        }
-
         public void AppendContent(string tracePointName, string[] tracePointValue, string tracePointPlace)
         {
             AppendContent(tracePointName, tracePointValue, tracePointPlace, _defaultEncoding);
         }
+
+        public void AppendContent(string tracePointName, string tracePointValue, string tracePointPlace, Encoding encoding)
+        {
+            string[] traceMessage = { "\r\n tracePointPlace - ", tracePointPlace, "\r\n ----------------- tracePointName - ", tracePointName, tracePointValue };//to remove all outsider symbols
+            string fileLineAppend = String.Join(" ", traceMessage);            
+            File.AppendAllText(logFilePathName, fileLineAppend, encoding);
+        }        
 
         public void AppendContent(string tracePointName, string[] tracePointValue, string tracePointPlace, Encoding encoding)
         {
@@ -178,6 +179,14 @@ namespace TextSplitLibrary
             File.AppendAllText(logFilePathName, fileLineAppend, encoding);
         }
         #endregion
+        public string CreateFile(string filesPathSample, string resultFileName)
+        {
+            //to check is path exist
+            string logFilePathName = Path.GetDirectoryName(filesPathSample) + "\\" + resultFileName + ".txt";            
+            string fileLineAppend = "New result file created \r\n";
+            File.AppendAllText(logFilePathName, fileLineAppend, _defaultEncoding);
+            return logFilePathName;
+        }
     }
 }
 

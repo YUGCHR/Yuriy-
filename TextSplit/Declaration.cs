@@ -9,6 +9,8 @@ namespace TextSplit
     class Declaration
     {
         public const int LanguagesQuantity = 3;
+        public const int ResultFileNumber = LanguagesQuantity - 1;
+        public const string ResultFileName = "sampleResultTextDoc";
         public const int ShowMessagesLevel = 0;//0 - no messages, 1 - Trace messages, 2 - Value messages, -1 - Print mesaages...
     }
 }

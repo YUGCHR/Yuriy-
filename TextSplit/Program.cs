@@ -30,3 +30,19 @@ namespace TextSplit
         }
     }
 }
+//Legacy code from all modules
+//filesToDo[i] = isFilesExist[i] ? (int)WhatNeedDoWithFiles.ReadFirst : (int)WhatNeedDoWithFiles.PassThrough;//If PassThrough - say necessary file does not exist!
+//Array.Clear(FilesToDo, 0, FilesToDo.Length);
+//string[] currentFormFieldNames = Enum.GetNames(typeof(FormFieldNames));
+//int i = Convert.ToInt32(TextBoxName.Substring(3, 1));//set apart the number of the textbox name - it is the 4-th symbol of the name
+//public string EnglishContent - source version get/set without arrays
+//{
+//    get { return fldEnglishContent.Text; }
+//    set { fldEnglishContent.Text = value; }
+//}
+//private void _open_TextSplitOpenFormClosing(object sender, FormClosingEventArgs e)
+//{            
+//    _messageService.ShowTrace("after TextSplitOpenFormClosing ", "(Closed)", CurrentClassName, showMessagesLevel);
+//    //e.Cancel = wasEnglishContentChange;
+//}
+//
