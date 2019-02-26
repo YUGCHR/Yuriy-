@@ -96,27 +96,22 @@ namespace TextSplit
                 _messageService.ShowError(ex.Message);
             }
         }
-
+        #region FilesOpenClick
         private void _open_FilesOpenClick(object sender, EventArgs e)
         {
             try
-            {
-                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Start", CurrentClassName, showMessagesLevel);                
-                filesPath = _open.GetFilesPath();
-                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " filesPath value = ", filesPath, CurrentClassName, 3);// showMessagesLevel);
+            {                
+                filesPath = _open.GetFilesPath();                
                 isFilesExist = _manager.IsFilesExist(filesPath);
                 iBreakpoint = isFilesExistCheck(); // check all files and prepare filesToDo array (-1 - OK)
-                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " isFilesExistCheck finished, iBreakpoint = ", iBreakpoint.ToString(), CurrentClassName, 3);// showMessagesLevel);
+                
                 if (iBreakpoint < 0) //check key files
                 {//key files exist                    
-                    int isResultFileCreated = toCreateResultFile();
+                    int isResultFileCreated = toCreateResultFile();//will check the result file existing and try to create it
                     if (isResultFileCreated < 0)
-                    {
-                        _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " If ended, check the iBreakpoint = ", iBreakpoint.ToString(), CurrentClassName, 3);// showMessagesLevel);
-                        filesContent = _manager.GetContents(filesPath, filesToDo);
-                        _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " filesContent[] value = ", filesContent, CurrentClassName, showMessagesLevel);
-                        counts = _manager.GetSymbolCounts(filesContent);
-                        _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " counts[] value = ", counts[0].ToString(), CurrentClassName, showMessagesLevel);
+                    {//all files exist 
+                        filesContent = _manager.GetContents(filesPath, filesToDo);                        
+                        counts = _manager.GetSymbolCounts(filesContent);                        
                         _view.SetFilesContent(filesPath, filesContent, filesToDo);
                         _view.SetSymbolCount(counts, filesToDo);
                     }
@@ -133,18 +128,12 @@ namespace TextSplit
         int isFilesExistCheck() // check files pathes and prepare filesToDo array
         {
             for (int i = 0; i < filesQuantity; i++) 
-            {
-                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " isFilesExist[i] value = ", isFilesExist[i].ToString(), CurrentClassName, 3);// showMessagesLevel);
+            {                
                 if (isFilesExist[i]) filesToDo[i] = (int)WhatNeedDoWithFiles.ReadFirst;//if file exist we will read (open) it
                 else
                 {//file does not exist but we check if resultFile does not exist, then we will try to create it
-                    filesToDo[i] = (int)WhatNeedDoWithFiles.StopProcessing;
-                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " file does not exist we would like to return to OpenForm, but if resultFile does not exist, we will create it ==> filesToDo[i] value = ", filesToDo[i].ToString(), CurrentClassName, 3);// showMessagesLevel);
-                    if (i == resultFileNumber)
-                    {//result file is in short supply
-                        _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " resultFile exist ==> iBreakpoint = ", iBreakpoint.ToString(), CurrentClassName, 3);// showMessagesLevel);
-                        return -1;
-                    }
+                    filesToDo[i] = (int)WhatNeedDoWithFiles.StopProcessing;                    
+                    if (i == resultFileNumber) return -1; //result file is in short supply                    
                     else
                     {//some of key file is in short supply
                         _messageService.ShowExclamation("The source file does not exist, please select it!");//return to OpenForm for all necessary file selection                        
@@ -159,8 +148,7 @@ namespace TextSplit
         {
             if (isFilesExist[resultFileNumber]) //if resultFile does not exist, we will create it in the path of the first selected file (with 0 index)
             {//result file exist
-                filesToDo[resultFileNumber] = (int)WhatNeedDoWithFiles.ReadFirst;//the selected result file will be processing
-                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " isFilesExist[resultFileNumber] = ", isFilesExist[resultFileNumber].ToString(), CurrentClassName, 3);// showMessagesLevel);
+                filesToDo[resultFileNumber] = (int)WhatNeedDoWithFiles.ReadFirst;//the selected result file will be processing                
                 return -1;//all files exist
             }
             else
@@ -169,8 +157,7 @@ namespace TextSplit
                 filesPath[resultFileNumber] = _manager.CreateFile(filesPath[0], resultFileName);//we had tried to create result file
                 if (filesPath[resultFileNumber] != null)
                 {//we created result file successfully
-                    filesToDo[resultFileNumber] = (int)WhatNeedDoWithFiles.ReadFirst;//the created result file needs in processing
-                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " Creation of resultFile ended, filesToDo[resultFileNumber] = ", filesToDo[resultFileNumber].ToString(), CurrentClassName, 3);// showMessagesLevel);
+                    filesToDo[resultFileNumber] = (int)WhatNeedDoWithFiles.ReadFirst;//the created result file needs in processing                    
                     return -1; //all files exist
                 }
                 else //we cannot create result file
@@ -180,7 +167,7 @@ namespace TextSplit
                 }
             }
         }
-
+        #endregion
         void _view_ContentChanged(object sender, EventArgs e)
         {
             for (int i = 0; i < filesQuantity; i++)
