@@ -27,7 +27,7 @@ namespace TextSplit
         private int[] counts;
         private string[] filesPath;
         private string[] filesContent;
-
+        bool[] isFilesExist;        
 
         public MainPresentor(ITextSplitForm view, ITextSplitOpenForm open, IFileManager manager, IMessageService service)
         {            
@@ -41,15 +41,18 @@ namespace TextSplit
             resultFileNumber = Declaration.ResultFileNumber;//index of the Resalt File
             resultFileName = Declaration.ResultFileName;
 
+            
+
             string mainStart = "******************************************************************************************************************************************* \r\n";//Log-file separator
             _messageService.ShowTrace(mainStart + MethodBase.GetCurrentMethod().ToString(), " Started", CurrentClassName, showMessagesLevel);
 
             filesToDo = new int[filesQuantity];
             counts = new int[filesQuantity];
             _view.SetSymbolCount(counts, filesToDo);//move?
-
+            
             filesPath = new string[filesQuantity];
             filesContent = new string[filesQuantity];
+            isFilesExist = new bool[filesQuantity];
             //_view.ManageFilesContent(filesPath, filesContent, filesToDo);//move?
 
             _view.OpenTextSplitOpenForm += new EventHandler(_view_OpenTextSplitOpenForm);
@@ -100,76 +103,81 @@ namespace TextSplit
             {
                 _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Start", CurrentClassName, showMessagesLevel);                
                 filesPath = _open.GetFilesPath();
-                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " filesPath value = ", filesPath, CurrentClassName, showMessagesLevel);
-                int[] counts = new int[filesQuantity];
-                wasEnglishContentChange = false;
-                bool[] isFilesExist = new bool[filesQuantity];
+                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " filesPath value = ", filesPath, CurrentClassName, 3);// showMessagesLevel);
                 isFilesExist = _manager.IsFilesExist(filesPath);
-                Array.Clear(filesToDo, 0, filesToDo.Length);//Array must be still clear after Act of Creation
-                iBreakpoint = -1;//Breakpoint reset - everithing allright
-
-                for (int i = 0; i < filesQuantity; i++) //all files pathes to check and prepare filesToDo to open them
-                {
-                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " isFilesExist[i] value = ", isFilesExist[i].ToString(), CurrentClassName, 3);// showMessagesLevel);
-                    
-                    if (isFilesExist[i]) filesToDo[i] = (int)WhatNeedDoWithFiles.ReadFirst;//if file exist we will read (open) it
-                    else
+                iBreakpoint = isFilesExistCheck(); // check all files and prepare filesToDo array (-1 - OK)
+                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " isFilesExistCheck finished, iBreakpoint = ", iBreakpoint.ToString(), CurrentClassName, 3);// showMessagesLevel);
+                if (iBreakpoint < 0) //check key files
+                {//key files exist                    
+                    int isResultFileCreated = toCreateResultFile();
+                    if (isResultFileCreated < 0)
                     {
-                        filesToDo[i] = (int)WhatNeedDoWithFiles.StopProcessing;//if file does not exist we would like to return to OpenForm, but if resultFile does not exist, we will create it
-                        _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " file does not exist we would like to return to OpenForm, but if resultFile does not exist, we will create it ==> filesToDo[i] value = ", filesToDo[i].ToString(), CurrentClassName, 3);// showMessagesLevel);
-                        iBreakpoint = (i == resultFileNumber) ? -1 : i;
-                        _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " resultFile exist ==> iBreakpoint = ", iBreakpoint.ToString(), CurrentClassName, 3);// showMessagesLevel);
-                        break;
-                    } 
-                }
-
-                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " Cycle for ended, check the iBreakpoint = ", iBreakpoint.ToString(), CurrentClassName, 3);// showMessagesLevel);
-
-                if (iBreakpoint >= 0) //That's not the way to do things - you must select both source files
-                {
-                    _messageService.ShowExclamation("The source file does not exist, please select it!");//return to OpenForm for all necessary file selection
-                    
-                }
-                else //all files are existed and we are ready to open them
-                {
-                    if (isFilesExist[resultFileNumber]) //if resultFile does not exist, we will create it in the path of the first selected file (with 0 index)
-                    {
-                        filesToDo[resultFileNumber] = (int)WhatNeedDoWithFiles.ReadFirst;//the selected result file needs in processing
-                        _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " resultFile exist ==> iBreakpoint = ", iBreakpoint.ToString(), CurrentClassName, 3);// showMessagesLevel);
+                        _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " If ended, check the iBreakpoint = ", iBreakpoint.ToString(), CurrentClassName, 3);// showMessagesLevel);
+                        filesContent = _manager.GetContents(filesPath, filesToDo);
+                        _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " filesContent[] value = ", filesContent, CurrentClassName, showMessagesLevel);
+                        counts = _manager.GetSymbolCounts(filesContent);
+                        _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " counts[] value = ", counts[0].ToString(), CurrentClassName, showMessagesLevel);
+                        _view.SetFilesContent(filesPath, filesContent, filesToDo);
+                        _view.SetSymbolCount(counts, filesToDo);
                     }
-                    else
-                    {
-                        _messageService.ShowExclamation("The Result file does not exist, it will be created now!");
-                        //!!! - If the result file is not exist we need to create it here               
-                        
-                        filesPath[resultFileNumber] = _manager.CreateFile(filesPath[0], resultFileName);
-                        //вернуть ситуацию, что файл уже есть и принять решение, что с этим делать - перезаписать или идти открывать существующий
-
-                        if (isFilesExist[resultFileNumber])
-                        {
-                             
-                            iBreakpoint = -1;//Breakpoint reset - the result file created
-                            filesToDo[resultFileNumber] = (int)WhatNeedDoWithFiles.ReadFirst;//the created result file needs in processing
-                            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " Creation of resultFile ended, WhatNeedDoWithFiles.ReadFirst = ", WhatNeedDoWithFiles.ReadFirst.ToString(), CurrentClassName, 3);// showMessagesLevel);
-                        }
-                    }
-                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " If ended, check the iBreakpoint = ", iBreakpoint.ToString(), CurrentClassName, 3);// showMessagesLevel);
-                    filesContent = _manager.GetContents(filesPath, filesToDo);
-                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " filesContent[] value = ", filesContent, CurrentClassName, showMessagesLevel);
-                    counts = _manager.GetSymbolCounts(filesContent);
-                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " counts[] value = ", counts[0].ToString(), CurrentClassName, showMessagesLevel);
-                    _view.SetFilesContent(filesPath, filesContent, filesToDo);
-                    _view.SetSymbolCount(counts, filesToDo);
+                    //the Result file already exist we need to select or to delete it
                 }
-
-                
-
-
-                        
+                //key files does not exist - That's not the way to do things - you must select both source files                
             }            
             catch (Exception ex)
             {
                 _messageService.ShowError(ex.Message);
+            }
+        }
+
+        int isFilesExistCheck() // check files pathes and prepare filesToDo array
+        {
+            for (int i = 0; i < filesQuantity; i++) 
+            {
+                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " isFilesExist[i] value = ", isFilesExist[i].ToString(), CurrentClassName, 3);// showMessagesLevel);
+                if (isFilesExist[i]) filesToDo[i] = (int)WhatNeedDoWithFiles.ReadFirst;//if file exist we will read (open) it
+                else
+                {//file does not exist but we check if resultFile does not exist, then we will try to create it
+                    filesToDo[i] = (int)WhatNeedDoWithFiles.StopProcessing;
+                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " file does not exist we would like to return to OpenForm, but if resultFile does not exist, we will create it ==> filesToDo[i] value = ", filesToDo[i].ToString(), CurrentClassName, 3);// showMessagesLevel);
+                    if (i == resultFileNumber)
+                    {//result file is in short supply
+                        _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " resultFile exist ==> iBreakpoint = ", iBreakpoint.ToString(), CurrentClassName, 3);// showMessagesLevel);
+                        return -1;
+                    }
+                    else
+                    {//some of key file is in short supply
+                        _messageService.ShowExclamation("The source file does not exist, please select it!");//return to OpenForm for all necessary file selection                        
+                        return i; //key file(s) does not exist
+                    }                                        
+                }
+            }            
+            return -1;//all files exist
+        }
+        
+        int toCreateResultFile() //we check the result file existing and try to create it
+        {
+            if (isFilesExist[resultFileNumber]) //if resultFile does not exist, we will create it in the path of the first selected file (with 0 index)
+            {//result file exist
+                filesToDo[resultFileNumber] = (int)WhatNeedDoWithFiles.ReadFirst;//the selected result file will be processing
+                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " isFilesExist[resultFileNumber] = ", isFilesExist[resultFileNumber].ToString(), CurrentClassName, 3);// showMessagesLevel);
+                return -1;//all files exist
+            }
+            else
+            {
+                _messageService.ShowExclamation("The Result file does not exist, it will be created now!");
+                filesPath[resultFileNumber] = _manager.CreateFile(filesPath[0], resultFileName);//we had tried to create result file
+                if (filesPath[resultFileNumber] != null)
+                {//we created result file successfully
+                    filesToDo[resultFileNumber] = (int)WhatNeedDoWithFiles.ReadFirst;//the created result file needs in processing
+                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " Creation of resultFile ended, filesToDo[resultFileNumber] = ", filesToDo[resultFileNumber].ToString(), CurrentClassName, 3);// showMessagesLevel);
+                    return -1; //all files exist
+                }
+                else //we cannot create result file
+                {
+                    _messageService.ShowExclamation("The Result file already exist, please select or delete it!");
+                    return 2; //we need to decide what to do with existing result file
+                }
             }
         }
 

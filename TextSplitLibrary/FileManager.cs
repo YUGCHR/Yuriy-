@@ -69,6 +69,10 @@ namespace TextSplitLibrary
             }
             return isFilesExist;
         }
+        public bool IsFilesExist(string filesPath)
+        {
+            return File.Exists(filesPath);
+        }
         #endregion
         #region GetContent
         public string[] GetContents(string[] filesPath, int[] filesToDo)
@@ -179,14 +183,18 @@ namespace TextSplitLibrary
             File.AppendAllText(logFilePathName, fileLineAppend, encoding);
         }
         #endregion
+        #region CreateFile
         public string CreateFile(string filesPathSample, string resultFileName)
         {
-            //to check is path exist
-            string logFilePathName = Path.GetDirectoryName(filesPathSample) + "\\" + resultFileName + ".txt";            
+            //check is path exist
+            string logFilePathName = Path.GetDirectoryName(filesPathSample) + "\\" + resultFileName + ".txt";
+            if (IsFilesExist(logFilePathName)) return null;//ordered file is exist, cannot create it
+            
             string fileLineAppend = "New result file created \r\n";
             File.AppendAllText(logFilePathName, fileLineAppend, _defaultEncoding);
             return logFilePathName;
         }
+        #endregion
     }
 }
 
