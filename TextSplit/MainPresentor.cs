@@ -103,23 +103,28 @@ namespace TextSplit
             try
             {                
                 filesPath = _open.GetFilesPath();
+                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " filesPath[] = ", filesPath, CurrentClassName, 3);// showMessagesLevel);
                 isFilesExist = _manager.IsFilesExist(filesPath);
                 int BreakpointManager = filesToDo[iBreakpointManager];//only sample, what&where BreakpointManager looks like
                 BreakpointManager = isFilesExistCheck(); // call cycle and check all files existing
-                if (BreakpointManager == (int)WhatNeedDoWithFiles.StopProcessing)
+                if (BreakpointManager == (int)WhatNeedDoWithFiles.WittingIncomplete)
                 {
+                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " BreakpointManager = " + BreakpointManager.ToString(), CurrentClassName, 3);
                     filesToDo[iBreakpointManager] = BreakpointManager;
                     _messageService.ShowExclamation("The source file does not exist, please select it!");
                     _open.SetFilesToDo(filesToDo);//send the BreakpointManager to OpenForm
                 }
                 else
                 {
-                    //int isResultFileCreated = toCreateResultFile();//will check the result file existing and try to create it
+                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " BreakpointManager = " + BreakpointManager.ToString(), CurrentClassName, 3);
+                    BreakpointManager = (int)WhatNeedDoWithFiles.ContinueProcessing;
+                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " BreakpointManager = " + BreakpointManager.ToString(), CurrentClassName, 3);
+                    filesToDo[iBreakpointManager] = BreakpointManager;
+                    _open.SetFilesToDo(filesToDo);
                     filesContent = _manager.GetContents(filesPath, filesToDo);
                     counts = _manager.GetSymbolCounts(filesContent);
                     _view.SetFilesContent(filesPath, filesContent, filesToDo);
-                    _view.SetSymbolCount(counts, filesToDo);
-                    BreakpointManager = (int)WhatNeedDoWithFiles.StopProcessing;
+                    _view.SetSymbolCount(counts, filesToDo);                    
                 }
             }
             catch (Exception ex)
@@ -133,7 +138,7 @@ namespace TextSplit
             for (int i = 0; i < filesQuantity; i++) 
             {
                 if (isFilesExist[i]) filesToDo[i] = (int)WhatNeedDoWithFiles.ReadFirst;//if file exist we prepare to read (open) it
-                else return (int)WhatNeedDoWithFiles.StopProcessing; //some file does not exist
+                else return (int)WhatNeedDoWithFiles.WittingIncomplete; //some file does not exist
             }            
             return (int)WhatNeedDoWithFiles.ContinueProcessing;//all files exist
         }
@@ -168,7 +173,7 @@ namespace TextSplit
             {
                 if (_view.FilesToDo[i] != 0)
                 {
-                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " _view.FilesToDo[i] - ", _view.FilesToDo[i].ToString(), CurrentClassName, 3);// showMessagesLevel);
+                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " _view.FilesToDo[i] - ", _view.FilesToDo[i].ToString(), CurrentClassName, showMessagesLevel);
                 }
                 
                 

@@ -104,16 +104,16 @@ namespace TextSplit
 
         private void fldContent_TextChanged(object sender, EventArgs e)
         {            
-            TextBox textBox = sender as TextBox;            
+            TextBox textBox = sender as TextBox;
             string TextBoxName = textBox.Name;
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " TextBoxName - " + TextBoxName, CurrentClassName, 3);// showMessagesLevel);         
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " TextBoxName - " + TextBoxName, CurrentClassName, showMessagesLevel);
 
             for (int i = 0; i < filesQuantity; i++)
             {
-                string currentFormFieldNames = Enum.GetNames(typeof(FormFieldNames))[i];
-                if (TextBoxName == currentFormFieldNames)
+                string currentFormFieldName = Enum.GetNames(typeof(FormFieldsNames))[i];
+                if (TextBoxName == currentFormFieldName)
                 {
-                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " i  + currentFormFieldNames - " + i.ToString() + currentFormFieldNames, CurrentClassName, 3);// showMessagesLevel);
+                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " i  + currentFormFieldName - " + i.ToString() + currentFormFieldName, CurrentClassName, showMessagesLevel);
                     FilesToDo[i] = (int)WhatNeedDoWithFiles.ContentChanged;
                 }                
             }

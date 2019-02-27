@@ -78,6 +78,7 @@
             this.fld0EnglishFilePath.ReadOnly = true;
             this.fld0EnglishFilePath.Size = new System.Drawing.Size(611, 22);
             this.fld0EnglishFilePath.TabIndex = 4;
+            this.fld0EnglishFilePath.Text = "Please, select English File";
             // 
             // butSelectRussianFile
             // 

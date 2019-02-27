@@ -29,15 +29,15 @@ namespace TextSplit
 
         readonly private int filesQuantity;
         readonly private int filesQuantityPlus;
-        readonly private int iBreakpointManager;
+        readonly private int iBreakpointManager;        
         private int showMessagesLevel;
-
+        
         public event EventHandler AllOpenFilesClick;
         //public event EventHandler FormOpenClick;
         //public event EventHandler<FormClosingEventArgs> TextSplitOpenFormClosing;
 
         public TextSplitOpenForm(IMessageService service)
-        {
+        {            
             _messageService = service;
             filesQuantity = Declaration.FilesQuantity; //the length of the all Files___ arrays (except FilesToDo)
             filesQuantityPlus = Declaration.ToDoQuantity; //the length of the FilesToDo array (+1 for BreakpointManager)
@@ -52,10 +52,12 @@ namespace TextSplit
             //FilesContent = new string[filesQuantity];
 
             butAllFilesOpen.Click += new EventHandler (butAllFilesOpen_Click);
-            butSelectEnglishFile.Click += butSelectEnglishFile_Click;
-            butSelectRussianFile.Click += ButSelectRussianFile_Click;
-            butSelectResultFile.Click += ButSelectResultFile_Click;
-            butCreateResultFile.Click += butSelectEnglishFile_Click;
+            butSelectEnglishFile.Click += butSelectFile_Click;
+            butSelectRussianFile.Click += butSelectFile_Click;
+            butSelectResultFile.Click += butSelectFile_Click;
+
+            
+            //butCreateResultFile.Click += butSelectEnglishFile_Click;
             FormClosing += TextSplitOpenForm_FormClosing;
             
             //fld2CreateResultFileName - result file name field
@@ -63,10 +65,10 @@ namespace TextSplit
 
         public string[] GetFilesPath()
         {
-            FilesPath[0] = fld0EnglishFilePath.Text;
-            FilesPath[1] = fld1RussianFilePath.Text;
-            FilesPath[2] = fld2ResultFilePath.Text;
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesPath[] = ", FilesPath, CurrentClassName, showMessagesLevel);
+            //FilesPath[0] = fld0EnglishFilePath.Text;
+            //FilesPath[1] = fld1RussianFilePath.Text;
+            //FilesPath[2] = fld2ResultFilePath.Text;
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesPath[] = ", FilesPath, CurrentClassName, 3);// showMessagesLevel);
             return FilesPath;
         }
 
@@ -93,16 +95,16 @@ namespace TextSplit
         {
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Start", CurrentClassName, showMessagesLevel);       
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " fldEnglishFilePath = ", fld0EnglishFilePath.Text, CurrentClassName, showMessagesLevel);
-            FilesPath[0] = fld0EnglishFilePath.Text;            
-            FilesPath[1] = fld1RussianFilePath.Text;            
-            FilesPath[2] = fld2ResultFilePath.Text;
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesPath[] = ", FilesPath, CurrentClassName, showMessagesLevel);
+            //FilesPath[0] = fld0EnglishFilePath.Text;            
+            //FilesPath[1] = fld1RussianFilePath.Text;            
+            //FilesPath[2] = fld2ResultFilePath.Text;
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesPath[] = ", FilesPath, CurrentClassName, 3);// showMessagesLevel);
             
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesOpenClick = ", AllOpenFilesClick.ToString(), CurrentClassName, showMessagesLevel);
-            if (AllOpenFilesClick != null) AllOpenFilesClick(this, EventArgs.Empty);
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " iBreakpointManager = " + iBreakpointManager.ToString(), CurrentClassName, 3);
+            if (AllOpenFilesClick != null) AllOpenFilesClick(this, EventArgs.Empty);            
             int BreakpointManager = FilesToDo[iBreakpointManager];
-            if (BreakpointManager != (int)WhatNeedDoWithFiles.StopProcessing) this.Close();            
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " BreakpointManager = " + BreakpointManager.ToString(), CurrentClassName, 3);
+            if (BreakpointManager != (int)WhatNeedDoWithFiles.WittingIncomplete) this.Close();            
             //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "taki.Closed", CurrentClassName, showMessagesLevel);
             //this.parentForm.FilePath[1] = fldRussianFilePath.Text;
             //this.parentForm.FilePath[2] = fldResultFilePath.Text;
@@ -122,44 +124,59 @@ namespace TextSplit
         //    FilesToDo = filesToDo;
         //}
 
-        private void butSelectEnglishFile_Click(object sender, EventArgs e)
-        {            
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilePath[] = ", FilesPath, CurrentClassName, showMessagesLevel);
-            OpenFileDialog dlg = new OpenFileDialog();
-            dlg.Filter = "Text files|*.txt|All files|*.*";
+        private void butSelectFile_Click(object sender, EventArgs e)
+        {
+            Button button = sender as Button;
+            string ButtonName = button.Name;
+            //for (int i = 0; i < 20; i++)
+            //    Control currentOpenFormFieldName = this.Controls[15];
+            //    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " i - currentOpenFormFieldName = ", i.ToString() + " - " + currentOpenFormFieldName.ToString(), CurrentClassName, 3);// showMessagesLevel);                        
+            //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " TextBoxName - " + ButtonName, CurrentClassName, 3);// showMessagesLevel);
 
-            if (dlg.ShowDialog() == DialogResult.OK)
+            for (int i = 0; i < filesQuantity; i++)
             {
-                fld0EnglishFilePath.Text = dlg.FileName;
+                string currentOpenFormButtonName = Enum.GetNames(typeof(OpenFormButtonNames))[i];
+                if (ButtonName == currentOpenFormButtonName)
+                {
+                    //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilePath[] = ", FilesPath, CurrentClassName, 3);// showMessagesLevel);
+                    OpenFileDialog dlg = new OpenFileDialog();
+                    dlg.Filter = "Text files|*.txt|All files|*.*";
 
-                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " fldEnglishFilePath = ", fld0EnglishFilePath.Text, CurrentClassName, showMessagesLevel);                
-            }
+                    if (dlg.ShowDialog() == DialogResult.OK)
+                    {
+                        //string currentOpenFormFieldName = Enum.GetNames(typeof(OpenFormFieldNames))[i];                        
+                        FilesPath[i] = dlg.FileName;
+                        _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesPath[i] = ", FilesPath[i] + " [" + i.ToString() + "]", CurrentClassName, 3);// showMessagesLevel);                        
+                    }
+                    FilesToDo[i] = (int)WhatNeedDoWithFiles.PassThrough;//file maybe exists but we will check this more clearly
+                }
+            }            
         }
 
-        private void ButSelectRussianFile_Click(object sender, EventArgs e)
-        {
-            OpenFileDialog dlg = new OpenFileDialog();
-            dlg.Filter = "Text files|*.txt|All files|*.*";
+        //private void ButSelectRussianFile_Click(object sender, EventArgs e) 
+        //{
+        //    OpenFileDialog dlg = new OpenFileDialog();
+        //    dlg.Filter = "Text files|*.txt|All files|*.*";
 
-            if (dlg.ShowDialog() == DialogResult.OK)
-            {
-                fld1RussianFilePath.Text = dlg.FileName;
-                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " fldRussianFilePath = ", fld1RussianFilePath.Text, CurrentClassName, showMessagesLevel);
-            }
+        //    if (dlg.ShowDialog() == DialogResult.OK)
+        //    {
+        //        fld1RussianFilePath.Text = dlg.FileName;
+        //        _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " fldRussianFilePath = ", fld1RussianFilePath.Text, CurrentClassName, showMessagesLevel);
+        //    }
 
-        }
+        //}
 
-        private void ButSelectResultFile_Click(object sender, EventArgs e)
-        {
-            OpenFileDialog dlg = new OpenFileDialog();
-            dlg.Filter = "Text files|*.txt|All files|*.*";
+        //private void ButSelectResultFile_Click(object sender, EventArgs e)
+        //{
+        //    OpenFileDialog dlg = new OpenFileDialog();
+        //    dlg.Filter = "Text files|*.txt|All files|*.*";
 
-            if (dlg.ShowDialog() == DialogResult.OK)
-            {
-                fld2ResultFilePath.Text = dlg.FileName;
-                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " fldResultFilePath = ", fld2ResultFilePath.Text, CurrentClassName, showMessagesLevel);
-            }
-        }       
+        //    if (dlg.ShowDialog() == DialogResult.OK)
+        //    {
+        //        fld2ResultFilePath.Text = dlg.FileName;
+        //        _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " fldResultFilePath = ", fld2ResultFilePath.Text, CurrentClassName, showMessagesLevel);
+        //    }
+        //}       
 
         public static string CurrentClassName
         {
