@@ -19,7 +19,7 @@ namespace TextSplit
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            FileManager manager = new FileManager(Declaration.LanguagesQuantity);
+            FileManager manager = new FileManager(Declaration.FilesQuantity);
             MessageService service = new MessageService(manager);
             TextSplitOpenForm open = new TextSplitOpenForm(service);
             TextSplitForm view = new TextSplitForm(service);

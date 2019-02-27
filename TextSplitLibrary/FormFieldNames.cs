@@ -7,4 +7,5 @@ using System.Threading.Tasks;
 namespace TextSplitLibrary
 {
     public enum FormFieldNames : int { fld0EnglishContent, fld1RussianContent, fld2ResultContent };
+    public enum OpenFormFieldNames : int { fld0EnglishFilePath, fld1RussianFilePath, fld2ResultFilePath, fld2CreateResultFileName };
 }

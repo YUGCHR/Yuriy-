@@ -17,11 +17,12 @@ namespace TextSplit
         private readonly IMessageService _messageService;        
 
         private bool wasEnglishContentChange = false;
-        private int filesQuantity;
+        readonly private int filesQuantity;
+        readonly private int filesQuantityPlus;
+        readonly private int iBreakpointManager;
+        readonly private int resultFileNumber;
         private int showMessagesLevel;
-        private int resultFileNumber;
-        private string resultFileName;
-        private int iBreakpoint; //Index value in the cycle breakpoint
+        private string resultFileName;        
 
         private int[] filesToDo;
         private int[] counts;
@@ -37,16 +38,16 @@ namespace TextSplit
             _messageService = service;
 
             showMessagesLevel = Declaration.ShowMessagesLevel;
-            filesQuantity = Declaration.LanguagesQuantity;
+            filesQuantity = Declaration.FilesQuantity;
+            filesQuantityPlus = Declaration.ToDoQuantity;
+            iBreakpointManager = filesQuantityPlus-1;
             resultFileNumber = Declaration.ResultFileNumber;//index of the Resalt File
             resultFileName = Declaration.ResultFileName;
-
-            
 
             string mainStart = "******************************************************************************************************************************************* \r\n";//Log-file separator
             _messageService.ShowTrace(mainStart + MethodBase.GetCurrentMethod().ToString(), " Started", CurrentClassName, showMessagesLevel);
 
-            filesToDo = new int[filesQuantity];
+            filesToDo = new int[filesQuantityPlus];
             counts = new int[filesQuantity];
             _view.SetSymbolCount(counts, filesToDo);//move?
             
@@ -101,24 +102,26 @@ namespace TextSplit
         {
             try
             {                
-                filesPath = _open.GetFilesPath();                
+                filesPath = _open.GetFilesPath();
                 isFilesExist = _manager.IsFilesExist(filesPath);
-                iBreakpoint = isFilesExistCheck(); // check all files and prepare filesToDo array (-1 - OK)
-                
-                if (iBreakpoint < 0) //check key files
-                {//key files exist                    
-                    int isResultFileCreated = toCreateResultFile();//will check the result file existing and try to create it
-                    if (isResultFileCreated < 0)
-                    {//all files exist 
-                        filesContent = _manager.GetContents(filesPath, filesToDo);                        
-                        counts = _manager.GetSymbolCounts(filesContent);                        
-                        _view.SetFilesContent(filesPath, filesContent, filesToDo);
-                        _view.SetSymbolCount(counts, filesToDo);
-                    }
-                    //the Result file already exist we need to select or to delete it
+                int BreakpointManager = filesToDo[iBreakpointManager];//only sample, what&where BreakpointManager looks like
+                BreakpointManager = isFilesExistCheck(); // call cycle and check all files existing
+                if (BreakpointManager == (int)WhatNeedDoWithFiles.StopProcessing)
+                {
+                    filesToDo[iBreakpointManager] = BreakpointManager;
+                    _messageService.ShowExclamation("The source file does not exist, please select it!");
+                    _open.SetFilesToDo(filesToDo);//send the BreakpointManager to OpenForm
                 }
-                //key files does not exist - That's not the way to do things - you must select both source files                
-            }            
+                else
+                {
+                    //int isResultFileCreated = toCreateResultFile();//will check the result file existing and try to create it
+                    filesContent = _manager.GetContents(filesPath, filesToDo);
+                    counts = _manager.GetSymbolCounts(filesContent);
+                    _view.SetFilesContent(filesPath, filesContent, filesToDo);
+                    _view.SetSymbolCount(counts, filesToDo);
+                    BreakpointManager = (int)WhatNeedDoWithFiles.StopProcessing;
+                }
+            }
             catch (Exception ex)
             {
                 _messageService.ShowError(ex.Message);
@@ -128,20 +131,11 @@ namespace TextSplit
         int isFilesExistCheck() // check files pathes and prepare filesToDo array
         {
             for (int i = 0; i < filesQuantity; i++) 
-            {                
-                if (isFilesExist[i]) filesToDo[i] = (int)WhatNeedDoWithFiles.ReadFirst;//if file exist we will read (open) it
-                else
-                {//file does not exist but we check if resultFile does not exist, then we will try to create it
-                    filesToDo[i] = (int)WhatNeedDoWithFiles.StopProcessing;                    
-                    if (i == resultFileNumber) return -1; //result file is in short supply                    
-                    else
-                    {//some of key file is in short supply
-                        _messageService.ShowExclamation("The source file does not exist, please select it!");//return to OpenForm for all necessary file selection                        
-                        return i; //key file(s) does not exist
-                    }                                        
-                }
+            {
+                if (isFilesExist[i]) filesToDo[i] = (int)WhatNeedDoWithFiles.ReadFirst;//if file exist we prepare to read (open) it
+                else return (int)WhatNeedDoWithFiles.StopProcessing; //some file does not exist
             }            
-            return -1;//all files exist
+            return (int)WhatNeedDoWithFiles.ContinueProcessing;//all files exist
         }
         
         int toCreateResultFile() //we check the result file existing and try to create it

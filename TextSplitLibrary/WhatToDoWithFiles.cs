@@ -6,5 +6,5 @@ using System.Threading.Tasks;
 
 namespace TextSplitLibrary
 {    
-    public enum WhatNeedDoWithFiles : int { PassThrough, ReadFirst, ContentChanged, Write, CountSymbols, CountSentences, StopProcessing };    
+    public enum WhatNeedDoWithFiles : int { PassThrough, ReadFirst, ContentChanged, Write, CountSymbols, CountSentences, StopProcessing, ContinueProcessing };    
 }

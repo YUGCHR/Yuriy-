@@ -38,7 +38,8 @@ namespace TextSplit
         public int[] counts;
         public Label[] lblSymbolsCount;
         
-        public int filesQuantity = Declaration.LanguagesQuantity;
+        public int filesQuantity = Declaration.FilesQuantity;
+        public int  filesQuantityPlus = Declaration.ToDoQuantity;
         public int showMessagesLevel = Declaration.ShowMessagesLevel;
 
         //public event EventHandler FormOpenClick;
@@ -61,11 +62,11 @@ namespace TextSplit
             fld0EnglishContent.TextChanged += fldContent_TextChanged;
             fld1RussianContent.TextChanged += fldContent_TextChanged;
             fld2ResultContent.TextChanged += fldContent_TextChanged;
-                        
-            numFont.ValueChanged += numFont_ValueChanged;
+
+            numEnglishFont.ValueMemberChanged += numEnglishFont_ValueMemberChanged;
             FormClosing += TextSplitForm_FormClosing;            
             
-            FilesToDo = new int[filesQuantity];
+            FilesToDo = new int[filesQuantityPlus];
             FilesPath = new string[filesQuantity];
             FilesContent = new string[filesQuantity];
             
@@ -88,7 +89,8 @@ namespace TextSplit
         }        
 
         void butFilesOpen_Click(object sender, EventArgs e)//обрабатываем нажатие кнопки Open, которое означает открытие вспомогательной формы
-        {            
+        {
+            //для начала проверить нет ли уже загруженных и измененных контентов и не начал ли строиться TextSplit - наверное, в мейне проверять
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " OpenTextSplitOpenForm will call now - " + OpenTextSplitOpenForm.ToString(), CurrentClassName, showMessagesLevel);
             if (OpenTextSplitOpenForm != null) OpenTextSplitOpenForm(this, EventArgs.Empty);                      
         }
@@ -165,10 +167,10 @@ namespace TextSplit
         //    FilesOpenClick(this, EventArgs.Empty);            
         //}
 
-        private void numFont_ValueChanged(object sender, EventArgs e)
+        private void numEnglishFont_ValueMemberChanged(object sender, EventArgs e)
         {            
             {
-                fld0EnglishContent.Font = new Font("Calibri", (float)numFont.Value);
+                fld0EnglishContent.Font = new Font("Tahoma", (float)numFont.Value);
             }
         }
 
