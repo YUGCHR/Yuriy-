@@ -94,7 +94,7 @@ namespace TextSplit
         void butAllFilesOpen_Click(object sender, EventArgs e)
         {
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Start", CurrentClassName, showMessagesLevel);       
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " fldEnglishFilePath = ", fld0EnglishFilePath.Text, CurrentClassName, showMessagesLevel);
+            //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " fldEnglishFilePath = ", fld0EnglishFilePath.Text, CurrentClassName, showMessagesLevel);
             //FilesPath[0] = fld0EnglishFilePath.Text;            
             //FilesPath[1] = fld1RussianFilePath.Text;            
             //FilesPath[2] = fld2ResultFilePath.Text;
@@ -148,6 +148,7 @@ namespace TextSplit
                         FilesPath[i] = dlg.FileName;
                         _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesPath[i] = ", FilesPath[i] + " [" + i.ToString() + "]", CurrentClassName, 3);// showMessagesLevel);                        
                     }
+                    statusBottomLabel.Text = Enum.GetNames(typeof(OpenFormProgressStatusMessages))[i]; 
                     FilesToDo[i] = (int)WhatNeedDoWithFiles.PassThrough;//file maybe exists but we will check this more clearly
                 }
             }            
