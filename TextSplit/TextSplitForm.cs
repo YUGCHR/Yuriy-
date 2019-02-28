@@ -37,10 +37,11 @@ namespace TextSplit
         public int[] FilesToDo { get; set; }
         public int[] counts;
         public Label[] lblSymbolsCount;
-        
-        public int filesQuantity = Declaration.FilesQuantity;
-        public int  filesQuantityPlus = Declaration.ToDoQuantity;
-        public int showMessagesLevel = Declaration.ShowMessagesLevel;
+
+        readonly private string strCRLF;
+        readonly private int filesQuantity = Declaration.FilesQuantity;
+        readonly private int filesQuantityPlus = Declaration.ToDoQuantity;
+        readonly private int showMessagesLevel = Declaration.ShowMessagesLevel;
 
         //public event EventHandler FormOpenClick;
         public event EventHandler FilesSaveClick;
@@ -64,8 +65,9 @@ namespace TextSplit
             fld2ResultContent.TextChanged += fldContent_TextChanged;
 
             numEnglishFont.ValueMemberChanged += numEnglishFont_ValueMemberChanged;
-            FormClosing += TextSplitForm_FormClosing;            
-            
+            FormClosing += TextSplitForm_FormClosing;
+
+            strCRLF = Declaration.StrCRLF;
             FilesToDo = new int[filesQuantityPlus];
             FilesPath = new string[filesQuantity];
             FilesContent = new string[filesQuantity];

@@ -18,6 +18,7 @@ namespace TextSplit
         private readonly ILogFileMessages _logs;
 
         private bool wasEnglishContentChange = false;
+        readonly private string strCRLF;
         readonly private int filesQuantity;
         readonly private int filesQuantityPlus;
         readonly private int iBreakpointManager;
@@ -39,6 +40,7 @@ namespace TextSplit
             _messageService = service;
             _logs = logs;
 
+            strCRLF = Declaration.StrCRLF;
             showMessagesLevel = Declaration.ShowMessagesLevel;
             filesQuantity = Declaration.FilesQuantity;
             filesQuantityPlus = Declaration.ToDoQuantity;
@@ -48,7 +50,7 @@ namespace TextSplit
 
             string mainStart = "******************************************************************************************************************************************* \r\n";//Log-file separator
             _messageService.ShowTrace(mainStart + MethodBase.GetCurrentMethod().ToString(), " Started", CurrentClassName, showMessagesLevel);
-
+                        
             filesToDo = new int[filesQuantityPlus];
             counts = new int[filesQuantity];
             _view.SetSymbolCount(counts, filesToDo);//move?

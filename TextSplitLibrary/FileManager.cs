@@ -33,7 +33,8 @@ namespace TextSplitLibrary
         public int[] FilesToDo { get; set; }        
         private readonly Encoding _defaultEncoding = Encoding.GetEncoding(1251);
         public string[] FilesPath;
-        public string[] FilesContent;        
+        public string[] FilesContent;
+        //readonly private string strCRLF;
         private readonly int filesQuantity;//we will reveice the value from Declaration.LanguagesQuantity;
         private string logFilePathName;
         private bool isLogFileExist;        
@@ -41,8 +42,8 @@ namespace TextSplitLibrary
 
         public FileManager(int filesQuantity) //IMessageService service
         {            
-            this.filesQuantity = filesQuantity;            
-            
+            this.filesQuantity = filesQuantity;
+            //strCRLF = Declaration.StrCRLF;
             FilesPath = new string[filesQuantity];
             FilesContent = new string[filesQuantity];
             FilesToDo = new int[filesQuantity];

@@ -31,10 +31,11 @@ namespace TextSplit
 
         readonly private int filesQuantity;
         readonly private int filesQuantityPlus;
-        readonly private int iBreakpointManager;        
-        private int showMessagesLevel;
-        private string LogBoxAllLines;
+        readonly private int showMessagesLevel;
+        readonly private string strCRLF;
+        readonly private int iBreakpointManager;
 
+        private string LogBoxAllLines;
 
         public event EventHandler AllOpenFilesClick;
         //public event EventHandler FormOpenClick;
@@ -48,32 +49,28 @@ namespace TextSplit
             filesQuantityPlus = Declaration.ToDoQuantity; //the length of the FilesToDo array (+1 for BreakpointManager)
             iBreakpointManager = filesQuantityPlus-1; //index of BreakpointManager in the FilesToDo array
             showMessagesLevel = Declaration.ShowMessagesLevel;
+            strCRLF = Declaration.StrCRLF;
 
             InitializeComponent();
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "InitializeComponent", CurrentClassName, showMessagesLevel);
 
             FilesToDo = new int[filesQuantityPlus];
             FilesPath = new string[filesQuantity];
-            //FilesContent = new string[filesQuantity];
-
+            
             butAllFilesOpen.Click += new EventHandler (butAllFilesOpen_Click);
             butSelectEnglishFile.Click += butSelectFile_Click;
             butSelectRussianFile.Click += butSelectFile_Click;
             butSelectResultFile.Click += butSelectFile_Click;
 
-            
-            //butCreateResultFile.Click += butSelectEnglishFile_Click;
-            FormClosing += TextSplitOpenForm_FormClosing;
-            
+            //butCreateResultFile.Click += butSelectEnglishFile_Click; it needs to clear up
             //fld2CreateResultFileName - result file name field
+
+            FormClosing += TextSplitOpenForm_FormClosing;            
         }
 
         public string[] GetFilesPath()
-        {
-            //FilesPath[0] = fld0EnglishFilePath.Text;
-            //FilesPath[1] = fld1RussianFilePath.Text;
-            //FilesPath[2] = fld2ResultFilePath.Text;
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesPath[] = ", FilesPath, CurrentClassName, 3);// showMessagesLevel);
+        {            
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesPath[] = ", FilesPath, CurrentClassName, showMessagesLevel);
             return FilesPath;
         }
 
@@ -82,7 +79,7 @@ namespace TextSplit
             FilesToDo = filesToDo;
         }
 
-        private void TextSplitOpenForm_FormClosing(object sender, FormClosingEventArgs e)
+        private void TextSplitOpenForm_FormClosing(object sender, FormClosingEventArgs e)//it needs to clear up
         {            
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Start", CurrentClassName, showMessagesLevel);
             //TextSplitOpenFormClosing(this, e);            
@@ -97,17 +94,9 @@ namespace TextSplit
 
         void butAllFilesOpen_Click(object sender, EventArgs e)
         {
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Start", CurrentClassName, showMessagesLevel);            
-            //FilesPath[0] = fld0EnglishFilePath.Text;            
-            //FilesPath[1] = fld1RussianFilePath.Text;            
-            //FilesPath[2] = fld2ResultFilePath.Text;
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesPath[] = ", FilesPath, CurrentClassName, 3);// showMessagesLevel);
-            
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesOpenClick = ", AllOpenFilesClick.ToString(), CurrentClassName, showMessagesLevel);
             if (AllOpenFilesClick != null) AllOpenFilesClick(this, EventArgs.Empty);            
-            int BreakpointManager = FilesToDo[iBreakpointManager];
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " BreakpointManager = " + BreakpointManager.ToString(), CurrentClassName, 3);
-            if (BreakpointManager != (int)WhatNeedDoWithFiles.WittingIncomplete) this.Close();         
+            int BreakpointManager = FilesToDo[iBreakpointManager];            
+            if (BreakpointManager != (int)WhatNeedDoWithFiles.WittingIncomplete) this.Close();//if we have received all data from OpenForm we can close it
         }        
 
         private void butSelectFile_Click(object sender, EventArgs e)
@@ -126,27 +115,22 @@ namespace TextSplit
                     if (dlg.ShowDialog() == DialogResult.OK)
                     {                        
                         FilesPath[i] = dlg.FileName;
-                        _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesPath[i] = ", FilesPath[i] + " [" + i.ToString() + "]", CurrentClassName, 3);// showMessagesLevel);                        
+                        _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesPath[i] = ", FilesPath[i] + " [" + i.ToString() + "]", CurrentClassName, showMessagesLevel);                        
                     }
-                    statusBottomLabel.Text = Enum.GetNames(typeof(OpenFormProgressStatusMessages))[i] + " - " + FilesPath[i];//Set the short type of current action in the status bar
+                    statusBottomLabel.Text = Enum.GetNames(typeof(OpenFormProgressStatusMessages))[i] + " - " + FilesPath[i];//Set the short type of current action in the status bar - delete?
                     string LogBoxCurrentLine = "";//it does not use here, need to make Overload of SetLogBox (and add with ToDo one)
                     SetLogBox(LogBoxCurrentLine, FilesPath[i], i);//Set the detail type of current action in OpenForm log textbox
-                    FilesToDo[i] = (int)WhatNeedDoWithFiles.PassThrough;//file maybe exists but we will check this more clearly
+                    FilesToDo[i] = (int)WhatNeedDoWithFiles.PassThrough;//file maybe exists but we will check this more clearly - delete?
                 }
             }            
         }
 
         public void SetLogBox(string LogBoxCurrentLineMessage, string LogBoxCurrentLineValue, int i)
-        {
-            string strCRLF = "\r\n"; //remove in Declaration?
+        {            
             string LogBoxCurrentLine = strCRLF + _logs.GetLogFileMessages(i) + strCRLF + LogBoxCurrentLineValue + strCRLF;             
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " LogBoxCurrentLine = ", LogBoxCurrentLine, CurrentClassName, 3);// showMessagesLevel);
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " LogBoxCurrentLine = ", LogBoxCurrentLine, CurrentClassName, showMessagesLevel);
             LogBoxAllLines = LogBoxAllLines + LogBoxCurrentLine;
             textBoxImplementation.Text = LogBoxAllLines;
-
-
-
-
         }
 
         public static string CurrentClassName
