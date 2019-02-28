@@ -14,7 +14,8 @@ namespace TextSplit
         private readonly ITextSplitForm _view;
         private ITextSplitOpenForm _open;
         private readonly IFileManager _manager;
-        private readonly IMessageService _messageService;        
+        private readonly IMessageService _messageService;
+        private readonly ILogFileMessages _logs;
 
         private bool wasEnglishContentChange = false;
         readonly private int filesQuantity;
@@ -30,12 +31,13 @@ namespace TextSplit
         private string[] filesContent;
         bool[] isFilesExist;        
 
-        public MainPresentor(ITextSplitForm view, ITextSplitOpenForm open, IFileManager manager, IMessageService service)
+        public MainPresentor(ITextSplitForm view, ITextSplitOpenForm open, IFileManager manager, IMessageService service, ILogFileMessages logs)
         {            
             _view = view;
             _open = open;            
             _manager = manager;
             _messageService = service;
+            _logs = logs;
 
             showMessagesLevel = Declaration.ShowMessagesLevel;
             filesQuantity = Declaration.FilesQuantity;
@@ -74,7 +76,7 @@ namespace TextSplit
 
         void _view_OpenTextSplitOpenForm(object sender, EventArgs e)//обрабатываем нажатие кнопки Open, которое означает открытие вспомогательной формы
         {
-            TextSplitOpenForm openForm = new TextSplitOpenForm(_messageService);
+            TextSplitOpenForm openForm = new TextSplitOpenForm(_messageService, _logs);
             _open = openForm;
             _open.AllOpenFilesClick += new EventHandler(_open_FilesOpenClick);
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "openForm will start now", CurrentClassName, showMessagesLevel);

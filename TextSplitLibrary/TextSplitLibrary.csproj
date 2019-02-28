@@ -45,6 +45,7 @@
     <Compile Include="FileManager.cs" />
     <Compile Include="FormsObjectsNames.cs" />
     <Compile Include="IMessageService.cs" />
+    <Compile Include="LogFileMessages.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WhatToDoWithFiles.cs" />
   </ItemGroup>

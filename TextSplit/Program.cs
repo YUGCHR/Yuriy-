@@ -21,10 +21,11 @@ namespace TextSplit
 
             FileManager manager = new FileManager(Declaration.FilesQuantity);
             MessageService service = new MessageService(manager);
-            TextSplitOpenForm open = new TextSplitOpenForm(service);
+            LogFileMessages logs = new LogFileMessages();
+            TextSplitOpenForm open = new TextSplitOpenForm(service, logs);
             TextSplitForm view = new TextSplitForm(service);
             //MessageBox.Show("All Modules Declared", "Program in progress", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            MainPresentor presentor = new MainPresentor(view, open, manager, service);            
+            MainPresentor presentor = new MainPresentor(view, open, manager, service, logs);            
             MessageBox.Show("Main Called", "Program in progress", MessageBoxButtons.OK, MessageBoxIcon.Information);
             Application.Run(view);            
         }
@@ -58,4 +59,5 @@ namespace TextSplit
 //
 //this.parentForm.FilePath[1] = fldRussianFilePath.Text;
 //
+//num.GetName(typeof(OpenFormProgressStatusMessages), i) + "\r\n" + LogBoxCurrentLineValue;
 //

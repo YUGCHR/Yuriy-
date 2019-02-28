@@ -24,6 +24,8 @@ namespace TextSplit
     public partial class TextSplitOpenForm : Form, ITextSplitOpenForm
     {
         private readonly IMessageService _messageService;
+        private readonly ILogFileMessages _logs;
+
         public string[] FilesPath;// { get; set; }        
         public int[] FilesToDo;// { get; set; }
 
@@ -31,14 +33,17 @@ namespace TextSplit
         readonly private int filesQuantityPlus;
         readonly private int iBreakpointManager;        
         private int showMessagesLevel;
-        
+        private string LogBoxAllLines;
+
+
         public event EventHandler AllOpenFilesClick;
         //public event EventHandler FormOpenClick;
         //public event EventHandler<FormClosingEventArgs> TextSplitOpenFormClosing;
 
-        public TextSplitOpenForm(IMessageService service)
+        public TextSplitOpenForm(IMessageService service, ILogFileMessages logs)
         {            
             _messageService = service;
+            _logs = logs;
             filesQuantity = Declaration.FilesQuantity; //the length of the all Files___ arrays (except FilesToDo)
             filesQuantityPlus = Declaration.ToDoQuantity; //the length of the FilesToDo array (+1 for BreakpointManager)
             iBreakpointManager = filesQuantityPlus-1; //index of BreakpointManager in the FilesToDo array
@@ -80,8 +85,7 @@ namespace TextSplit
         private void TextSplitOpenForm_FormClosing(object sender, FormClosingEventArgs e)
         {            
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Start", CurrentClassName, showMessagesLevel);
-            //TextSplitOpenFormClosing(this, e);
-            //MessageBox.Show(wasEnglishContentChange.ToString(), "We here again - last step", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            //TextSplitOpenFormClosing(this, e);            
             //e.Cancel = wasEnglishContentChange;
             System.Text.StringBuilder messageBoxCS = new System.Text.StringBuilder();
             messageBoxCS.AppendFormat("{0} = {1}", "CloseReason", e.CloseReason);
@@ -93,8 +97,7 @@ namespace TextSplit
 
         void butAllFilesOpen_Click(object sender, EventArgs e)
         {
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Start", CurrentClassName, showMessagesLevel);       
-            //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " fldEnglishFilePath = ", fld0EnglishFilePath.Text, CurrentClassName, showMessagesLevel);
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Start", CurrentClassName, showMessagesLevel);            
             //FilesPath[0] = fld0EnglishFilePath.Text;            
             //FilesPath[1] = fld1RussianFilePath.Text;            
             //FilesPath[2] = fld2ResultFilePath.Text;
@@ -125,11 +128,26 @@ namespace TextSplit
                         FilesPath[i] = dlg.FileName;
                         _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesPath[i] = ", FilesPath[i] + " [" + i.ToString() + "]", CurrentClassName, 3);// showMessagesLevel);                        
                     }
-                    statusBottomLabel.Text = Enum.GetNames(typeof(OpenFormProgressStatusMessages))[i] + " - " + FilesPath[i]; 
+                    statusBottomLabel.Text = Enum.GetNames(typeof(OpenFormProgressStatusMessages))[i] + " - " + FilesPath[i];//Set the short type of current action in the status bar
+                    string LogBoxCurrentLine = "";//it does not use here, need to make Overload of SetLogBox (and add with ToDo one)
+                    SetLogBox(LogBoxCurrentLine, FilesPath[i], i);//Set the detail type of current action in OpenForm log textbox
                     FilesToDo[i] = (int)WhatNeedDoWithFiles.PassThrough;//file maybe exists but we will check this more clearly
                 }
             }            
-        }        
+        }
+
+        public void SetLogBox(string LogBoxCurrentLineMessage, string LogBoxCurrentLineValue, int i)
+        {
+            string strCRLF = "\r\n"; //remove in Declaration?
+            string LogBoxCurrentLine = strCRLF + _logs.GetLogFileMessages(i) + strCRLF + LogBoxCurrentLineValue + strCRLF;             
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " LogBoxCurrentLine = ", LogBoxCurrentLine, CurrentClassName, 3);// showMessagesLevel);
+            LogBoxAllLines = LogBoxAllLines + LogBoxCurrentLine;
+            textBoxImplementation.Text = LogBoxAllLines;
+
+
+
+
+        }
 
         public static string CurrentClassName
         {
