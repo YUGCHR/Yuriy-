@@ -34,8 +34,6 @@
             this.butSelectResultFile = new System.Windows.Forms.Button();
             this.butCreateResultFile = new System.Windows.Forms.Button();
             this.fld2CreateResultFileName = new System.Windows.Forms.TextBox();
-            this.label6 = new System.Windows.Forms.Label();
-            this.label7 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.Cancel = new System.Windows.Forms.Button();
@@ -43,12 +41,16 @@
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusBottomLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.label2 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
+            this.textBoxImplementation = new System.Windows.Forms.TextBox();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // butAllFilesOpen
             // 
-            this.butAllFilesOpen.Location = new System.Drawing.Point(271, 278);
+            this.butAllFilesOpen.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.butAllFilesOpen.Location = new System.Drawing.Point(578, 366);
             this.butAllFilesOpen.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.butAllFilesOpen.Name = "butAllFilesOpen";
             this.butAllFilesOpen.Size = new System.Drawing.Size(216, 24);
@@ -58,7 +60,8 @@
             // 
             // butSelectEnglishFile
             // 
-            this.butSelectEnglishFile.Location = new System.Drawing.Point(40, 44);
+            this.butSelectEnglishFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.butSelectEnglishFile.Location = new System.Drawing.Point(578, 79);
             this.butSelectEnglishFile.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.butSelectEnglishFile.Name = "butSelectEnglishFile";
             this.butSelectEnglishFile.Size = new System.Drawing.Size(216, 24);
@@ -68,7 +71,8 @@
             // 
             // butSelectRussianFile
             // 
-            this.butSelectRussianFile.Location = new System.Drawing.Point(271, 44);
+            this.butSelectRussianFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.butSelectRussianFile.Location = new System.Drawing.Point(578, 119);
             this.butSelectRussianFile.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.butSelectRussianFile.Name = "butSelectRussianFile";
             this.butSelectRussianFile.Size = new System.Drawing.Size(216, 24);
@@ -78,7 +82,8 @@
             // 
             // butSelectResultFile
             // 
-            this.butSelectResultFile.Location = new System.Drawing.Point(40, 119);
+            this.butSelectResultFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.butSelectResultFile.Location = new System.Drawing.Point(578, 160);
             this.butSelectResultFile.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.butSelectResultFile.Name = "butSelectResultFile";
             this.butSelectResultFile.Size = new System.Drawing.Size(216, 24);
@@ -88,7 +93,8 @@
             // 
             // butCreateResultFile
             // 
-            this.butCreateResultFile.Location = new System.Drawing.Point(40, 195);
+            this.butCreateResultFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.butCreateResultFile.Location = new System.Drawing.Point(578, 274);
             this.butCreateResultFile.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.butCreateResultFile.Name = "butCreateResultFile";
             this.butCreateResultFile.Size = new System.Drawing.Size(216, 24);
@@ -98,56 +104,42 @@
             // 
             // fld2CreateResultFileName
             // 
-            this.fld2CreateResultFileName.Location = new System.Drawing.Point(40, 165);
+            this.fld2CreateResultFileName.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.fld2CreateResultFileName.Location = new System.Drawing.Point(578, 234);
             this.fld2CreateResultFileName.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.fld2CreateResultFileName.Name = "fld2CreateResultFileName";
             this.fld2CreateResultFileName.Size = new System.Drawing.Size(216, 22);
             this.fld2CreateResultFileName.TabIndex = 12;
             this.fld2CreateResultFileName.Text = "sampleResultTextDoc.txt";
             // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label6.Location = new System.Drawing.Point(268, 167);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(223, 17);
-            this.label6.TabIndex = 18;
-            this.label6.Text = "Name to create file for Splitting text";
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label7.Location = new System.Drawing.Point(35, 238);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(377, 17);
-            this.label7.TabIndex = 19;
-            this.label7.Text = "3. Please, open all selected files and start text splitting";
-            // 
             // label4
             // 
+            this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label4.Location = new System.Drawing.Point(35, 86);
+            this.label4.Location = new System.Drawing.Point(587, 202);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(362, 17);
+            this.label4.Size = new System.Drawing.Size(196, 17);
             this.label4.TabIndex = 16;
-            this.label4.Text = "2. Please, select or create result file for splitting text";
+            this.label4.Text = "Create result file if not exist";
             // 
             // label1
             // 
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label1.Location = new System.Drawing.Point(36, 10);
+            this.label1.Location = new System.Drawing.Point(78, 9);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(451, 17);
+            this.label1.Size = new System.Drawing.Size(716, 17);
             this.label1.TabIndex = 13;
-            this.label1.Text = "1. Please, select files with synchronous English and Russian texts";
+            this.label1.Text = "You need to have files with synchronous English and Russian texts to make split t" +
+    "ext with this program";
             // 
             // Cancel
             // 
-            this.Cancel.Location = new System.Drawing.Point(40, 278);
+            this.Cancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.Cancel.Location = new System.Drawing.Point(578, 637);
             this.Cancel.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Cancel.Name = "Cancel";
             this.Cancel.Size = new System.Drawing.Size(216, 24);
@@ -160,9 +152,9 @@
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1,
             this.statusBottomLabel});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 390);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 667);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(539, 24);
+            this.statusStrip1.Size = new System.Drawing.Size(830, 22);
             this.statusStrip1.TabIndex = 21;
             this.statusStrip1.Text = "Implementation progress status";
             // 
@@ -174,31 +166,68 @@
             // 
             // statusBottomLabel
             // 
-            this.statusBottomLabel.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Italic);
+            this.statusBottomLabel.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Italic);
             this.statusBottomLabel.Name = "statusBottomLabel";
-            this.statusBottomLabel.Size = new System.Drawing.Size(158, 19);
+            this.statusBottomLabel.Size = new System.Drawing.Size(123, 17);
             this.statusBottomLabel.Text = "toolStripStatusLabel2";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label2.Location = new System.Drawing.Point(37, 367);
+            this.label2.Location = new System.Drawing.Point(77, 120);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(276, 19);
             this.label2.TabIndex = 22;
             this.label2.Text = "Implementation progress status:";
+            this.label2.Click += new System.EventHandler(this.label2_Click);
+            // 
+            // label3
+            // 
+            this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label3.Location = new System.Drawing.Point(600, 40);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(172, 18);
+            this.label3.TabIndex = 23;
+            this.label3.Text = "Select necessary files";
+            // 
+            // label5
+            // 
+            this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label5.AutoSize = true;
+            this.label5.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.label5.Location = new System.Drawing.Point(600, 335);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(178, 17);
+            this.label5.TabIndex = 24;
+            this.label5.Text = "Open all files when ready";
+            // 
+            // textBoxImplementation
+            // 
+            this.textBoxImplementation.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.textBoxImplementation.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.textBoxImplementation.Font = new System.Drawing.Font("Tahoma", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.textBoxImplementation.Location = new System.Drawing.Point(12, 142);
+            this.textBoxImplementation.Multiline = true;
+            this.textBoxImplementation.Name = "textBoxImplementation";
+            this.textBoxImplementation.ReadOnly = true;
+            this.textBoxImplementation.Size = new System.Drawing.Size(450, 519);
+            this.textBoxImplementation.TabIndex = 25;
+            this.textBoxImplementation.Text = "Implementation progress status:";
             // 
             // TextSplitOpenForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 14F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(539, 414);
+            this.ClientSize = new System.Drawing.Size(830, 689);
+            this.Controls.Add(this.textBoxImplementation);
+            this.Controls.Add(this.label5);
+            this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.Cancel);
-            this.Controls.Add(this.label7);
-            this.Controls.Add(this.label6);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.fld2CreateResultFileName);
@@ -225,8 +254,6 @@
         private System.Windows.Forms.Button butAllFilesOpen;
         private System.Windows.Forms.Button butCreateResultFile;
         private System.Windows.Forms.TextBox fld2CreateResultFileName;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button Cancel;
@@ -234,5 +261,8 @@
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
         private System.Windows.Forms.ToolStripStatusLabel statusBottomLabel;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.TextBox textBoxImplementation;
     }
 }

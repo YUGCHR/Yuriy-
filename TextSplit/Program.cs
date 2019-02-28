@@ -46,3 +46,16 @@ namespace TextSplit
 //    //e.Cancel = wasEnglishContentChange;
 //}
 //
+//for (int i = 0; i < 20; i++)
+//    Control currentOpenFormFieldName = this.Controls[15];
+//
+//string currentOpenFormFieldName = Enum.GetNames(typeof(OpenFormFieldNames))[i];                        
+//
+//OpenFileDialog dlg = new OpenFileDialog();
+//    dlg.Filter = "Text files|*.txt|All files|*.*";
+//    if (dlg.ShowDialog() == DialogResult.OK)
+//        fld2ResultFilePath.Text = dlg.FileName;
+//
+//this.parentForm.FilePath[1] = fldRussianFilePath.Text;
+//
+//

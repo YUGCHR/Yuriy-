@@ -56,7 +56,7 @@ namespace TextSplit
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " Started", CurrentClassName, showMessagesLevel);            
             InitializeComponent();
             
-            butFilesOpen.Click += new EventHandler(butFilesOpen_Click);
+            butOpenForm.Click += new EventHandler(butOpenForm_Click);
             butSaveFiles.Click += butSaveFiles_Click;
            
             fld0EnglishContent.TextChanged += fldContent_TextChanged;
@@ -88,7 +88,7 @@ namespace TextSplit
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " messageBoxCS = ", messageBoxCS.ToString(), CurrentClassName, showMessagesLevel);            
         }        
 
-        void butFilesOpen_Click(object sender, EventArgs e)//обрабатываем нажатие кнопки Open, которое означает открытие вспомогательной формы
+        void butOpenForm_Click(object sender, EventArgs e)//обрабатываем нажатие кнопки Open, которое означает открытие вспомогательной формы
         {
             //для начала проверить нет ли уже загруженных и измененных контентов и не начал ли строиться TextSplit - наверное, в мейне проверять
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " OpenTextSplitOpenForm will call now - " + OpenTextSplitOpenForm.ToString(), CurrentClassName, showMessagesLevel);
