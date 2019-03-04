@@ -19,6 +19,7 @@ namespace TextSplitLibrary
         int[] GetSymbolCounts(string[] FilesContent);
         int GetSymbolCounts(string[] FilesContent, int i);
         bool[] IsFilesExist(string[] FilesPath);
+        bool IsFilesExist(string FilesPath);
         int[] FilesToDo { get; set; }
         void AppendContent(string tracePointName, string tracePointValue, string tracePointPlace);
         void AppendContent(string tracePointName, string tracePointValue, string tracePointPlace, Encoding encoding);

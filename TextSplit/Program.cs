@@ -22,8 +22,8 @@ namespace TextSplit
             FileManager manager = new FileManager(Declaration.FilesQuantity);
             MessageService service = new MessageService(manager);
             LogFileMessages logs = new LogFileMessages();
-            TextSplitOpenForm open = new TextSplitOpenForm(service, logs);
-            TextSplitForm view = new TextSplitForm(service);
+            TextSplitOpenForm open = new TextSplitOpenForm(service);
+            TextSplitForm view = new TextSplitForm(service, logs);
             //MessageBox.Show("All Modules Declared", "Program in progress", MessageBoxButtons.OK, MessageBoxIcon.Information);
             MainPresentor presentor = new MainPresentor(view, open, manager, service, logs);            
             MessageBox.Show("Main Called", "Program in progress", MessageBoxButtons.OK, MessageBoxIcon.Information);

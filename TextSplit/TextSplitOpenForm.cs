@@ -13,21 +13,29 @@ using System.Windows.Forms;
 namespace TextSplit
 {
     public interface ITextSplitOpenForm
-    {        
+    {
         string[] GetFilesPath();
+        int[] GetFilesToDo();
         void SetFilesToDo(int[] filesToDo);
-        event EventHandler AllOpenFilesClick;
+        void SetFileContent(string[] filesPath, string[] filesContent, int[] filesToDo, int i);
+        void SetSymbolCount(int[] counts, int[] filesToDo);
+
+        event EventHandler ContentChanged;
+        event EventHandler OpenFileClick;
         //event EventHandler FormOpenClick;
         //event EventHandler<FormClosingEventArgs> TextSplitOpenFormClosing;
     }
 
     public partial class TextSplitOpenForm : Form, ITextSplitOpenForm
     {
-        private readonly IMessageService _messageService;
-        private readonly ILogFileMessages _logs;
+        private readonly IMessageService _messageService;        
 
         public string[] FilesPath;// { get; set; }        
-        public int[] FilesToDo;// { get; set; }
+        public int[] FilesToDo;
+        public string[] FilesContent;
+
+        public Label[] lblSymbolsCount;
+        public TextBox[] txtboxFilesPath;
 
         readonly private int filesQuantity;
         readonly private int filesQuantityPlus;
@@ -35,16 +43,15 @@ namespace TextSplit
         readonly private string strCRLF;
         readonly private int iBreakpointManager;
 
-        private string LogBoxAllLines;
-
-        public event EventHandler AllOpenFilesClick;
+        public event EventHandler ContentChanged;
+        public event EventHandler OpenFileClick;
         //public event EventHandler FormOpenClick;
         //public event EventHandler<FormClosingEventArgs> TextSplitOpenFormClosing;
 
-        public TextSplitOpenForm(IMessageService service, ILogFileMessages logs)
+        public TextSplitOpenForm(IMessageService service)
         {            
             _messageService = service;
-            _logs = logs;
+            
             filesQuantity = Declaration.FilesQuantity; //the length of the all Files___ arrays (except FilesToDo)
             filesQuantityPlus = Declaration.ToDoQuantity; //the length of the FilesToDo array (+1 for BreakpointManager)
             iBreakpointManager = filesQuantityPlus-1; //index of BreakpointManager in the FilesToDo array
@@ -56,11 +63,21 @@ namespace TextSplit
 
             FilesToDo = new int[filesQuantityPlus];
             FilesPath = new string[filesQuantity];
-            
+            FilesContent = new string[filesQuantity];
+
+            lblSymbolsCount = new Label[] { lblSymbolCount1, lblSymbolCount2 };//, lblSymbolCount3 };
+            txtboxFilesPath = new TextBox[] { fld0EnglishFilePath, fld1RussianFilePath };//, fld2ResultFilePath  };
+
             butAllFilesOpen.Click += new EventHandler (butAllFilesOpen_Click);
-            butSelectEnglishFile.Click += butSelectFile_Click;
-            butSelectRussianFile.Click += butSelectFile_Click;
-            butSelectResultFile.Click += butSelectFile_Click;
+            butOpenEnglishFile.Click += butOpenFile_Click;
+            butOpenRussianFile.Click += butOpenFile_Click;
+            //butSelectResultFile.Click += butSelectFile_Click;
+
+            fld0EnglishContent.TextChanged += fldContent_TextChanged;
+            fld1RussianContent.TextChanged += fldContent_TextChanged;
+            //fld2ResultContent.TextChanged += fldContent_TextChanged;
+
+            numEnglishFont.ValueMemberChanged += numEnglishFont_ValueMemberChanged;
 
             //butCreateResultFile.Click += butSelectEnglishFile_Click; it needs to clear up
             //fld2CreateResultFileName - result file name field
@@ -72,6 +89,12 @@ namespace TextSplit
         {            
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesPath[] = ", FilesPath, CurrentClassName, showMessagesLevel);
             return FilesPath;
+        }
+
+        public int[] GetFilesToDo()
+        {
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesToDo[] = ", FilesToDo.ToString(), CurrentClassName, showMessagesLevel);
+            return FilesToDo;
         }
 
         public void SetFilesToDo(int[] filesToDo)
@@ -94,19 +117,20 @@ namespace TextSplit
 
         void butAllFilesOpen_Click(object sender, EventArgs e)
         {
-            if (AllOpenFilesClick != null) AllOpenFilesClick(this, EventArgs.Empty);            
             int BreakpointManager = FilesToDo[iBreakpointManager];            
             if (BreakpointManager != (int)WhatNeedDoWithFiles.WittingIncomplete) this.Close();//if we have received all data from OpenForm we can close it
         }        
 
-        private void butSelectFile_Click(object sender, EventArgs e)
+        private void butOpenFile_Click(object sender, EventArgs e)
         {
             Button button = sender as Button;
-            string ButtonName = button.Name;            
+            string ButtonName = button.Name;
 
-            for (int i = 0; i < filesQuantity; i++)
+            int textFieldsQuantity = filesQuantity - 1;//TEMP
+
+            for (int i = 0; i < textFieldsQuantity; i++)
             {
-                string currentOpenFormButtonName = Enum.GetNames(typeof(OpenFormButtonNames))[i];
+                string currentOpenFormButtonName = Enum.GetNames(typeof(OpenFormButtonNames))[i];//select current (i) button name from buttons list
                 if (ButtonName == currentOpenFormButtonName)
                 {                    
                     OpenFileDialog dlg = new OpenFileDialog();
@@ -115,23 +139,58 @@ namespace TextSplit
                     if (dlg.ShowDialog() == DialogResult.OK)
                     {                        
                         FilesPath[i] = dlg.FileName;
-                        _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesPath[i] = ", FilesPath[i] + " [" + i.ToString() + "]", CurrentClassName, showMessagesLevel);                        
+                        FilesToDo[i] = (int)WhatNeedDoWithFiles.ReadFirst;                        
                     }
-                    statusBottomLabel.Text = Enum.GetNames(typeof(OpenFormProgressStatusMessages))[i] + " - " + FilesPath[i];//Set the short type of current action in the status bar - delete?
-                    string LogBoxCurrentLine = "";//it does not use here, need to make Overload of SetLogBox (and add with ToDo one)
-                    SetLogBox(LogBoxCurrentLine, FilesPath[i], i);//Set the detail type of current action in OpenForm log textbox
-                    FilesToDo[i] = (int)WhatNeedDoWithFiles.PassThrough;//file maybe exists but we will check this more clearly - delete?
+                    statusBottomLabel.Text = Enum.GetNames(typeof(OpenFormProgressStatusMessages))[i] + " - " + FilesPath[i];//Set the short type of current action in the status bar
+                    //Array.Clear(FilesToDo, 0, FilesToDo.Length);
+                    if (OpenFileClick != null) OpenFileClick(this, EventArgs.Empty);
                 }
             }            
         }
 
-        public void SetLogBox(string LogBoxCurrentLineMessage, string LogBoxCurrentLineValue, int i)
+        public void SetFileContent(string[] filesPath, string[] filesContent, int[] filesToDo, int i)
         {            
-            string LogBoxCurrentLine = strCRLF + _logs.GetLogFileMessages(i) + strCRLF + LogBoxCurrentLineValue + strCRLF;             
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " LogBoxCurrentLine = ", LogBoxCurrentLine, CurrentClassName, showMessagesLevel);
-            LogBoxAllLines = LogBoxAllLines + LogBoxCurrentLine;
-            textBoxImplementation.Text = LogBoxAllLines;
+            FilesContent = filesContent;
+            if (i == 0) fld0EnglishContent.Text = FilesContent[0];//lblSymbolsCount[i].Text = count[i].ToString(); 
+            if (i == 1) fld1RussianContent.Text = FilesContent[1];
+            
         }
+
+        private void fldContent_TextChanged(object sender, EventArgs e)
+        {
+            TextBox textBox = sender as TextBox;
+            string TextBoxName = textBox.Name;            
+
+            for (int i = 0; i < filesQuantity; i++)
+            {
+                string currentFormFieldName = Enum.GetNames(typeof(FormFieldsNames))[i];
+                if (TextBoxName == currentFormFieldName)
+                {                    
+                    FilesToDo[i] = (int)WhatNeedDoWithFiles.ContentChanged;
+                }
+            }
+            if (ContentChanged != null) ContentChanged(this, EventArgs.Empty);
+        }
+
+        public void SetSymbolCount(int[] count, int[] filesToDo)
+        {
+            int textFieldsQuantity = filesQuantity - 1;//TEMP
+
+            for (int i = 0; i < textFieldsQuantity; i++)
+            {
+                if (filesToDo[i] == (int)WhatNeedDoWithFiles.CountSymbols)
+                {                    
+                    lblSymbolsCount[i].Text = count[i].ToString();
+                }
+            }
+        }
+
+        private void numEnglishFont_ValueMemberChanged(object sender, EventArgs e)
+        {
+            {
+                fld0EnglishContent.Font = new Font("Tahoma", (float)numFont.Value);
+            }
+        }        
 
         public static string CurrentClassName
         {
@@ -142,5 +201,27 @@ namespace TextSplit
         {
 
         }
-    }
+
+		private void fld1RussianContent_TextChanged(object sender, EventArgs e)
+		{
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		}
+	}
 }
