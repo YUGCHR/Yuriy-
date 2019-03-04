@@ -59,9 +59,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.numEnglishFont = new System.Windows.Forms.ComboBox();
             this.label7 = new System.Windows.Forms.Label();
-            this.numFont = new System.Windows.Forms.NumericUpDown();
             this.statusStrip1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numFont)).BeginInit();
             this.SuspendLayout();
             // 
             // butAllFilesOpen
@@ -226,7 +224,7 @@
             this.fld1RussianFilePath.Name = "fld1RussianFilePath";
             this.fld1RussianFilePath.ReadOnly = true;
             this.fld1RussianFilePath.ScrollBars = System.Windows.Forms.ScrollBars.Horizontal;
-            this.fld1RussianFilePath.Size = new System.Drawing.Size(301, 22);
+            this.fld1RussianFilePath.Size = new System.Drawing.Size(479, 22);
             this.fld1RussianFilePath.TabIndex = 54;
             // 
             // fld0EnglishFilePath
@@ -234,7 +232,7 @@
             this.fld0EnglishFilePath.Location = new System.Drawing.Point(34, 122);
             this.fld0EnglishFilePath.Name = "fld0EnglishFilePath";
             this.fld0EnglishFilePath.ReadOnly = true;
-            this.fld0EnglishFilePath.Size = new System.Drawing.Size(301, 22);
+            this.fld0EnglishFilePath.Size = new System.Drawing.Size(479, 22);
             this.fld0EnglishFilePath.TabIndex = 53;
             // 
             // label11
@@ -342,7 +340,18 @@
             // numRussianFont
             // 
             this.numRussianFont.FormattingEnabled = true;
-            this.numRussianFont.Location = new System.Drawing.Point(927, 122);
+            this.numRussianFont.Items.AddRange(new object[] {
+            "6",
+            "8",
+            "10",
+            "11",
+            "12",
+            "14",
+            "16",
+            "18",
+            "20",
+            "22"});
+            this.numRussianFont.Location = new System.Drawing.Point(703, 93);
             this.numRussianFont.Name = "numRussianFont";
             this.numRussianFont.Size = new System.Drawing.Size(71, 22);
             this.numRussianFont.TabIndex = 72;
@@ -350,7 +359,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(826, 125);
+            this.label2.Location = new System.Drawing.Point(602, 96);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(95, 14);
             this.label2.TabIndex = 71;
@@ -358,49 +367,49 @@
             // 
             // numEnglishFont
             // 
+            this.numEnglishFont.DisplayMember = "FontSizes";
+            this.numEnglishFont.DropDownWidth = 71;
             this.numEnglishFont.FormattingEnabled = true;
-            this.numEnglishFont.Location = new System.Drawing.Point(442, 122);
+            this.numEnglishFont.Items.AddRange(new object[] {
+            "6",
+            "8",
+            "10",
+            "11",
+            "12",
+            "14",
+            "16",
+            "18",
+            "20",
+            "22",
+            "24",
+            "28",
+            "32",
+            "36",
+            "42",
+            "48",
+            "56",
+            "64",
+            "72"});
+            this.numEnglishFont.Location = new System.Drawing.Point(218, 93);
             this.numEnglishFont.Name = "numEnglishFont";
             this.numEnglishFont.Size = new System.Drawing.Size(71, 22);
             this.numEnglishFont.TabIndex = 70;
+            this.numEnglishFont.ValueMember = "FontSizes";
             // 
             // label7
             // 
             this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(341, 125);
+            this.label7.Location = new System.Drawing.Point(117, 96);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(95, 14);
             this.label7.TabIndex = 69;
             this.label7.Text = "Select Font Size";
-            // 
-            // numFont
-            // 
-            this.numFont.Location = new System.Drawing.Point(373, 41);
-            this.numFont.Maximum = new decimal(new int[] {
-            72,
-            0,
-            0,
-            0});
-            this.numFont.Minimum = new decimal(new int[] {
-            6,
-            0,
-            0,
-            0});
-            this.numFont.Name = "numFont";
-            this.numFont.Size = new System.Drawing.Size(140, 22);
-            this.numFont.TabIndex = 73;
-            this.numFont.Value = new decimal(new int[] {
-            11,
-            0,
-            0,
-            0});
             // 
             // TextSplitOpenForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 14F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1437, 689);
-            this.Controls.Add(this.numFont);
             this.Controls.Add(this.numRussianFont);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.numEnglishFont);
@@ -436,7 +445,6 @@
             this.Text = "TextSplitOpenForm";
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numFont)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -474,6 +482,5 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.ComboBox numEnglishFont;
         private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.NumericUpDown numFont;
     }
 }

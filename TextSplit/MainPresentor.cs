@@ -62,7 +62,7 @@ namespace TextSplit
 
             _view.OpenTextSplitOpenForm += new EventHandler(_view_OpenTextSplitOpenForm);
             //_open.AllOpenFilesClick += new EventHandler(_open_FilesOpenClick);            
-            _open.ContentChanged += new EventHandler(_view_ContentChanged);
+            
             _view.FilesSaveClick += new EventHandler(_view_FilesSaveClick);
             _view.TextSplitFormClosing += new EventHandler<FormClosingEventArgs>(_view_TextSplitFormClosing);
         }
@@ -81,6 +81,7 @@ namespace TextSplit
             TextSplitOpenForm openForm = new TextSplitOpenForm(_messageService);
             _open = openForm;
             _open.OpenFileClick += new EventHandler(_open_FilesOpenClick);
+            _open.ContentChanged += new EventHandler(_open_ContentChanged);
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "openForm will start now", CurrentClassName, showMessagesLevel);
             openForm.Show();
         }
@@ -110,10 +111,9 @@ namespace TextSplit
                 filesToDo = _open.GetFilesToDo();
 
                 int iBreakpointManager = isFilesExistCheckAndOpen();
-                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " iBreakpointManager = " + iBreakpointManager.ToString(), CurrentClassName, 3);
+                
                 if (filesToDo[iBreakpointManager] == (int)WhatNeedDoWithFiles.ContinueProcessing)//WittingIncomplete)
-                    {
-                        _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " filesToDo[iBreakpointManager] = " + filesToDo[iBreakpointManager].ToString(), CurrentClassName, 3);
+                    {                        
                         _open.SetFileContent(filesPath, filesContent, filesToDo, iBreakpointManager);
                         filesToDo[iBreakpointManager] = (int)WhatNeedDoWithFiles.CountSymbols;
                         counts[iBreakpointManager] = _manager.GetSymbolCounts(filesContent, iBreakpointManager);
@@ -127,7 +127,7 @@ namespace TextSplit
             }
         }
 
-        int isFilesExistCheckAndOpen() // check files pathes and prepare filesToDo array
+        int isFilesExistCheckAndOpen()
         {
             int textFieldsQuantity = filesQuantity - 1;//TEMP
 
@@ -178,13 +178,21 @@ namespace TextSplit
         //    }
         //}
         
-        void _view_ContentChanged(object sender, EventArgs e)
+        void _open_ContentChanged(object sender, EventArgs e)
         {
-            for (int i = 0; i < filesQuantity; i++)
+            filesToDo = _open.GetFilesToDo();
+            filesContent = _open.GetFilesContent();
+            int textFieldsQuantity = filesQuantity - 1;//TEMP
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " filesContent - ", filesContent, CurrentClassName, 3);
+            for (int i = 0; i < textFieldsQuantity; i++)
             {
-                if (_view.FilesToDo[i] != 0)
+                if (filesToDo[i] == (int)WhatNeedDoWithFiles.ContentChanged)
                 {
-                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " _view.FilesToDo[i] - ", _view.FilesToDo[i].ToString(), CurrentClassName, showMessagesLevel);
+                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " filesToDo[i] - ", filesToDo[i].ToString(), CurrentClassName, 3); 
+                    filesToDo[i] = (int)WhatNeedDoWithFiles.CountSymbols;
+                    counts[i] = _manager.GetSymbolCounts(filesContent, i);
+                    _open.SetFilesToDo(filesToDo);
+                    _open.SetSymbolCount(counts, filesToDo);
                 }
 
 

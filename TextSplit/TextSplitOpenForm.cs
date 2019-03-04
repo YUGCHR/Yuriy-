@@ -14,6 +14,7 @@ namespace TextSplit
 {
     public interface ITextSplitOpenForm
     {
+        string[] GetFilesContent();
         string[] GetFilesPath();
         int[] GetFilesToDo();
         void SetFilesToDo(int[] filesToDo);
@@ -77,12 +78,18 @@ namespace TextSplit
             fld1RussianContent.TextChanged += fldContent_TextChanged;
             //fld2ResultContent.TextChanged += fldContent_TextChanged;
 
-            numEnglishFont.ValueMemberChanged += numEnglishFont_ValueMemberChanged;
+            numEnglishFont.SelectedIndexChanged += numEnglishFont_SelectedIndexChanged;
 
             //butCreateResultFile.Click += butSelectEnglishFile_Click; it needs to clear up
             //fld2CreateResultFileName - result file name field
 
             FormClosing += TextSplitOpenForm_FormClosing;            
+        }
+
+        public string[] GetFilesContent()
+        {
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesPath[] = ", FilesPath, CurrentClassName, showMessagesLevel);
+            return FilesContent;
         }
 
         public string[] GetFilesPath()
@@ -139,6 +146,7 @@ namespace TextSplit
                     if (dlg.ShowDialog() == DialogResult.OK)
                     {                        
                         FilesPath[i] = dlg.FileName;
+                        txtboxFilesPath[i].Text = FilesPath[i];
                         FilesToDo[i] = (int)WhatNeedDoWithFiles.ReadFirst;                        
                     }
                     statusBottomLabel.Text = Enum.GetNames(typeof(OpenFormProgressStatusMessages))[i] + " - " + FilesPath[i];//Set the short type of current action in the status bar
@@ -151,7 +159,12 @@ namespace TextSplit
         public void SetFileContent(string[] filesPath, string[] filesContent, int[] filesToDo, int i)
         {            
             FilesContent = filesContent;
-            if (i == 0) fld0EnglishContent.Text = FilesContent[0];//lblSymbolsCount[i].Text = count[i].ToString(); 
+            if (i == 0)
+            {
+                fld0EnglishContent.Text = FilesContent[0];//lblSymbolsCount[i].Text = count[i].ToString(); 
+                numEnglishFont_FirstSet();
+            }
+                
             if (i == 1) fld1RussianContent.Text = FilesContent[1];
             
         }
@@ -159,16 +172,21 @@ namespace TextSplit
         private void fldContent_TextChanged(object sender, EventArgs e)
         {
             TextBox textBox = sender as TextBox;
-            string TextBoxName = textBox.Name;            
+            string TextBoxName = textBox.Name;
+            //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " TextBoxName - ", TextBoxName, CurrentClassName, 3);
+            int textFieldsQuantity = filesQuantity - 1;//TEMP
 
-            for (int i = 0; i < filesQuantity; i++)
+            for (int i = 0; i < textFieldsQuantity; i++)
             {
                 string currentFormFieldName = Enum.GetNames(typeof(FormFieldsNames))[i];
                 if (TextBoxName == currentFormFieldName)
-                {                    
+                {
                     FilesToDo[i] = (int)WhatNeedDoWithFiles.ContentChanged;
+                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesToDo[i] - ", FilesToDo[i].ToString(), CurrentClassName, 3);
+                    FilesContent[i] = textBox.Text;
                 }
             }
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " ContentChanged - ", ContentChanged.ToString(), CurrentClassName, 3);
             if (ContentChanged != null) ContentChanged(this, EventArgs.Empty);
         }
 
@@ -185,10 +203,17 @@ namespace TextSplit
             }
         }
 
-        private void numEnglishFont_ValueMemberChanged(object sender, EventArgs e)
+        private void numEnglishFont_FirstSet()
+        {
+            var font = fld0EnglishContent.Font;
+            //ContentBox.SelectedItem = font.Name;
+            numEnglishFont.SelectedIndex = Convert.ToInt32(font.Size);
+        }
+
+        private void numEnglishFont_SelectedIndexChanged(object sender, EventArgs e)
         {
             {
-                fld0EnglishContent.Font = new Font("Tahoma", (float)numFont.Value);
+                fld0EnglishContent.Font = new Font("Tahoma", numEnglishFont.SelectedIndex);
             }
         }        
 

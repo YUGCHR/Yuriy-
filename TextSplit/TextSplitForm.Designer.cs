@@ -29,7 +29,6 @@
         private void InitializeComponent()
         {
             this.butOpenForm = new System.Windows.Forms.Button();
-            this.butSelectEnglishFile = new System.Windows.Forms.Button();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblSymbolCountOld = new System.Windows.Forms.ToolStripStatusLabel();
@@ -48,15 +47,6 @@
             this.butOpenForm.TabIndex = 32;
             this.butOpenForm.Text = "Open All Files";
             this.butOpenForm.UseVisualStyleBackColor = true;
-            // 
-            // butSelectEnglishFile
-            // 
-            this.butSelectEnglishFile.Location = new System.Drawing.Point(12, 4);
-            this.butSelectEnglishFile.Name = "butSelectEnglishFile";
-            this.butSelectEnglishFile.Size = new System.Drawing.Size(87, 25);
-            this.butSelectEnglishFile.TabIndex = 31;
-            this.butSelectEnglishFile.Text = "Select File";
-            this.butSelectEnglishFile.UseVisualStyleBackColor = true;
             // 
             // statusStrip1
             // 
@@ -136,7 +126,6 @@
             this.Controls.Add(this.textBoxImplementation);
             this.Controls.Add(this.label16);
             this.Controls.Add(this.butOpenForm);
-            this.Controls.Add(this.butSelectEnglishFile);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.butSaveFiles);
             this.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
@@ -151,7 +140,6 @@
 
         #endregion
         private System.Windows.Forms.Button butOpenForm;
-        private System.Windows.Forms.Button butSelectEnglishFile;
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
         private System.Windows.Forms.ToolStripStatusLabel lblSymbolCountOld;
