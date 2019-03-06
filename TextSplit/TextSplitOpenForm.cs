@@ -182,11 +182,11 @@ namespace TextSplit
                 if (TextBoxName == currentFormFieldName)
                 {
                     FilesToDo[i] = (int)WhatNeedDoWithFiles.ContentChanged;
-                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesToDo[i] - ", FilesToDo[i].ToString(), CurrentClassName, 3);
+                    //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesToDo[i] - ", FilesToDo[i].ToString(), CurrentClassName, 3);
                     FilesContent[i] = textBox.Text;
                 }
             }
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " ContentChanged - ", ContentChanged.ToString(), CurrentClassName, 3);
+            //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " ContentChanged - ", ContentChanged.ToString(), CurrentClassName, 3);
             if (ContentChanged != null) ContentChanged(this, EventArgs.Empty);
         }
 

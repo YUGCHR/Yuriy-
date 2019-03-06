@@ -200,6 +200,7 @@
             this.fld0EnglishContent.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.fld0EnglishContent.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.fld0EnglishContent.Location = new System.Drawing.Point(34, 150);
+            this.fld0EnglishContent.MaxLength = 65535;
             this.fld0EnglishContent.Multiline = true;
             this.fld0EnglishContent.Name = "fld0EnglishContent";
             this.fld0EnglishContent.ScrollBars = System.Windows.Forms.ScrollBars.Both;
@@ -209,8 +210,9 @@
             // fld1RussianContent
             // 
             this.fld1RussianContent.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.fld1RussianContent.Font = new System.Drawing.Font("Verdana", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.fld1RussianContent.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.fld1RussianContent.Location = new System.Drawing.Point(519, 150);
+            this.fld1RussianContent.MaxLength = 65535;
             this.fld1RussianContent.Multiline = true;
             this.fld1RussianContent.Name = "fld1RussianContent";
             this.fld1RussianContent.ScrollBars = System.Windows.Forms.ScrollBars.Both;

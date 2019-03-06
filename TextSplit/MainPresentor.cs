@@ -16,6 +16,7 @@ namespace TextSplit
         private readonly IFileManager _manager;
         private readonly IMessageService _messageService;
         private readonly ILogFileMessages _logs;
+        private readonly IDataAccessor _data;
 
         private bool wasEnglishContentChange = false;
         readonly private string strCRLF;
@@ -32,13 +33,14 @@ namespace TextSplit
         private string[] filesContent;
         //bool[] isFilesExist;
 
-        public MainPresentor(ITextSplitForm view, ITextSplitOpenForm open, IFileManager manager, IMessageService service, ILogFileMessages logs)
+        public MainPresentor(ITextSplitForm view, ITextSplitOpenForm open, IFileManager manager, IMessageService service, ILogFileMessages logs, IDataAccessor data)
         {
             _view = view;
             _open = open;
             _manager = manager;
             _messageService = service;
             _logs = logs;
+            _data = data;
 
             strCRLF = Declaration.StrCRLF;
             showMessagesLevel = Declaration.ShowMessagesLevel;
@@ -78,6 +80,7 @@ namespace TextSplit
 
         void _view_OpenTextSplitOpenForm(object sender, EventArgs e)//обрабатываем нажатие кнопки Open, которое означает открытие вспомогательной формы
         {
+            _data.ExecuteReader();
             TextSplitOpenForm openForm = new TextSplitOpenForm(_messageService);
             _open = openForm;
             _open.OpenFileClick += new EventHandler(_open_FilesOpenClick);
@@ -183,12 +186,12 @@ namespace TextSplit
             filesToDo = _open.GetFilesToDo();
             filesContent = _open.GetFilesContent();
             int textFieldsQuantity = filesQuantity - 1;//TEMP
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " filesContent - ", filesContent, CurrentClassName, 3);
+            //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " filesContent - ", filesContent, CurrentClassName, 3);
             for (int i = 0; i < textFieldsQuantity; i++)
             {
                 if (filesToDo[i] == (int)WhatNeedDoWithFiles.ContentChanged)
                 {
-                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " filesToDo[i] - ", filesToDo[i].ToString(), CurrentClassName, 3); 
+                    //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " filesToDo[i] - ", filesToDo[i].ToString(), CurrentClassName, 3); 
                     filesToDo[i] = (int)WhatNeedDoWithFiles.CountSymbols;
                     counts[i] = _manager.GetSymbolCounts(filesContent, i);
                     _open.SetFilesToDo(filesToDo);

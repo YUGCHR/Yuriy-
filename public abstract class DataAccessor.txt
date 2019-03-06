@@ -1,0 +1,24 @@
+public abstract class DataAccessor
+     {         
+         public const string connStr = "Data Source=.\\SQLEXPRESS;Initial Catalog=YourDBName;User ID=dsa;Password=123456";
+         internal void ExecuteReader()
+         {
+             string sql = "select * from MYTable";
+             using (var connection = new SqlConnection(connStr))
+             {
+                 connection.Open();
+                 using (var cmd = new SqlCommand(sql, connection))
+                 {
+                     using (var reader = cmd.ExecuteReader())
+                     {
+                         while (reader.Read())
+                         {
+                             // your logic goes here;
+                             // example
+                             var id = reader.GetInt32(0 / - тут номер колонки таблицы /);
+                             string text = reader.GetSqlString(1);
+                         }
+                     }
+                 }
+             }
+         }

@@ -24,8 +24,9 @@ namespace TextSplit
             LogFileMessages logs = new LogFileMessages();
             TextSplitOpenForm open = new TextSplitOpenForm(service);
             TextSplitForm view = new TextSplitForm(service, logs);
+            DataAccessor data = new DataAccessor(service);
             //MessageBox.Show("All Modules Declared", "Program in progress", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            MainPresentor presentor = new MainPresentor(view, open, manager, service, logs);            
+            MainPresentor presentor = new MainPresentor(view, open, manager, service, logs, data);            
             MessageBox.Show("Main Called", "Program in progress", MessageBoxButtons.OK, MessageBoxIcon.Information);
             Application.Run(view);            
         }
@@ -60,4 +61,7 @@ namespace TextSplit
 //this.parentForm.FilePath[1] = fldRussianFilePath.Text;
 //
 //num.GetName(typeof(OpenFormProgressStatusMessages), i) + "\r\n" + LogBoxCurrentLineValue;
+//
+//MSSQLSERVER Server=localhost;Database=master;Trusted_Connection=True;
+//
 //
