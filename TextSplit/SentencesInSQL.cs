@@ -26,29 +26,34 @@ namespace TextSplit
         public DataAccessor(IMessageService service)
         {
             _messageService = service;
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " DataAccessor Started ", CurrentClassName, 3);
+            
         }
 
         public void ExecuteReader()
         {
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " ExecuteReader Started ", CurrentClassName, 3);
-            string sql = "select * from Sentences";
+            
+            string sql = "select * from Languages";
             using (var connection = new SqlConnection(connStr))
             {
-                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " sql ==> " + sql.ToString(), CurrentClassName, 3);
+                
                 connection.Open();
-                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " connection ==> " + connection.ToString(), CurrentClassName, 3);
+                string sqlExpression = "INSERT INTO Languages (ID, Language, Language_name) VALUES (1, 1, 'Russian')";
+                SqlCommand command = new SqlCommand(sqlExpression, connection);
+                int iSqlCommandReturn = command.ExecuteNonQuery();
+                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " iSqlCommandReturn ==> " + iSqlCommandReturn.ToString(), CurrentClassName, 3);
+
                 using (var cmd = new SqlCommand(sql, connection))
-                {
-                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " cmd ==> " + cmd.ToString(), CurrentClassName, 3);
+                {                    
                     using (var reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
                             //your logic goes here;
                             //example
-                           var id = reader.GetInt32(0);// -тут номер колонки таблицы
-                            string text = reader.GetSqlString(1).ToString();
+                            var id = reader.GetInt32(0);// - тут номер колонки таблицы
+                            var Language = reader.GetInt32(1);// - тут номер колонки таблицы
+                            string Language_name = reader.GetSqlString(2).ToString();
+                            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " id - Language - Language_name ==> " + id.ToString() + Language.ToString() + Language_name, CurrentClassName, 3);
                         }
                     }
                 }
@@ -61,7 +66,11 @@ namespace TextSplit
         }
     }    
 }
-
+//
+//_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " DataAccessor Started ", CurrentClassName, 3);
+//_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " ExecuteReader Started ", CurrentClassName, 3);
+//_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " sql ==> " + sql.ToString(), CurrentClassName, 3);
+//
 //class SentencesInSQL
 //{
 
