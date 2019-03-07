@@ -31,6 +31,7 @@ namespace TextSplit
         private int[] counts;
         private string[] filesPath;
         private string[] filesContent;
+        private List<string> textParagraphes;
         //bool[] isFilesExist;
 
         public MainPresentor(ITextSplitForm view, ITextSplitOpenForm open, IFileManager manager, IMessageService service, ILogFileMessages logs, IDataAccessor data)
@@ -59,14 +60,62 @@ namespace TextSplit
 
             filesPath = new string[filesQuantity];
             filesContent = new string[filesQuantity];
+            textParagraphes = new List<string>(); 
             //isFilesExist = new bool[filesQuantity];
             //_view.ManageFilesContent(filesPath, filesContent, filesToDo);//move?
 
             _view.OpenTextSplitOpenForm += new EventHandler(_view_OpenTextSplitOpenForm);
-            //_open.AllOpenFilesClick += new EventHandler(_open_FilesOpenClick);            
+            //_open.AllOpenFilesClick += new EventHandler(_open_FilesOpenClick);
             
             _view.FilesSaveClick += new EventHandler(_view_FilesSaveClick);
             _view.TextSplitFormClosing += new EventHandler<FormClosingEventArgs>(_view_TextSplitFormClosing);
+        }
+
+        private void _open_LoadEnglishToDataBase(object sender, EventArgs e)
+        {
+            // _data.ExecuteReader();
+            char[] charsParagraphSeparator = new char[] { '\r', '\n' }; 
+            //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "filesToDo = " + filesToDo[(int)TableLanguagesContent.English].ToString(), CurrentClassName, 3);
+
+            if (filesToDo[(int)TableLanguagesContent.English] == (int)WhatNeedDoWithFiles.CountSymbols)
+            {
+                string currentText = filesContent[(int)TableLanguagesContent.English];
+                string[] currentTextSentences = currentText.Split(charsParagraphSeparator);
+                int iSent = 0;
+                //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " textParagraphes ", textParagraphes.ToString(), CurrentClassName, 3);
+                foreach (string s in currentTextSentences)
+                {
+                    
+                    int lengthS = s.Length;
+                    textParagraphes.Add(s);
+
+                    //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " Sentence No Lengh ==> ", iSent.ToString() + " = " + s + " ==> " + lengthS.ToString(), CurrentClassName, 3);
+
+                    if (iSent > 0)
+                        if (lengthS > 0)
+                            if (textParagraphes[iSent - 1].Length == 0)//if not first step and if not blank line and if previous line was blank - we found the chapter begining - now we check is it start from digit
+                            {
+                                char[] isStringChapterNumber = s.ToCharArray(0, 1);
+                                bool isDigitAtSentence = Char.IsDigit(isStringChapterNumber[0]);
+
+                                if (isDigitAtSentence)
+                                {
+                                    //we found the chapter begining
+                                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " isDigitAtSentence =  ", isDigitAtSentence.ToString() + "textParagraphes[iSent] " + textParagraphes[iSent], CurrentClassName, 3);
+                                }
+                        
+
+                    }
+
+                    
+                    iSent= iSent+1;
+                }
+                int textParagraphesCount = textParagraphes.Count;
+                string[] textParagraphesArray = new string[textParagraphesCount];
+                textParagraphesArray = textParagraphes.ToArray();
+                _manager.WriteToFilePathPlus(textParagraphesArray, filesPath[(int)TableLanguagesContent.English], "001");
+            }
+
         }
 
         private void _view_TextSplitFormClosing(object sender, FormClosingEventArgs e)
@@ -80,11 +129,12 @@ namespace TextSplit
 
         void _view_OpenTextSplitOpenForm(object sender, EventArgs e)//обрабатываем нажатие кнопки Open, которое означает открытие вспомогательной формы
         {
-            _data.ExecuteReader();
+            _data.ClearAllTables();
             TextSplitOpenForm openForm = new TextSplitOpenForm(_messageService);
             _open = openForm;
             _open.OpenFileClick += new EventHandler(_open_FilesOpenClick);
             _open.ContentChanged += new EventHandler(_open_ContentChanged);
+            _open.LoadEnglishToDataBase += _open_LoadEnglishToDataBase;
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "openForm will start now", CurrentClassName, showMessagesLevel);
             openForm.Show();
         }
@@ -157,6 +207,11 @@ namespace TextSplit
             return -1; //some file does not exist
         }
 
+        void LoadEnglishToDataBase()
+        {
+
+        }
+
         //int toCreateResultFile() //we check the result file existing and try to create it
         //{
         //    if (isFilesExist[resultFileNumber]) //if resultFile does not exist, we will create it in the path of the first selected file (with 0 index)
@@ -180,7 +235,7 @@ namespace TextSplit
         //        }
         //    }
         //}
-        
+
         void _open_ContentChanged(object sender, EventArgs e)
         {
             filesToDo = _open.GetFilesToDo();

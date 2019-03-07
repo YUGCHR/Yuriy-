@@ -13,4 +13,6 @@ namespace TextSplitLibrary
 
     public enum OpenFormProgressStatusMessages : int { EnglishFilePathSelected = 0, RussianFilePathSelected = 1, ResultFilePathSelected = 2, ResultFileCreated = 3 };
     public enum OpenFormTextBoxImplementationMessages : int { EnglishFilePathSelected = 0, RussianFilePathSelected = 1, ResultFilePathSelected = 2, ResultFileCreated = 3 };
+
+    public enum TableLanguagesContent : int { English = 0, Russian = 1, Result = 2 };
 }

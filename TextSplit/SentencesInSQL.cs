@@ -15,25 +15,53 @@ namespace TextSplit
     public interface IDataAccessor
     {
         void ExecuteReader();
+        void ClearAllTables();
     }
 
     public class DataAccessor : IDataAccessor//abstract
     {
         private readonly IMessageService _messageService;
 
-        public const string connStr = "Data Source=.;Initial Catalog = TextSplitSentences;Integrated Security=true";
+        public const string connectionStringSource = "Data Source=.;";
+        public const string connectionStringDataBase = "Initial Catalog = TextSplitSentences;";
+        public const string connectionStringSecurity = "Integrated Security=true";
+        public const string connectionString = connectionStringSource + connectionStringDataBase + connectionStringSecurity;
+        public string[] dataBaseTableNames;
+        public int dataBaseTableQuantuty;
 
         public DataAccessor(IMessageService service)
         {
             _messageService = service;
-            
+            //InitializeComponent();
+            dataBaseTableNames = new string[] { "Languages", "Chapters", "Paragraphs", "Sentences" };
+            dataBaseTableQuantuty = dataBaseTableNames.Length;
+        }
+
+        public void ClearAllTables()
+        {            
+            string sqlExpressionCommand = "DELETE FROM ";
+            string sqlExpressionTable;
+            string sqlExpression;
+
+            for (int i = 1; i < dataBaseTableQuantuty; i++)//Table 0 (Languages) does not need to clear
+            {
+                sqlExpressionTable = dataBaseTableNames[i];
+                sqlExpression = sqlExpressionCommand + sqlExpressionTable;
+                using (var connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+                    SqlCommand command = new SqlCommand(sqlExpression, connection);
+                    int iSqlCommandReturn = command.ExecuteNonQuery();
+                    //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " iSqlCommandReturn ==> " + iSqlCommandReturn.ToString(), CurrentClassName, 3);
+                }
+            }
         }
 
         public void ExecuteReader()
         {
             
             string sql = "select * from Languages";
-            using (var connection = new SqlConnection(connStr))
+            using (var connection = new SqlConnection(connectionString))
             {
                 
                 connection.Open();

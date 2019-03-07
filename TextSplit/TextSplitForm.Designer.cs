@@ -36,6 +36,7 @@
             this.label16 = new System.Windows.Forms.Label();
             this.textBoxImplementation = new System.Windows.Forms.TextBox();
             this.label18 = new System.Windows.Forms.Label();
+            this.butShowInfo = new System.Windows.Forms.Button();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -73,7 +74,7 @@
             // 
             // butSaveFiles
             // 
-            this.butSaveFiles.Location = new System.Drawing.Point(468, 97);
+            this.butSaveFiles.Location = new System.Drawing.Point(468, 533);
             this.butSaveFiles.Name = "butSaveFiles";
             this.butSaveFiles.Size = new System.Drawing.Size(212, 25);
             this.butSaveFiles.TabIndex = 39;
@@ -84,7 +85,7 @@
             // 
             this.label16.AutoSize = true;
             this.label16.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label16.Location = new System.Drawing.Point(261, 29);
+            this.label16.Location = new System.Drawing.Point(477, 165);
             this.label16.Name = "label16";
             this.label16.Size = new System.Drawing.Size(619, 17);
             this.label16.TabIndex = 61;
@@ -109,12 +110,21 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.label18.AutoSize = true;
             this.label18.Font = new System.Drawing.Font("Tahoma", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.label18.Location = new System.Drawing.Point(261, 11);
+            this.label18.Location = new System.Drawing.Point(477, 203);
             this.label18.Name = "label18";
             this.label18.Size = new System.Drawing.Size(716, 17);
             this.label18.TabIndex = 64;
             this.label18.Text = "You need to have files with synchronous English and Russian texts to make split t" +
     "ext with this program";
+            // 
+            // butShowInfo
+            // 
+            this.butShowInfo.Location = new System.Drawing.Point(468, 12);
+            this.butShowInfo.Name = "butShowInfo";
+            this.butShowInfo.Size = new System.Drawing.Size(212, 25);
+            this.butShowInfo.TabIndex = 65;
+            this.butShowInfo.Text = "Info";
+            this.butShowInfo.UseVisualStyleBackColor = true;
             // 
             // TextSplitForm
             // 
@@ -122,6 +132,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 14F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(695, 592);
+            this.Controls.Add(this.butShowInfo);
             this.Controls.Add(this.label18);
             this.Controls.Add(this.textBoxImplementation);
             this.Controls.Add(this.label16);
@@ -147,6 +158,7 @@
         private System.Windows.Forms.Label label16;
 		private System.Windows.Forms.TextBox textBoxImplementation;
         private System.Windows.Forms.Label label18;
+        private System.Windows.Forms.Button butShowInfo;
     }
 }
 

@@ -59,6 +59,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.numEnglishFont = new System.Windows.Forms.ComboBox();
             this.label7 = new System.Windows.Forms.Label();
+            this.butEnglishToDataBase = new System.Windows.Forms.Button();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -407,11 +408,23 @@
             this.label7.TabIndex = 69;
             this.label7.Text = "Select Font Size";
             // 
+            // butEnglishToDataBase
+            // 
+            this.butEnglishToDataBase.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.butEnglishToDataBase.Location = new System.Drawing.Point(297, 588);
+            this.butEnglishToDataBase.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.butEnglishToDataBase.Name = "butEnglishToDataBase";
+            this.butEnglishToDataBase.Size = new System.Drawing.Size(216, 24);
+            this.butEnglishToDataBase.TabIndex = 73;
+            this.butEnglishToDataBase.Text = "English text to dB";
+            this.butEnglishToDataBase.UseVisualStyleBackColor = true;
+            // 
             // TextSplitOpenForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 14F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1437, 689);
+            this.Controls.Add(this.butEnglishToDataBase);
             this.Controls.Add(this.numRussianFont);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.numEnglishFont);
@@ -484,5 +497,6 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.ComboBox numEnglishFont;
         private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Button butEnglishToDataBase;
     }
 }

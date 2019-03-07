@@ -23,6 +23,7 @@ namespace TextSplit
 
         event EventHandler ContentChanged;
         event EventHandler OpenFileClick;
+        event EventHandler LoadEnglishToDataBase;
         //event EventHandler FormOpenClick;
         //event EventHandler<FormClosingEventArgs> TextSplitOpenFormClosing;
     }
@@ -46,6 +47,7 @@ namespace TextSplit
 
         public event EventHandler ContentChanged;
         public event EventHandler OpenFileClick;
+        public event EventHandler LoadEnglishToDataBase;
         //public event EventHandler FormOpenClick;
         //public event EventHandler<FormClosingEventArgs> TextSplitOpenFormClosing;
 
@@ -72,6 +74,7 @@ namespace TextSplit
             butAllFilesOpen.Click += new EventHandler (butAllFilesOpen_Click);
             butOpenEnglishFile.Click += butOpenFile_Click;
             butOpenRussianFile.Click += butOpenFile_Click;
+            butEnglishToDataBase.Click += ButEnglishToDataBase_Click;
             //butSelectResultFile.Click += butSelectFile_Click;
 
             fld0EnglishContent.TextChanged += fldContent_TextChanged;
@@ -84,6 +87,12 @@ namespace TextSplit
             //fld2CreateResultFileName - result file name field
 
             FormClosing += TextSplitOpenForm_FormClosing;            
+        }
+
+        private void ButEnglishToDataBase_Click(object sender, EventArgs e)
+        {
+            //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " LoadEnglishToDataBase = ", LoadEnglishToDataBase.ToString(), CurrentClassName, 3);
+            if (LoadEnglishToDataBase != null) LoadEnglishToDataBase(this, EventArgs.Empty);
         }
 
         public string[] GetFilesContent()

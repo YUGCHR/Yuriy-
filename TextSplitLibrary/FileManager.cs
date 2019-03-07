@@ -21,6 +21,7 @@ namespace TextSplitLibrary
         bool[] IsFilesExist(string[] FilesPath);
         bool IsFilesExist(string FilesPath);
         int[] FilesToDo { get; set; }
+        void WriteToFilePathPlus(string[] textParagraphes, string filesPath, string filesPathPlus);
         void AppendContent(string tracePointName, string tracePointValue, string tracePointPlace);
         void AppendContent(string tracePointName, string tracePointValue, string tracePointPlace, Encoding encoding);
         void AppendContent(string tracePointName, string[] tracePointValue, string tracePointPlace);
@@ -118,7 +119,7 @@ namespace TextSplitLibrary
         }
 
         public void SaveContent(string[] filesContent, string[] filesPath, int i, Encoding encoding)
-        {
+        {            
             File.WriteAllText(filesPath[i], filesContent[i], encoding);
         }
         #endregion
@@ -145,8 +146,17 @@ namespace TextSplitLibrary
         }
 
         #endregion
+        #region WriteToFile
+        public void WriteToFilePathPlus(string[] textParagraphes, string filesPath, string filesPathPlus)
+        {
+            string[] pathNameExt = filesPath.Split(new char[] { '.' });
+            string filesPathAddPlus = pathNameExt[0] + filesPathPlus + "." + pathNameExt[1];
+            MessageBox.Show(filesPathAddPlus, "WriteToFilePathPlus", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            File.WriteAllLines(filesPathAddPlus, textParagraphes, _defaultEncoding);
+        }
+        #endregion
         #region AppendContent
-        
+
         public void AppendContent(string tracePointName, string tracePointValue, string tracePointPlace)
         {
             AppendContent(tracePointName, tracePointValue, tracePointPlace, _defaultEncoding);
