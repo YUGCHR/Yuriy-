@@ -17,5 +17,27 @@ namespace TextSplitLibrary
         WittingIncomplete = 7,
         ContinueProcessing = 8,
         StopProcessing = 9
-    };    
+    };
+
+    public enum WhatNeedDoWithTables : int
+    {
+        PassThrough = 0,
+        ReadRecord = 1,
+        ReadAllRecord = 2,
+        Reserved3 = 3,
+        InsertRecord = 4,
+        DeleteRecord = 5,
+        ClearTable = 7,
+        ContinueProcessing = 8,
+        StopProcessing = 9
+    };
+
+    public enum ResultDidWithTables : int
+    {
+        Successfully = 0,
+        CannotRead = 1,
+        Reserved2 = 2,
+        CannotInsert = 3,
+        UsingWrongTableName = 4
+    };
 }

@@ -15,4 +15,10 @@ namespace TextSplitLibrary
     public enum OpenFormTextBoxImplementationMessages : int { EnglishFilePathSelected = 0, RussianFilePathSelected = 1, ResultFilePathSelected = 2, ResultFileCreated = 3 };
 
     public enum TableLanguagesContent : int { English = 0, Russian = 1, Result = 2 };
+
+    //0 - Languages - cannot insert records
+    //1 - Chapters - Columns - ID, ID_Language, int Chapter, nvchar10 Chapter_name
+    //2 - Paragraphs - Columns - ID, ID_Language, ID_Chapter, int Paragraph, nvchar10 Paragraph_name
+    //3 - Sentences - Columns - ID, ID_Language, ID_Chapter, ID_Paragraph, int Sentence, ntext Sentence_name
+    public enum TablesNamesNumbers : int { Languages = 0, Chapters = 1, Paragraphs = 2, Sentences = 3 };
 }

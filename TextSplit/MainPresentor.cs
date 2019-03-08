@@ -31,7 +31,18 @@ namespace TextSplit
         private int[] counts;
         private string[] filesPath;
         private string[] filesContent;
-        private List<string> textParagraphes;
+
+        private string[] dataBaseTableNames;
+        private int[] dataBaseTableToDo;
+        private int dataBaseTableQuantuty;
+        private List<string> textParagraphs;
+
+        private int ID_Language;
+        private int ID_Chapter;
+        private int ID_Paragraph;
+        private int ID_Sentenses;
+        private int Sentence;
+
         //bool[] isFilesExist;
 
         public MainPresentor(ITextSplitForm view, ITextSplitOpenForm open, IFileManager manager, IMessageService service, ILogFileMessages logs, IDataAccessor data)
@@ -60,11 +71,24 @@ namespace TextSplit
 
             filesPath = new string[filesQuantity];
             filesContent = new string[filesQuantity];
-            textParagraphes = new List<string>(); 
-            //isFilesExist = new bool[filesQuantity];
-            //_view.ManageFilesContent(filesPath, filesContent, filesToDo);//move?
 
-            _view.OpenTextSplitOpenForm += new EventHandler(_view_OpenTextSplitOpenForm);
+            dataBaseTableNames = new string[] { "Languages", "Chapters", "Paragraphs", "Sentences" };
+            dataBaseTableQuantuty = dataBaseTableNames.Length;
+            dataBaseTableToDo = new int[dataBaseTableQuantuty];
+            //enum WhatNeedDoWithTables => PassThrough = 0, ReadRecord = 1, ReadAllRecord = 2, Reserved3 = 3, InsertRecord = 4, DeleteRecord = 5, ClearTable = 7, ContinueProcessing = 8, StopProcessing = 9
+            textParagraphs = new List<string>();
+            
+            ID_Language = 0;
+            ID_Chapter = 0;
+            ID_Paragraph = 0;
+            ID_Sentenses = 0;
+            Sentence = 0;
+
+
+        //isFilesExist = new bool[filesQuantity];
+        //_view.ManageFilesContent(filesPath, filesContent, filesToDo);//move?
+
+        _view.OpenTextSplitOpenForm += new EventHandler(_view_OpenTextSplitOpenForm);
             //_open.AllOpenFilesClick += new EventHandler(_open_FilesOpenClick);
             
             _view.FilesSaveClick += new EventHandler(_view_FilesSaveClick);
@@ -73,27 +97,28 @@ namespace TextSplit
 
         private void _open_LoadEnglishToDataBase(object sender, EventArgs e)
         {
-            // _data.ExecuteReader();
-            char[] charsParagraphSeparator = new char[] { '\r', '\n' }; 
+            _data.OpenConnection();
+            char[] charsParagraphSeparator = new char[] { '\r', '\n' };
+            char[] charsSentenceSeparator = new char[] { '.', '!', '?' };
             //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "filesToDo = " + filesToDo[(int)TableLanguagesContent.English].ToString(), CurrentClassName, 3);
 
             if (filesToDo[(int)TableLanguagesContent.English] == (int)WhatNeedDoWithFiles.CountSymbols)
             {
                 string currentText = filesContent[(int)TableLanguagesContent.English];
                 string[] currentTextSentences = currentText.Split(charsParagraphSeparator);
-                int iSent = 0;
+                int iSent = 0;//current Paragraph index
                 //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " textParagraphes ", textParagraphes.ToString(), CurrentClassName, 3);
                 foreach (string s in currentTextSentences)
                 {
                     
                     int lengthS = s.Length;
-                    textParagraphes.Add(s);
+                    textParagraphs.Add(s);
 
                     //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " Sentence No Lengh ==> ", iSent.ToString() + " = " + s + " ==> " + lengthS.ToString(), CurrentClassName, 3);
 
                     if (iSent > 0)
                         if (lengthS > 0)
-                            if (textParagraphes[iSent - 1].Length == 0)//if not first step and if not blank line and if previous line was blank - we found the chapter begining - now we check is it start from digit
+                            if (textParagraphs[iSent - 1].Length == 0)//if not first step and if not blank line and if previous line was blank - we found the chapter begining - now we check is it start from digit
                             {
                                 char[] isStringChapterNumber = s.ToCharArray(0, 1);
                                 bool isDigitAtSentence = Char.IsDigit(isStringChapterNumber[0]);
@@ -101,21 +126,48 @@ namespace TextSplit
                                 if (isDigitAtSentence)
                                 {
                                     //we found the chapter begining
-                                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " isDigitAtSentence =  ", isDigitAtSentence.ToString() + "textParagraphes[iSent] " + textParagraphes[iSent], CurrentClassName, 3);
+                                    //need to define chapter number here
+                                    //by the way - maybe it is need to add to the tables quantity of chapters and others
+                                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " isDigitAtSentence =  ", isDigitAtSentence.ToString() + "textParagraphs[iSent] " + textParagraphs[iSent], CurrentClassName, 3);
+
+                                    //we will portion current paragraph on sentences
+
+                                    string[] currentParagraphSentences = textParagraphs[iSent].Split(charsSentenceSeparator);
+                                    Sentence = 0;
+                                    ID_Paragraph = iSent;
+                                    foreach (string sentence_name in currentParagraphSentences)
+                                    {
+                                        //string dataBaseTableName = dataBaseTableNames[i];
+                                        //0 - Languages - cannot insert records
+                                        //1 - Chapters - Columns - ID, ID_Language, int Chapter, nvchar10 Chapter_name
+                                        //2 - Paragraphs - Columns - ID, ID_Language, ID_Chapter, int Paragraph, nvchar10 Paragraph_name
+                                        //3 - Sentences - Columns - ID, ID_Language, ID_Chapter, ID_Paragraph, int Sentence, ntext Sentence_name
+                                        _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " (int)TablesNamesNumbers.Sentences =  ", ((int)TablesNamesNumbers.Sentences).ToString() + "(int)WhatNeedDoWithTables.InsertRecord " + ((int)WhatNeedDoWithTables.InsertRecord).ToString(), CurrentClassName, 3);
+                                        dataBaseTableToDo[(int)TablesNamesNumbers.Sentences] = (int)WhatNeedDoWithTables.InsertRecord;
+                                        _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() +
+                                                                  "\r\n" +
+                                                                  " ID_Sentenses =  " + ID_Sentenses.ToString() + "\r\n" +
+                                                                  " ID_Language =  " + ID_Language.ToString() + "\r\n" +
+                                                                  " ID_Chapter =  " + ID_Chapter.ToString() + "\r\n" +
+                                                                  " ID_Paragraph =  " + ID_Paragraph.ToString() + "\r\n" +
+                                                                  " Sentence =  " + Sentence.ToString() + "\r\n",
+                                                                  " Sentence_name =  " + sentence_name, CurrentClassName, 3);
+                                        int insertResult = _data.InsertRecordInTable(dataBaseTableNames[(int)TablesNamesNumbers.Sentences], dataBaseTableToDo, ID_Sentenses, ID_Language, ID_Chapter, ID_Paragraph, Sentence, sentence_name);//Insert Record in Table Sentences
+                                        ID_Sentenses++;
+                                        Sentence++;
+                                    }
+                                    ID_Chapter++;//quantity of chapters
                                 }
-                        
-
-                    }
-
-                    
-                    iSent= iSent+1;
+                            }                    
+                    iSent++;//quantity of paragraphs
                 }
-                int textParagraphesCount = textParagraphes.Count;
+
+                int textParagraphesCount = textParagraphs.Count;
                 string[] textParagraphesArray = new string[textParagraphesCount];
-                textParagraphesArray = textParagraphes.ToArray();
+                textParagraphesArray = textParagraphs.ToArray();
                 _manager.WriteToFilePathPlus(textParagraphesArray, filesPath[(int)TableLanguagesContent.English], "001");
             }
-
+            _data.CloseConnection();
         }
 
         private void _view_TextSplitFormClosing(object sender, FormClosingEventArgs e)
