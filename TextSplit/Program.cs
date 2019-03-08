@@ -48,6 +48,10 @@ namespace TextSplit
 //    //e.Cancel = wasEnglishContentChange;
 //}
 //
+//private List<string> textParagraphs;
+//textParagraphs = new List<string>();
+//textParagraphs.Add(currentParagraph);//merge all Paragraphs in text to print to file (for test only)
+//
 //for (int i = 0; i < 20; i++)
 //    Control currentOpenFormFieldName = this.Controls[15];
 //
