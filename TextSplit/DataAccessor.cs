@@ -17,7 +17,7 @@ namespace TextSplit
         void OpenConnection();
         int ExecuteWriter();
         void ExecuteReader();
-        void ClearAllTables();
+        int ClearAllTables();
         void CloseConnection();
         int InsertRecordInTable(string dataBaseTableName, int[] dataBaseTableToDo, int id, int id_Language, int chapter, string chapter_name);//Insert Record in Table Chapters
         int InsertRecordInTable(string dataBaseTableName, int[] dataBaseTableToDo, int id, int id_Language, int id_Chapter, int paragraph, string paragraph_name);//Insert Record in Table Paragraphs
@@ -32,7 +32,10 @@ namespace TextSplit
         private const string connectionStringDataBase = "Initial Catalog = TextSplitSentences;";
         private const string connectionStringSecurity = "Integrated Security=true";
         private const string connectionString = connectionStringSource + connectionStringDataBase + connectionStringSecurity;
+
         private SqlConnection connect = null;
+        readonly private string strCRLF;
+        private int showMessagesLevel;        
 
         private string[] dataBaseTableNames;
         private int[] dataBaseTableToDo;
@@ -40,15 +43,23 @@ namespace TextSplit
 
         public DataAccessor(IMessageService service)
         {
+            strCRLF = Declaration.StrCRLF;
+            showMessagesLevel = Declaration.ShowMessagesLevel;
+
             _messageService = service;
+
             dataBaseTableNames = new string[] { "Languages", "Chapters", "Paragraphs", "Sentences" };
+            //0 - Languages - cannot insert records
+            //1 - Chapters - Columns - ID, ID_Language, int Chapter, nvchar10 Chapter_name
+            //2 - Paragraphs - Columns - ID, ID_Language, ID_Chapter, int Paragraph, nvchar10 Paragraph_name
+            //3 - Sentences - Columns - ID, ID_Language, ID_Chapter, ID_Paragraph, int Sentence, ntext Sentence_name
+
             dataBaseTableQuantuty = dataBaseTableNames.Length;
             dataBaseTableToDo = new int[dataBaseTableQuantuty];
             //enum WhatNeedDoWithTables => PassThrough = 0, ReadRecord = 1, ReadAllRecord = 2, Reserved3 = 3, InsertRecord = 4, DeleteRecord = 5, ClearTable = 7, ContinueProcessing = 8, StopProcessing = 9
 
-
             connect = new SqlConnection(connectionString);
-            //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " SqlConnection(connectionString) CREATED ==> " + connect.ToString(), CurrentClassName, 3);
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " SqlConnection(connectionString) CREATED ==> " + connect.ToString(), CurrentClassName, showMessagesLevel);
         }
 
         public void OpenConnection()
@@ -66,25 +77,35 @@ namespace TextSplit
             //если 0 - сказать, что запрещено стирать
         }
 
-        public void ClearAllTables()
+        public int ClearAllTables()
         {            
             string sqlExpressionCommand = "DELETE FROM ";
             string sqlExpressionTable;
             string sqlExpression;
+            int iSqlCommandReturn = -1;
 
             for (int i = dataBaseTableQuantuty-1; i > 0; i--)//Table 0 (Languages) does not need to clear
             {
-                sqlExpressionTable = dataBaseTableNames[i];
+                sqlExpressionTable = dataBaseTableNames[i];// 0 -> Languages, 1 -> Chapters, 2 -> Paragraphs, 3 -> Sentences
                 sqlExpression = sqlExpressionCommand + sqlExpressionTable;
                 using (var connection = new SqlConnection(connectionString))
                 {
                     connection.Open();
                     //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " sqlExpression ==> " + sqlExpression.ToString(), CurrentClassName, 3);
-                    SqlCommand command = new SqlCommand(sqlExpression, connection);
-                    int iSqlCommandReturn = command.ExecuteNonQuery();
-                    //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " ClearAllTables iSqlCommandReturn ==> " + iSqlCommandReturn.ToString(), CurrentClassName, 3);
+                    SqlCommand command = new SqlCommand(sqlExpression, connection);                    
+                    try
+                    {
+                        iSqlCommandReturn = command.ExecuteNonQuery();
+                        _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " SqlCommand (Records inserted) returned ==> " + iSqlCommandReturn.ToString(), CurrentClassName, showMessagesLevel);                        
+                    }
+                    catch (SqlException ex)
+                    {
+                        _messageService.ShowError(ex.Message);
+                        return -1;
+                    }                   
                 }
             }
+            return iSqlCommandReturn;
         }
         //string dataBaseTableName = dataBaseTableNames[i];
         //0 - Languages - cannot insert records
@@ -92,27 +113,35 @@ namespace TextSplit
         //2 - Paragraphs - Columns - ID, ID_Language, ID_Chapter, int Paragraph, nvchar10 Paragraph_name
         //3 - Sentences - Columns - ID, ID_Language, ID_Chapter, ID_Paragraph, int Sentence, ntext Sentence_name
 
-        public int InsertRecordInTable(string dataBaseTableName, int[] dataBaseTableToDo, int id, int id_Language, int chapter, string chapter_name)//Insert Record in Table Chapters
+        public int InsertRecordInTable(string dataBaseTableName, int[] dataBaseTableToDo, int id, int id_Language, int chapter, string chapter_name)//Overload to insert record in Table Chapters
         {
             if (dataBaseTableName == dataBaseTableNames[(int)TablesNamesNumbers.Chapters])
             {
                 if (dataBaseTableToDo[(int)TablesNamesNumbers.Chapters] == (int)WhatNeedDoWithTables.InsertRecord)
                 {
-                    string sql = string.Format("Insert Into Chapters" + "(ID, ID_Language, Chapter, Chapter_name) Values(@ID, @ID_Language, @Chapter, @Chapter_name)");
-                    
-                    //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), 
-                    //    "\r\n id = " + id.ToString() + 
-                    //    "\r\n id_Language = " + id_Language.ToString() + 
-                    //    "\r\n chapter = " + chapter.ToString() + 
-                    //    "\r\n chapter_name = " + chapter_name, CurrentClassName, 3);
+                    string sql = string.Format("Insert Into " + dataBaseTableNames[(int)TablesNamesNumbers.Chapters] + "(ID, ID_Language, Chapter, Chapter_name) Values(@ID, @ID_Language, @Chapter, @Chapter_name)");
+
+                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(),
+                        strCRLF + "id = " + id.ToString() +
+                        strCRLF + "id_Language = " + id_Language.ToString() +
+                        strCRLF + "chapter = " + chapter.ToString() +
+                        strCRLF + "chapter_name = " + chapter_name, CurrentClassName, showMessagesLevel);
+
                     using (SqlCommand cmd = new SqlCommand(sql, this.connect))
                     {                        
                         cmd.Parameters.AddWithValue("@ID", id);
                         cmd.Parameters.AddWithValue("@ID_Language", id_Language);
                         cmd.Parameters.AddWithValue("@Chapter", chapter);
-                        cmd.Parameters.AddWithValue("@Chapter_name", chapter_name);                        
-                        int iSqlCommandReturn = cmd.ExecuteNonQuery();
-                        //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " iSqlCommandReturn Records added ==> " + iSqlCommandReturn.ToString(), CurrentClassName, 3);
+                        cmd.Parameters.AddWithValue("@Chapter_name", chapter_name);
+                        try
+                        {
+                            int iSqlCommandReturn = cmd.ExecuteNonQuery();
+                            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " SqlCommand (Records inserted) returned ==> " + iSqlCommandReturn.ToString(), CurrentClassName, showMessagesLevel);
+                        }
+                        catch (SqlException ex)
+                        {
+                            _messageService.ShowError(ex.Message);
+                        }                        
                     }
                     return (int)ResultDidWithTables.Successfully;
                 }
@@ -127,14 +156,15 @@ namespace TextSplit
             {
                 if (dataBaseTableToDo[(int)TablesNamesNumbers.Paragraphs] == (int)WhatNeedDoWithTables.InsertRecord)
                 {
-                    string sql = string.Format("Insert Into Paragraphs" + "(ID, ID_Language, ID_Chapter, Paragraph, Paragraphs_name) Values(@ID, @ID_Language, @ID_Chapter, @Paragraph, @Paragraphs_name)");
-                    
-                    //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), 
-                    //    "\r\n id = " + id.ToString() + 
-                    //    "\r\n id_Language = " + id_Language.ToString() + 
-                    //    "\r\n id_Chapter = " + id_Chapter.ToString() +
-                    //    "\r\n paragraph = " + paragraph.ToString() +
-                    //    "\r\n paragraph_name = " + paragraph_name, CurrentClassName, 3);
+                    string sql = string.Format("Insert Into " + dataBaseTableNames[(int)TablesNamesNumbers.Paragraphs] + "(ID, ID_Language, ID_Chapter, Paragraph, Paragraphs_name) Values(@ID, @ID_Language, @ID_Chapter, @Paragraph, @Paragraphs_name)");
+
+                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(),
+                        strCRLF + "id = " + id.ToString() +
+                        strCRLF + "id_Language = " + id_Language.ToString() +
+                        strCRLF + "id_Chapter = " + id_Chapter.ToString() +
+                        strCRLF + "paragraph = " + paragraph.ToString() +
+                        strCRLF + "paragraph_name = " + paragraph_name, CurrentClassName, showMessagesLevel);                    
+
                     using (SqlCommand cmd = new SqlCommand(sql, this.connect))
                     {
                         cmd.Parameters.AddWithValue("@ID", id);
@@ -142,8 +172,15 @@ namespace TextSplit
                         cmd.Parameters.AddWithValue("@ID_Chapter", id_Chapter);
                         cmd.Parameters.AddWithValue("@Paragraph", paragraph);
                         cmd.Parameters.AddWithValue("@Paragraphs_name", paragraph_name);
-                        int iSqlCommandReturn = cmd.ExecuteNonQuery();
-                        //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " iSqlCommandReturn Records added ==> " + iSqlCommandReturn.ToString(), CurrentClassName, 3);
+                        try
+                        {
+                            int iSqlCommandReturn = cmd.ExecuteNonQuery();
+                            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " SqlCommand (Records inserted) returned ==> " + iSqlCommandReturn.ToString(), CurrentClassName, showMessagesLevel);
+                        }
+                        catch (SqlException ex)
+                        {
+                            _messageService.ShowError(ex.Message);
+                        }                       
                     }
                     return (int)ResultDidWithTables.Successfully;
                 }
@@ -158,15 +195,16 @@ namespace TextSplit
             {
                 if (dataBaseTableToDo[(int)TablesNamesNumbers.Sentences] == (int)WhatNeedDoWithTables.InsertRecord)
                 {
-                    string sql = string.Format("Insert Into Sentences" + "(ID, ID_Language, ID_Chapter, ID_Paragraph, Sentence, Sentence_name) Values(@ID, @ID_Language, @ID_Chapter, @ID_Paragraph, @Sentence, @Sentence_name)");
-                  
-                    //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(),
-                    //    "\r\n id = " + id.ToString() +
-                    //    "\r\n id_Language = " + id_Language.ToString() +
-                    //    "\r\n id_Chapter = " + id_Chapter.ToString() +
-                    //    "\r\n id_Paragraph = " + id_Paragraph.ToString() +
-                    //    "\r\n sentence = " + sentence.ToString() +
-                    //    "\r\n sentence_name = " + sentence_name, CurrentClassName, 3);
+                    string sql = string.Format("Insert Into " + dataBaseTableNames[(int)TablesNamesNumbers.Sentences] + "(ID, ID_Language, ID_Chapter, ID_Paragraph, Sentence, Sentence_name) Values(@ID, @ID_Language, @ID_Chapter, @ID_Paragraph, @Sentence, @Sentence_name)");
+
+                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(),
+                        strCRLF + "id = " + id.ToString() +
+                        strCRLF + "id_Language = " + id_Language.ToString() +
+                        strCRLF + "id_Chapter = " + id_Chapter.ToString() +
+                        strCRLF + "id_Paragraph = " + id_Paragraph.ToString() +
+                        strCRLF + "sentence = " + sentence.ToString() +
+                        strCRLF + "sentence_name = " + sentence_name, CurrentClassName, showMessagesLevel);
+
                     using (SqlCommand cmd = new SqlCommand(sql, this.connect))
                     {                        
                         cmd.Parameters.AddWithValue("@ID", id);
@@ -174,9 +212,16 @@ namespace TextSplit
                         cmd.Parameters.AddWithValue("@ID_Chapter", id_Chapter);
                         cmd.Parameters.AddWithValue("@ID_Paragraph", id_Paragraph);
                         cmd.Parameters.AddWithValue("@Sentence", sentence);
-                        cmd.Parameters.AddWithValue("@Sentence_name", sentence_name);                        
-                        int iSqlCommandReturn = cmd.ExecuteNonQuery();
-                        //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " iSqlCommandReturn Records added ==> " + iSqlCommandReturn.ToString(), CurrentClassName, 3);
+                        cmd.Parameters.AddWithValue("@Sentence_name", sentence_name);
+                        try
+                        {
+                            int iSqlCommandReturn = cmd.ExecuteNonQuery();
+                            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " SqlCommand (Records inserted) returned ==> " + iSqlCommandReturn.ToString(), CurrentClassName, showMessagesLevel);
+                        }
+                        catch (SqlException ex)
+                        {
+                            _messageService.ShowError(ex.Message);
+                        }
                     }
                     return (int)ResultDidWithTables.Successfully;
                 }

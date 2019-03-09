@@ -25,8 +25,9 @@ namespace TextSplit
             TextSplitOpenForm open = new TextSplitOpenForm(service);
             TextSplitForm view = new TextSplitForm(service, logs);
             DataAccessor data = new DataAccessor(service);
+            LoadTextToDataBase load = new LoadTextToDataBase(data, service);
             //MessageBox.Show("All Modules Declared", "Program in progress", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            MainPresentor presentor = new MainPresentor(view, open, manager, service, logs, data);            
+            MainPresentor presentor = new MainPresentor(view, open, manager, service, logs, load);            
             MessageBox.Show("Main Called", "Program in progress", MessageBoxButtons.OK, MessageBoxIcon.Information);
             Application.Run(view);            
         }

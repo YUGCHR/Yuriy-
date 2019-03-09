@@ -72,7 +72,7 @@ namespace TextSplit
             
     }
 
-        #region Events forwarding
+        #region Events forwarding // - obsolete
         private void TextSplitForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             //MessageBox.Show(wasEnglishContentChange.ToString(), "It caught there, not here", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -114,10 +114,6 @@ namespace TextSplit
             textBoxImplementation.Text = LogBoxAllLines;
             
         }
-
-
-
-
 
         public static string CurrentClassName
         {
