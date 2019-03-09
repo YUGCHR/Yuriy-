@@ -74,7 +74,7 @@ namespace TextSplit
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + strCRLF + "filesToDo[English] must be 4 here ==> ", filesToDo[(int)TableLanguagesContent.English].ToString(), CurrentClassName, showMessagesLevel);
             if (filesToDo[(int)TableLanguagesContent.English] == (int)WhatNeedDoWithFiles.CountSymbols)//check is English content filled in the filesContent - CountSymbols was done
             {
-                int insertPortionResult = _load.PortionTextForDataBase(filesContent, filesToDo, ID_Language);
+                int insertPortionResult = _load.PortionTextForDataBase(filesContent, filesToDo, ID_Language); // - вызывается 2 раза, найти почему
                 _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + strCRLF + " insertPortionResult ==> ", insertPortionResult.ToString(), CurrentClassName, showMessagesLevel);
             }            
         }
