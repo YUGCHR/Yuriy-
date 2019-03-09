@@ -14,8 +14,7 @@ namespace TextSplit
 {
     public interface IDataAccessor
     {
-        void OpenConnection();
-        int ExecuteWriter();
+        void OpenConnection();        
         void ExecuteReader();
         int ClearAllTables();
         void CloseConnection();
@@ -124,35 +123,16 @@ namespace TextSplit
         }
 
         public int InsertRecordInTable(string[] dataBaseTableNames, int[] dataBaseTableToDo, int id, int id_Language, int id_Chapter, int id_Paragraph, int sentence, string sentence_name)//Insert Record in Table Sentences
-        {
-            int chapter = 0;
-            string chapter_name = "";
-            int paragraph = 0;
-            string paragraph_name = "";
+        {            
             string sql = "";
+            int intValue = sentence;
+            string intValueName = sentence_name;            
 
             for (int i = 1; i < dataBaseTableQuantuty; i++)//0 - Languages - cannot insert records
             {                
                 if (dataBaseTableToDo[i] == (int)WhatNeedDoWithTables.InsertRecord)//define what table will insert in
                 {
                     string dataBaseTableName = dataBaseTableNames[i];
-                    
-                    if (id_Chapter < 0) //prepare format Chapter
-                    {
-                        sql = string.Format("Insert Into " + dataBaseTableName + "(ID, ID_Language, Chapter, Chapter_name) Values(@ID, @ID_Language, @Chapter, @Chapter_name)");
-                        chapter = sentence;
-                        chapter_name = sentence_name;                        
-                    }
-                    else
-                    {
-                        if (id_Paragraph < 0) //prepare format Paragraph
-                        {
-                            sql = string.Format("Insert Into " + dataBaseTableName + "(ID, ID_Language, ID_Chapter, Paragraph, Paragraphs_name) Values(@ID, @ID_Language, @ID_Chapter, @Paragraph, @Paragraphs_name)");
-                            paragraph = sentence;
-                            paragraph_name = sentence_name;
-                        } //prepare format Sentence
-                        else sql = string.Format("Insert Into " + dataBaseTableName + "(ID, ID_Language, ID_Chapter, ID_Paragraph, Sentence, Sentence_name) Values(@ID, @ID_Language, @ID_Chapter, @ID_Paragraph, @Sentence, @Sentence_name)");                        
-                    }
 
                     _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(),
                         strCRLF + "dataBaseTableName ==> " + dataBaseTableName +
@@ -160,64 +140,91 @@ namespace TextSplit
                         strCRLF + "id_Language = " + id_Language.ToString() +
                         strCRLF + "id_Chapter = " + id_Chapter.ToString() + " - (if -1 - Chapter)" +
                         strCRLF + "id_Paragraph = " + id_Paragraph.ToString() + " - (if -1 - Paragraph)" +
-                        strCRLF + "sentence = " + sentence.ToString() +
-                        strCRLF + "sentence_name = " + sentence_name, CurrentClassName, showMessagesLevel);
+                        strCRLF + "sentence = " + intValue.ToString() +
+                        strCRLF + "sentence_name = " + intValueName, CurrentClassName, showMessagesLevel);
 
-                    using (SqlCommand cmd = new SqlCommand(sql, this.connect))
-                    {                        
-                        cmd.Parameters.AddWithValue("@ID", id);
-                        cmd.Parameters.AddWithValue("@ID_Language", id_Language);
-                        if (id_Chapter < 0)//id_Chapter в вызове = -1 - вставляем Chapter
-                        {                            
-                            cmd.Parameters.AddWithValue("@Chapter", chapter);
-                            cmd.Parameters.AddWithValue("@Chapter_name", chapter_name);
-                        }
+                    if (id_Chapter < 0) //prepare format Chapter
+                    {
+                        sql = string.Format("Insert Into " + dataBaseTableName + "(ID, ID_Language, Chapter, Chapter_name) Values(@ID, @ID_Language, @Chapter, @Chapter_name)");                        
+                        int ii = CmdAssembly(sql, id, id_Language, -1, -1, intValue, intValueName);
+                        return (int)ResultDidWithTables.Successfully;
+                    }
+                    else
+                    {
+                        if (id_Paragraph < 0) //prepare format Paragraph
+                        {
+                            sql = string.Format("Insert Into " + dataBaseTableName + "(ID, ID_Language, ID_Chapter, Paragraph, Paragraphs_name) Values(@ID, @ID_Language, @ID_Chapter, @Paragraph, @Paragraphs_name)");                            
+                            int ii = CmdAssembly(sql, id, id_Language, id_Chapter, -1, intValue, intValueName);
+                            return (int)ResultDidWithTables.Successfully;
+                        } //prepare format Sentence
                         else
                         {
-                            if (id_Paragraph < 0)//id_Paragraph в вызове = -1 - вставляем Paragraphs
-                            {
-                                cmd.Parameters.AddWithValue("@ID_Chapter", id_Chapter);
-                                cmd.Parameters.AddWithValue("@Paragraph", paragraph);
-                                cmd.Parameters.AddWithValue("@Paragraphs_name", paragraph_name);
-                            }
-                            else//id_Paragraph в вызове > 0 - вставляем Sentences
-                            {
-                                cmd.Parameters.AddWithValue("@ID_Chapter", id_Chapter);
-                                cmd.Parameters.AddWithValue("@ID_Paragraph", id_Paragraph);
-                                cmd.Parameters.AddWithValue("@Sentence", sentence);
-                                cmd.Parameters.AddWithValue("@Sentence_name", sentence_name);
-                            }
+                            sql = string.Format("Insert Into " + dataBaseTableName + "(ID, ID_Language, ID_Chapter, ID_Paragraph, Sentence, Sentence_name) Values(@ID, @ID_Language, @ID_Chapter, @ID_Paragraph, @Sentence, @Sentence_name)");
+                            int ii = CmdAssembly(sql, id, id_Language, id_Chapter, id_Paragraph, intValue, intValueName);
+                            return (int)ResultDidWithTables.Successfully;
                         }
-                        try
-                        {
-                            int iSqlCommandReturn = cmd.ExecuteNonQuery();
-                            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " SqlCommand (Records inserted) returned ==> " + iSqlCommandReturn.ToString(), CurrentClassName, showMessagesLevel);
-                        }
-                        catch (SqlException ex)
-                        {
-                            _messageService.ShowError(ex.Message);
-                        }
-                    }
-                    return (int)ResultDidWithTables.Successfully;
+                    }                    
                 }                
             }
             return (int)ResultDidWithTables.CannotInsert;
         }
-
-
-        public int ExecuteWriter()
+        
+        private int CmdAssembly(string sql, int id, int id_Language, int id_Chapter, int id_Paragraph, int intValue, string intValueName)
         {
+            using (SqlCommand cmd = new SqlCommand(sql, this.connect))
+            {
+                cmd.Parameters.AddWithValue("@ID", id);
+                cmd.Parameters.AddWithValue("@ID_Language", id_Language);
+                if (id_Chapter < 0)//id_Chapter в вызове = -1 - вставляем Chapter
+                {
+                    cmd.Parameters.AddWithValue("@Chapter", intValue);
+                    cmd.Parameters.AddWithValue("@Chapter_name", intValueName);
+                    int ii = ExecuteWriter(cmd);
+                    return 0;
+                }
+                else
+                {
+                    if (id_Paragraph < 0)//id_Paragraph в вызове = -1 - вставляем Paragraphs
+                    {
+                        cmd.Parameters.AddWithValue("@ID_Chapter", id_Chapter);
+                        cmd.Parameters.AddWithValue("@Paragraph", intValue);
+                        cmd.Parameters.AddWithValue("@Paragraphs_name", intValueName);
+                        int ii = ExecuteWriter(cmd);
+                        return 0;
+                    }
+                    else//id_Paragraph в вызове > 0 - вставляем Sentences
+                    {
+                        cmd.Parameters.AddWithValue("@ID_Chapter", id_Chapter);
+                        cmd.Parameters.AddWithValue("@ID_Paragraph", id_Paragraph);
+                        cmd.Parameters.AddWithValue("@Sentence", intValue);
+                        cmd.Parameters.AddWithValue("@Sentence_name", intValueName);
+                        int ii = ExecuteWriter(cmd);
+                        return 0;
+                    }
+                }                
+            }            
+        }
 
-            return 0;
+        private int ExecuteWriter(SqlCommand cmd)
+        {
+            try
+            {
+                int iSqlCommandReturn = cmd.ExecuteNonQuery();
+                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " SqlCommand (Records inserted) returned ==> " + iSqlCommandReturn.ToString(), CurrentClassName, showMessagesLevel);
+                return 0;
+            }
+            catch (SqlException ex)
+            {
+                _messageService.ShowError(ex.Message);
+                return -1;
+            }
         }
 
         public void ExecuteReader()
-        {
-            
+        {            
             string sql = "select * from Languages";
             using (var connection = new SqlConnection(connectionString))
-            {
-                
+            {                
                 connection.Open();
                 string sqlExpression = "INSERT INTO Languages (ID, Language, Language_name) VALUES (1, 1, 'Russian')";
                 SqlCommand command = new SqlCommand(sqlExpression, connection);
