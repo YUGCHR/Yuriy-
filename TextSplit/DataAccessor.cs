@@ -152,12 +152,60 @@ namespace TextSplit
 
         public int InsertRecordInTable(string[] dataBaseTableNames, int[] dataBaseTableToDo, int id, int id_Language, int id_Chapter, int paragraph, string paragraph_name)//Insert Record in Table Paragraphs
         {
+
+            return InsertRecordInTable(dataBaseTableNames, dataBaseTableToDo, id, id_Language, id_Chapter, -1, paragraph, paragraph_name);//overload Insert Record in Table Sentences
+
+            //for (int i = 1; i < dataBaseTableQuantuty; i++)//0 - Languages - cannot insert records
+            //{
+            //    if (dataBaseTableToDo[i] == (int)WhatNeedDoWithTables.InsertRecord)//must found at i = 2 -> (int)TablesNamesNumbers.Paragraphs
+            //    {
+            //        string dataBaseTableName = dataBaseTableNames[i];
+            //        string sql = string.Format("Insert Into " + dataBaseTableName + "(ID, ID_Language, ID_Chapter, Paragraph, Paragraphs_name) Values(@ID, @ID_Language, @ID_Chapter, @Paragraph, @Paragraphs_name)");
+
+            //        _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(),
+            //            strCRLF + "dataBaseTableName ==> " + dataBaseTableName +
+            //            strCRLF + "id = " + id.ToString() +
+            //            strCRLF + "id_Language = " + id_Language.ToString() +
+            //            strCRLF + "id_Chapter = " + id_Chapter.ToString() +
+            //            strCRLF + "paragraph = " + paragraph.ToString() +
+            //            strCRLF + "paragraph_name = " + paragraph_name, CurrentClassName, showMessagesLevel);                    
+
+            //        using (SqlCommand cmd = new SqlCommand(sql, this.connect))
+            //        {
+            //            cmd.Parameters.AddWithValue("@ID", id);
+            //            cmd.Parameters.AddWithValue("@ID_Language", id_Language);
+            //            cmd.Parameters.AddWithValue("@ID_Chapter", id_Chapter);
+            //            cmd.Parameters.AddWithValue("@Paragraph", paragraph);
+            //            cmd.Parameters.AddWithValue("@Paragraphs_name", paragraph_name);
+            //            try
+            //            {
+            //                int iSqlCommandReturn = cmd.ExecuteNonQuery();
+            //                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " SqlCommand (Records inserted) returned ==> " + iSqlCommandReturn.ToString(), CurrentClassName, showMessagesLevel);
+            //            }
+            //            catch (SqlException ex)
+            //            {
+            //                _messageService.ShowError(ex.Message);
+            //            }                       
+            //        }
+            //        return (int)ResultDidWithTables.Successfully;
+            //    }                
+            //}
+            //return (int)ResultDidWithTables.CannotInsert;
+        }
+
+        public int InsertRecordInTable(string[] dataBaseTableNames, int[] dataBaseTableToDo, int id, int id_Language, int id_Chapter, int id_Paragraph, int sentence, string sentence_name)//Insert Record in Table Sentences
+        {
             for (int i = 1; i < dataBaseTableQuantuty; i++)//0 - Languages - cannot insert records
             {
-                if (dataBaseTableToDo[i] == (int)WhatNeedDoWithTables.InsertRecord)//must found at i = 2 -> (int)TablesNamesNumbers.Paragraphs
+                if (dataBaseTableToDo[i] == (int)WhatNeedDoWithTables.InsertRecord)//define what table will insert in
                 {
                     string dataBaseTableName = dataBaseTableNames[i];
-                    string sql = string.Format("Insert Into " + dataBaseTableName + "(ID, ID_Language, ID_Chapter, Paragraph, Paragraphs_name) Values(@ID, @ID_Language, @ID_Chapter, @Paragraph, @Paragraphs_name)");
+                    string sql = "";
+                    if (id_Paragraph < 0) sql = string.Format("Insert Into " + dataBaseTableName + "(ID, ID_Language, ID_Chapter, Paragraph, Paragraphs_name) Values(@ID, @ID_Language, @ID_Chapter, @Paragraph, @Paragraphs_name)");
+                    else sql = string.Format("Insert Into " + dataBaseTableName + "(ID, ID_Language, ID_Chapter, ID_Paragraph, Sentence, Sentence_name) Values(@ID, @ID_Language, @ID_Chapter, @ID_Paragraph, @Sentence, @Sentence_name)");
+
+                    int paragraph = sentence;
+                    string paragraph_name = sentence_name;
 
                     _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(),
                         strCRLF + "dataBaseTableName ==> " + dataBaseTableName +
@@ -165,39 +213,7 @@ namespace TextSplit
                         strCRLF + "id_Language = " + id_Language.ToString() +
                         strCRLF + "id_Chapter = " + id_Chapter.ToString() +
                         strCRLF + "paragraph = " + paragraph.ToString() +
-                        strCRLF + "paragraph_name = " + paragraph_name, CurrentClassName, showMessagesLevel);                    
-
-                    using (SqlCommand cmd = new SqlCommand(sql, this.connect))
-                    {
-                        cmd.Parameters.AddWithValue("@ID", id);
-                        cmd.Parameters.AddWithValue("@ID_Language", id_Language);
-                        cmd.Parameters.AddWithValue("@ID_Chapter", id_Chapter);
-                        cmd.Parameters.AddWithValue("@Paragraph", paragraph);
-                        cmd.Parameters.AddWithValue("@Paragraphs_name", paragraph_name);
-                        try
-                        {
-                            int iSqlCommandReturn = cmd.ExecuteNonQuery();
-                            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " SqlCommand (Records inserted) returned ==> " + iSqlCommandReturn.ToString(), CurrentClassName, showMessagesLevel);
-                        }
-                        catch (SqlException ex)
-                        {
-                            _messageService.ShowError(ex.Message);
-                        }                       
-                    }
-                    return (int)ResultDidWithTables.Successfully;
-                }                
-            }
-            return (int)ResultDidWithTables.CannotInsert;
-        }
-
-        public int InsertRecordInTable(string[] dataBaseTableNames, int[] dataBaseTableToDo, int id, int id_Language, int id_Chapter, int id_Paragraph, int sentence, string sentence_name)//Insert Record in Table Sentences
-        {
-            for (int i = 1; i < dataBaseTableQuantuty; i++)//0 - Languages - cannot insert records
-            {
-                if (dataBaseTableToDo[i] == (int)WhatNeedDoWithTables.InsertRecord)//must found at i = 2 -> (int)TablesNamesNumbers.Sentences
-                {
-                    string dataBaseTableName = dataBaseTableNames[i];
-                    string sql = string.Format("Insert Into " + dataBaseTableName + "(ID, ID_Language, ID_Chapter, ID_Paragraph, Sentence, Sentence_name) Values(@ID, @ID_Language, @ID_Chapter, @ID_Paragraph, @Sentence, @Sentence_name)");
+                        strCRLF + "paragraph_name = " + paragraph_name, CurrentClassName, showMessagesLevel);
 
                     _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(),
                         strCRLF + "dataBaseTableName ==> " + dataBaseTableName +
@@ -213,9 +229,18 @@ namespace TextSplit
                         cmd.Parameters.AddWithValue("@ID", id);
                         cmd.Parameters.AddWithValue("@ID_Language", id_Language);
                         cmd.Parameters.AddWithValue("@ID_Chapter", id_Chapter);
-                        cmd.Parameters.AddWithValue("@ID_Paragraph", id_Paragraph);
-                        cmd.Parameters.AddWithValue("@Sentence", sentence);
-                        cmd.Parameters.AddWithValue("@Sentence_name", sentence_name);
+                        if (id_Paragraph < 0)//id_Paragraph в вызове = -1 - вставляем Paragraphs
+                        {
+                            cmd.Parameters.AddWithValue("@Paragraph", paragraph);
+                            cmd.Parameters.AddWithValue("@Paragraphs_name", paragraph_name);
+                        }
+                        else//id_Paragraph в вызове > 0 - вставляем Sentences
+                        {
+                            cmd.Parameters.AddWithValue("@ID_Paragraph", id_Paragraph);
+                            cmd.Parameters.AddWithValue("@Sentence", sentence);
+                            cmd.Parameters.AddWithValue("@Sentence_name", sentence_name);
+                        }
+                        
                         try
                         {
                             int iSqlCommandReturn = cmd.ExecuteNonQuery();
