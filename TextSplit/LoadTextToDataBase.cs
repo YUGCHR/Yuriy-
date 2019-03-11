@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using System.Reflection;
 using TextSplitLibrary;
 
-
 namespace TextSplit
 {
     public interface ILoadTextToDataBase
@@ -27,11 +26,14 @@ namespace TextSplit
         private int[] dataBaseTableToDo;
         private int dataBaseTableQuantuty;        
         private int showMessagesLevel;
+        private int filesQuantity;
 
         public LoadTextToDataBase(IDataAccessor data, IMessageService service)
         {
             strCRLF = Declaration.StrCRLF;
             showMessagesLevel = Declaration.ShowMessagesLevel;
+            filesQuantity = Declaration.FilesQuantity;
+
             _messageService = service;
             _data = data;
 
@@ -58,8 +60,16 @@ namespace TextSplit
             int clearAllTablesResult = ClearAllTables();
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " ClearAllTables returned ==> " + clearAllTablesResult.ToString(), CurrentClassName, 3);
 
-            int i = CurrentParagraphsPortioned(currentTextParagraphsPortioned, ID_Language);
-                        
+            if (ID_Language < 0)//value -1 in "ID_Language" means - to insert records in Table Languages was allowed
+            {
+                dataBaseTableToDo[0] = (int)WhatNeedDoWithTables.InsertRecord;
+                int i = _data.InsertTableLanguagesRecords(filesQuantity, dataBaseTableToDo);
+            }
+            else //usual 
+            {
+                int i = CurrentParagraphsPortioned(currentTextParagraphsPortioned, ID_Language);
+            }
+
             _data.CloseConnection();
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "\r\n dB connection CLOSED successfully", CurrentClassName, 3);
             return 0;

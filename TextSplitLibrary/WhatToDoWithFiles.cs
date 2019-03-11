@@ -32,7 +32,7 @@ namespace TextSplitLibrary
         StopProcessing = 9
     };
 
-    public enum ResultDidWithTables : int
+    public enum TablesProcessingResult : int
     {
         Successfully = 0,
         CannotRead = 1,

@@ -15,7 +15,7 @@ namespace TextSplit
         [STAThread]
         static void Main()
         {            
-            //MessageBox.Show("static void Main started", "Program in progress", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            //MessageBox.Show("static void Main started", "Program", MessageBoxButtons.OK, MessageBoxIcon.Information);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
@@ -26,9 +26,9 @@ namespace TextSplit
             TextSplitForm view = new TextSplitForm(service, logs);
             DataAccessor data = new DataAccessor(service);
             LoadTextToDataBase load = new LoadTextToDataBase(data, service);
-            //MessageBox.Show("All Modules Declared", "Program in progress", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            //MessageBox.Show("All Modules Declared", "Program", MessageBoxButtons.OK, MessageBoxIcon.Information);
             MainPresentor presentor = new MainPresentor(view, open, manager, service, logs, load);            
-            MessageBox.Show("Main Called", "Program in progress", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            //MessageBox.Show("Main Called", "Program", MessageBoxButtons.OK, MessageBoxIcon.Information);
             Application.Run(view);            
         }
     }

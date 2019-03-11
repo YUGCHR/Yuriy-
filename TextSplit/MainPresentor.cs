@@ -63,23 +63,21 @@ namespace TextSplit
             _view.FilesSaveClick += new EventHandler(_view_FilesSaveClick);
             _view.TextSplitFormClosing += new EventHandler<FormClosingEventArgs>(_view_TextSplitFormClosing);
         }
-
         
         private void _open_LoadEnglishToDataBase(object sender, EventArgs e)
-        {//обобщить метод для любого языка
-
-            int ID_Language = 0;//работа с английской таблицей базы - надо убрать, по ToDo ясно, с кем работаем
+        {   // обобщить метод для любого языка
+            // разрешать запускать только после сохранения текста - гасить кнопку или менять название - Save на dB Load
+            int ID_Language = 0;//работа с английской таблицей базы - может, надо убрать, по ToDo ясно, с кем работаем (но это не точно)
             filesToDo = _open.GetFilesToDo();
             filesContent = _open.GetFilesContent();
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + strCRLF + "filesToDo[English] must be 4 here ==> ", filesToDo[(int)TableLanguagesContent.English].ToString(), CurrentClassName, showMessagesLevel);
             if (filesToDo[(int)TableLanguagesContent.English] == (int)WhatNeedDoWithFiles.CountSymbols)//check is English content filled in the filesContent - CountSymbols was done
             {
-                int insertPortionResult = _load.PortionTextForDataBase(filesContent, filesToDo, ID_Language); // - вызывается 2 раза, найти почему
+                //ID_Language = -1; //временный костыль для заполнения таблицы, потом перевесить в настройки главной формы, для обычной работы пока что просто закомментировать
+                int insertPortionResult = _load.PortionTextForDataBase(filesContent, filesToDo, ID_Language); // - возможно, вызывается 2 раза, проверить и найти почему
                 _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + strCRLF + " insertPortionResult ==> ", insertPortionResult.ToString(), CurrentClassName, showMessagesLevel);
             }            
         }
-                   
-
 
     private void _view_TextSplitFormClosing(object sender, FormClosingEventArgs e)
         {
