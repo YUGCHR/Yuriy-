@@ -34,25 +34,20 @@ namespace TextSplit
         private const string connectionString = connectionStringSource + connectionStringDataBase + connectionStringSecurity;
 
         private SqlConnection connect = null;
-        readonly private string strCRLF;
-        private int showMessagesLevel;        
+        private readonly string strCRLF;
+        private readonly int showMessagesLevel;        
 
-        private string[] dataBaseTableNames;
+        private readonly string[] dataBaseTableNames;
         private int[] dataBaseTableToDo;
-        private int dataBaseTableQuantuty;        
+        private readonly int dataBaseTableQuantuty;        
 
         public DataAccessor(IMessageService service)
         {
-            strCRLF = Declaration.StrCRLF;
-            showMessagesLevel = Declaration.ShowMessagesLevel;            
-
             _messageService = service;
 
-            dataBaseTableNames = new string[] { "Languages", "Chapters", "Paragraphs", "Sentences" };
-            //0 - Languages - cannot insert records (ID, ID_Language, nvchar10 Language_name)
-            //1 - Chapters - Columns - ID, ID_Language, int Chapter, nvchar10 Chapter_name 
-            //2 - Paragraphs - Columns - ID, ID_Language, ID_Chapter, int Paragraph, nvchar10 Paragraph_name
-            //3 - Sentences - Columns - ID, ID_Language, ID_Chapter, ID_Paragraph, int Sentence, ntext Sentence_name
+            strCRLF = Declaration.StrCRLF;
+            showMessagesLevel = Declaration.ShowMessagesLevel;
+            dataBaseTableNames = Declaration.DataBaseTableNames;// - Languages, Chapters, Paragraphs, Sentences
 
             dataBaseTableQuantuty = dataBaseTableNames.Length;
             dataBaseTableToDo = new int[dataBaseTableQuantuty];

@@ -47,8 +47,7 @@ namespace TextSplit
                 {                    
                     _manager.AppendContent(tracePointName, tracePointValue, tracePointPlace);
                 }
-            }
-            
+            }            
         }
 
         public void ShowTrace(string tracePointName, string[] tracePointValue, string tracePointPlace, int showLevel)//it is need overload method to show\print int arrays
@@ -77,8 +76,7 @@ namespace TextSplit
                                 }
                                 string[] tracePointArray = { tracePointMessage, tracePointValueCut };
                                 tracePointMessage = String.Join("\r\n", tracePointArray);
-                            }
-                            
+                            }                            
                         }
                         ShowTrace(tracePointName, tracePointMessage, tracePointPlace, showLevel);
                     }
@@ -88,8 +86,6 @@ namespace TextSplit
                         _manager.AppendContent(tracePointName, tracePointValue, tracePointPlace);
                     }
                 }
-                
-
             }
         }
 

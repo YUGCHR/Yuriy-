@@ -29,8 +29,8 @@
         private void InitializeComponent()
         {
             this.butAllFilesOpen = new System.Windows.Forms.Button();
-            this.butOpenEnglishFile = new System.Windows.Forms.Button();
-            this.butOpenRussianFile = new System.Windows.Forms.Button();
+            this.butMfLeftBox = new System.Windows.Forms.Button();
+            this.butMfRightBox = new System.Windows.Forms.Button();
             this.butSelectResultFile = new System.Windows.Forms.Button();
             this.butCreateResultFile = new System.Windows.Forms.Button();
             this.fld2CreateResultFileName = new System.Windows.Forms.TextBox();
@@ -74,27 +74,27 @@
             this.butAllFilesOpen.Text = "Open All selected Files";
             this.butAllFilesOpen.UseVisualStyleBackColor = true;
             // 
-            // butOpenEnglishFile
+            // butMfLeftBox
             // 
-            this.butOpenEnglishFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.butOpenEnglishFile.Location = new System.Drawing.Point(34, 588);
-            this.butOpenEnglishFile.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.butOpenEnglishFile.Name = "butOpenEnglishFile";
-            this.butOpenEnglishFile.Size = new System.Drawing.Size(216, 24);
-            this.butOpenEnglishFile.TabIndex = 5;
-            this.butOpenEnglishFile.Text = "Open English File";
-            this.butOpenEnglishFile.UseVisualStyleBackColor = true;
+            this.butMfLeftBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.butMfLeftBox.Location = new System.Drawing.Point(34, 588);
+            this.butMfLeftBox.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.butMfLeftBox.Name = "butMfLeftBox";
+            this.butMfLeftBox.Size = new System.Drawing.Size(216, 24);
+            this.butMfLeftBox.TabIndex = 5;
+            this.butMfLeftBox.Text = "Empty on start";
+            this.butMfLeftBox.UseVisualStyleBackColor = true;
             // 
-            // butOpenRussianFile
+            // butMfRightBox
             // 
-            this.butOpenRussianFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.butOpenRussianFile.Location = new System.Drawing.Point(519, 588);
-            this.butOpenRussianFile.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.butOpenRussianFile.Name = "butOpenRussianFile";
-            this.butOpenRussianFile.Size = new System.Drawing.Size(216, 24);
-            this.butOpenRussianFile.TabIndex = 8;
-            this.butOpenRussianFile.Text = "Open Russian File";
-            this.butOpenRussianFile.UseVisualStyleBackColor = true;
+            this.butMfRightBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.butMfRightBox.Location = new System.Drawing.Point(519, 588);
+            this.butMfRightBox.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.butMfRightBox.Name = "butMfRightBox";
+            this.butMfRightBox.Size = new System.Drawing.Size(216, 24);
+            this.butMfRightBox.TabIndex = 8;
+            this.butMfRightBox.Text = "Empty on start";
+            this.butMfRightBox.UseVisualStyleBackColor = true;
             // 
             // butSelectResultFile
             // 
@@ -451,9 +451,9 @@
             this.Controls.Add(this.fld2CreateResultFileName);
             this.Controls.Add(this.butCreateResultFile);
             this.Controls.Add(this.butSelectResultFile);
-            this.Controls.Add(this.butOpenRussianFile);
+            this.Controls.Add(this.butMfRightBox);
             this.Controls.Add(this.butAllFilesOpen);
-            this.Controls.Add(this.butOpenEnglishFile);
+            this.Controls.Add(this.butMfLeftBox);
             this.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "TextSplitOpenForm";
@@ -466,8 +466,8 @@
         }
 
         #endregion
-        private System.Windows.Forms.Button butOpenEnglishFile;
-        private System.Windows.Forms.Button butOpenRussianFile;
+        private System.Windows.Forms.Button butMfLeftBox;
+        private System.Windows.Forms.Button butMfRightBox;
         private System.Windows.Forms.Button butSelectResultFile;
         private System.Windows.Forms.Button butAllFilesOpen;
         private System.Windows.Forms.Button butCreateResultFile;

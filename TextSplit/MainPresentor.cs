@@ -22,10 +22,12 @@ namespace TextSplit
         readonly private string strCRLF;
         readonly private int filesQuantity;
         readonly private int filesQuantityPlus;
+        readonly private int textFieldsQuantity;
         readonly private int iBreakpointManager;
         readonly private int resultFileNumber;
-        private int showMessagesLevel;
-        private string resultFileName;
+        readonly private int showMessagesLevel;
+
+        private string resultFileName;        
 
         private int[] filesToDo;
         private int[] counts;
@@ -35,19 +37,20 @@ namespace TextSplit
         public MainPresentor(ITextSplitForm view, ITextSplitOpenForm open, IFileManager manager, IMessageService service, ILogFileMessages logs, ILoadTextToDataBase load)
         {
             _view = view;
-            _open = open;
+            _open = open;//потом - для работы с формами отдельный класс и там все события нажатия кнопок, а текстовые поля - в отдельном классе?
             _manager = manager;
             _messageService = service;
-            _logs = logs;            
+            _logs = logs;
             _load = load;
-
-            strCRLF = Declaration.StrCRLF;
-            showMessagesLevel = Declaration.ShowMessagesLevel;
-            filesQuantity = Declaration.FilesQuantity;
-            filesQuantityPlus = Declaration.ToDoQuantity;
-            iBreakpointManager = filesQuantityPlus - 1;
+            
             resultFileNumber = Declaration.ResultFileNumber;//index of the Resalt File
-            resultFileName = Declaration.ResultFileName;            
+
+            filesQuantity = Declaration.FilesQuantity;
+            filesQuantityPlus = Declaration.FilesQuantityPlus;
+            textFieldsQuantity = Declaration.TextFieldsQuantity;
+            iBreakpointManager = Declaration.IBreakpointManager;
+            showMessagesLevel = Declaration.ShowMessagesLevel;
+            strCRLF = Declaration.StrCRLF;
 
             string mainStart = "******************************************************************************************************************************************* \r\n";//Log-file separator
             _messageService.ShowTrace(mainStart + MethodBase.GetCurrentMethod().ToString(), " Started", CurrentClassName, showMessagesLevel);
@@ -142,8 +145,6 @@ namespace TextSplit
 
         int isFilesExistCheckAndOpen()
         {
-            int textFieldsQuantity = filesQuantity - 1;//TEMP
-
             for (int i = 0; i < textFieldsQuantity; i++)
             {
                 int BreakpointManager = filesToDo[i];
@@ -166,41 +167,11 @@ namespace TextSplit
             _messageService.ShowExclamation("Something was wrong!");
             return -1; //some file does not exist
         }
-
-        void LoadEnglishToDataBase()
-        {
-
-        }
-
-        //int toCreateResultFile() //we check the result file existing and try to create it
-        //{
-        //    if (isFilesExist[resultFileNumber]) //if resultFile does not exist, we will create it in the path of the first selected file (with 0 index)
-        //    {//result file exist
-        //        filesToDo[resultFileNumber] = (int)WhatNeedDoWithFiles.ReadFirst;//the selected result file will be processing                
-        //        return -1;//all files exist
-        //    }
-        //    else
-        //    {
-        //        _messageService.ShowExclamation("The Result file does not exist, it will be created now!");
-        //        filesPath[resultFileNumber] = _manager.CreateFile(filesPath[0], resultFileName);//we had tried to create result file
-        //        if (filesPath[resultFileNumber] != null)
-        //        {//we created result file successfully
-        //            filesToDo[resultFileNumber] = (int)WhatNeedDoWithFiles.ReadFirst;//the created result file needs in processing                    
-        //            return -1; //all files exist
-        //        }
-        //        else //we cannot create result file
-        //        {
-        //            _messageService.ShowExclamation("The Result file already exist, please select or delete it!");
-        //            return 2; //we need to decide what to do with existing result file
-        //        }
-        //    }
-        //}
-
+        
         void _open_ContentChanged(object sender, EventArgs e)
         {
             filesToDo = _open.GetFilesToDo();
-            filesContent = _open.GetFilesContent();
-            int textFieldsQuantity = filesQuantity - 1;//TEMP
+            filesContent = _open.GetFilesContent();            
             //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " filesContent - ", filesContent, CurrentClassName, 3);
             for (int i = 0; i < textFieldsQuantity; i++)
             {
