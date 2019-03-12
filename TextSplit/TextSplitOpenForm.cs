@@ -165,9 +165,10 @@ namespace TextSplit
         {
             string currentOpenFormButtonPlace = "";
             string currentOpenFormButtonName = "";
-
-            var list = new List<Action>();
-            Action currentMethod = Method1;
+            
+            var list = new List<Action<int>>();
+            Action<int> currentMethod;
+            currentMethod = Method1;
             list.Add(currentMethod);
             currentMethod = Method2;
             list.Add(currentMethod);
@@ -178,40 +179,46 @@ namespace TextSplit
             {
                 _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Cycle i started, i = " + i.ToString(), CurrentClassName, 3);
                 currentOpenFormButtonPlace = Enum.GetNames(typeof(OpenFormButtonNames))[i];
+                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " i = " + i.ToString() +
+                            strCRLF + " currentOpenFormButtonPlace ==> " + currentOpenFormButtonPlace, CurrentClassName, 3);
+
                 if (buttonName == currentOpenFormButtonPlace)
                 { 
                     for (int j = 0; j < textFieldsQuantity; j++)
                     {
                         _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Cycle j started, j = " + j.ToString(), CurrentClassName, 3);
                         currentOpenFormButtonName = butMfOpenSaveLanguage[i, j];
+                        _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " i = " + i.ToString() + " / j = " + j.ToString() + 
+                            strCRLF + " currentOpenFormButtonName ==> " + currentOpenFormButtonName, CurrentClassName, 3);
 
                         if (buttonText == currentOpenFormButtonName)
                         {
-                            if (i == 0 & j == 0) list[0]();
+                            if (j == 0) list[j](i);//if - temp, need the second method
                         }
                     }
                 }
             }
         }
 
-        private void Method1()
+        private void Method1(int i)
         {
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " fetched i = " + i.ToString(), CurrentClassName, 3);
             OpenFileDialog dlg = new OpenFileDialog();
             dlg.Filter = "Text files|*.txt|All files|*.*";
             if (dlg.ShowDialog() == DialogResult.OK)
             {
-                FilesPath[0] = dlg.FileName;
-                txtboxFilesPath[0].Text = FilesPath[0];
-                FilesToDo[0] = (int)WhatNeedDoWithFiles.ReadFirst;
+                FilesPath[i] = dlg.FileName;
+                txtboxFilesPath[i].Text = FilesPath[0];
+                FilesToDo[i] = (int)WhatNeedDoWithFiles.ReadFirst;
             }
-            statusBottomLabel.Text = Enum.GetNames(typeof(OpenFormProgressStatusMessages))[0] + " - " + FilesPath[0];//Set the short type of current action in the status bar                    
+            statusBottomLabel.Text = Enum.GetNames(typeof(OpenFormProgressStatusMessages))[i] + " - " + FilesPath[i];//Set the short type of current action in the status bar                    
             //Array.Clear(FilesToDo, 0, FilesToDo.Length);
             if (OpenFileClick != null) OpenFileClick(this, EventArgs.Empty);
         }
 
-        private void Method2()
+        private void Method2(int i)
         { }
-        private void Method3()
+        private void Method3(int i)
         { }
         
 
