@@ -88,7 +88,7 @@ namespace TextSplitLibrary
             string[] getContents = new string[filesQuantity];
             for (int i = 0; i < filesQuantity; i++)
             {
-                if (filesToDo[i] == (int)WhatNeedDoWithFiles.ReadFirst)
+                if (filesToDo[i] == (int)WhatNeedDoWithFiles.ReadFileFirst)
                 {
                     getContents[i] = GetContent(filesPath, i, _defaultEncoding);
                 }                    

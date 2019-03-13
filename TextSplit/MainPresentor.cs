@@ -37,14 +37,13 @@ namespace TextSplit
         public MainPresentor(ITextSplitForm view, ITextSplitOpenForm open, IFileManager manager, IMessageService service, ILogFileMessages logs, ILoadTextToDataBase load)
         {
             _view = view;
-            _open = open;//потом - для работы с формами отдельный класс и там все события нажатия кнопок, а текстовые поля - в отдельном классе?
+            //_open = open;//потом - для работы с формами отдельный класс и там все события нажатия кнопок, а текстовые поля - в отдельном классе?
             _manager = manager;
             _messageService = service;
             _logs = logs;
             _load = load;
-            
-            resultFileNumber = Declaration.ResultFileNumber;//index of the Resalt File
 
+            resultFileNumber = Declaration.ResultFileNumber;
             filesQuantity = Declaration.FilesQuantity;
             filesQuantityPlus = Declaration.FilesQuantityPlus;
             textFieldsQuantity = Declaration.TextFieldsQuantity;
@@ -57,16 +56,17 @@ namespace TextSplit
 
             filesToDo = new int[filesQuantityPlus];
             counts = new int[filesQuantity];
-            _open.SetSymbolCount(counts, filesToDo);//move?
+            //_open.SetSymbolCount(counts, filesToDo);//Саид, зачем ты здесь?
 
             filesPath = new string[filesQuantity];
             filesContent = new string[filesQuantity];
 
-            _view.OpenTextSplitOpenForm += new EventHandler(_view_OpenTextSplitOpenForm);
-            _view.FilesSaveClick += new EventHandler(_view_FilesSaveClick);
+            _view.OpenTextSplitOpenForm += new EventHandler(_view_OpenTextSplitOpenForm);            
             _view.TextSplitFormClosing += new EventHandler<FormClosingEventArgs>(_view_TextSplitFormClosing);
+            // All EventHandlers for _open (TextSplitOpenForm) are located inside _view_OpenTextSplitOpenForm method
+
         }
-        
+
         private void _open_LoadEnglishToDataBase(object sender, EventArgs e)
         {   // обобщить метод для любого языка
             // разрешать запускать только после сохранения текста - гасить кнопку или менять название - Save на dB Load
@@ -82,7 +82,7 @@ namespace TextSplit
             }            
         }
 
-    private void _view_TextSplitFormClosing(object sender, FormClosingEventArgs e)
+        private void _view_TextSplitFormClosing(object sender, FormClosingEventArgs e)
         {
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " Closing attempt catched", CurrentClassName, showMessagesLevel);
             //var formArgs = (FormClosingEventArgs)e;
@@ -94,48 +94,46 @@ namespace TextSplit
         void _view_OpenTextSplitOpenForm(object sender, EventArgs e)//обрабатываем нажатие кнопки Open, которое означает открытие вспомогательной формы
         {            
             TextSplitOpenForm openForm = new TextSplitOpenForm(_messageService);
+
             _open = openForm;
-            _open.OpenFileClick += new EventHandler(_open_FilesOpenClick);
+            _open.OpenFileClick += new EventHandler(_open_OpenFileClick);
             _open.ContentChanged += new EventHandler(_open_ContentChanged);
+            _open.SaveFileClick += new EventHandler(_open_SaveFileClick);
             _open.LoadEnglishToDataBase += _open_LoadEnglishToDataBase;
+
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "openForm will start now", CurrentClassName, showMessagesLevel);
             openForm.Show();
-        }
-
-        private void _view_FilesSaveClick(object sender, EventArgs e)
-        {
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Start", CurrentClassName, showMessagesLevel);
-            try
-            {
-                //string content = _view.FileContent;
-                //_manager.SaveContent(content, _currentFilePath);
-                _messageService.ShowMessage("File saved sucessfully!");
-                wasEnglishContentChange = false;
-                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " wasEnglishContentChange = ", wasEnglishContentChange.ToString(), CurrentClassName, showMessagesLevel);
-            }
-            catch (Exception ex)
-            {
-                _messageService.ShowError(ex.Message);
-            }
-        }
+        }        
         
-        private void _open_FilesOpenClick(object sender, EventArgs e)
+        private void _open_OpenFileClick(object sender, EventArgs e)
         {
             try
             {
                 filesPath = _open.GetFilesPath();
                 filesToDo = _open.GetFilesToDo();
-
-                int iBreakpointManager = isFilesExistCheckAndOpen();
                 
-                if (filesToDo[iBreakpointManager] == (int)WhatNeedDoWithFiles.ContinueProcessing)//WittingIncomplete)
-                    {                        
-                        _open.SetFileContent(filesPath, filesContent, filesToDo, iBreakpointManager);
-                        filesToDo[iBreakpointManager] = (int)WhatNeedDoWithFiles.CountSymbols;
-                        counts[iBreakpointManager] = _manager.GetSymbolCounts(filesContent, iBreakpointManager);
-                        _open.SetFilesToDo(filesToDo);
-                        _open.SetSymbolCount(counts, filesToDo);                        
-                    }
+                int numberOfPerformedActionElement = isFilesExistCheckAndOpen();//получили номер элемента, с которым произведено действие
+                
+                if (filesToDo[numberOfPerformedActionElement] == (int)WhatNeedDoWithFiles.ContinueProcessing)//добавить else WittingIncomplete)//если в элементе сказано, что все хорошо, отправляем данные в форму
+                {
+                    _open.SetFileContent(filesContent, numberOfPerformedActionElement);
+                    //подходящий момент поменять название на кнопках - поставить Save вместо Open
+                    //передать номер названия кнопки 0,0 - Open English File, 1, 0 - Save English File, 1, 0 - Open Russian File, 1, 1 - Save Russian File
+                    //butMfOpenSaveLanguageNames[0, 0] = Open English File [(int)MfButtonPlaceTexts.EnglishFile, (int)MfButtonNameTexts.OpenFile]
+                    //butMfOpenSaveLanguageNames[0, 1] = Save English File [(int)MfButtonPlaceTexts.EnglishFile, (int)MfButtonNameTexts.SaveFile]
+                    //butMfOpenSaveLanguageNames[1, 0] = Open Russian File [(int)MfButtonPlaceTexts.RussianFile, (int)MfButtonNameTexts.OpenFile]
+                    //butMfOpenSaveLanguageNames[1, 1] = Save Russian File [(int)MfButtonPlaceTexts.RussianFile, (int)MfButtonNameTexts.SaveFile]
+                    int mfButtonPlaceTexts = numberOfPerformedActionElement; // Place of the button which was pressed (English or Russian)
+                    int mfButtonNameTexts = 1; //change ButtonName from Open to Save
+                    string butMfOpenSaveLanguageName = _open.GetbutMfOpenSaveLanguageNames(mfButtonPlaceTexts, mfButtonNameTexts);//получили имя и место кнопки (хотя хватило бы и имени?)
+                    //теперь вызвать метод смены названия на кнопке и поменять на нужное
+                    //и еще (сразу в первый раз)/(а потом как?) сделать кнопку Save серой - скорее всего в ChangeContent
+                    _open.SetFileContent(filesContent, numberOfPerformedActionElement);
+                    filesToDo[numberOfPerformedActionElement] = (int)WhatNeedDoWithFiles.CountSymbols;//передаем указание посчитать символы и это является подтверждением, что файл успешно открыли и записали в форму
+                    counts[numberOfPerformedActionElement] = _manager.GetSymbolCounts(filesContent, numberOfPerformedActionElement);
+                    _open.SetFilesToDo(filesToDo);
+                    _open.SetSymbolCount(counts, filesToDo);
+                }
             }
             catch (Exception ex)
             {
@@ -147,9 +145,9 @@ namespace TextSplit
         {
             for (int i = 0; i < textFieldsQuantity; i++)
             {
-                int BreakpointManager = filesToDo[i];
+                int theAffectedElementNumber = filesToDo[i];
                 
-                if (BreakpointManager == (int)WhatNeedDoWithFiles.ReadFirst)
+                if (theAffectedElementNumber == (int)WhatNeedDoWithFiles.ReadFileFirst)
                 {                    
                     if (_manager.IsFilesExist(filesPath[i]))
                     {                        
@@ -190,6 +188,23 @@ namespace TextSplit
                 _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + "wasEnglishContentChange", wasEnglishContentChange.ToString(), CurrentClassName, showMessagesLevel);
                 //_view.SetSymbolCount(counts, _view.FilesToDo);
                 wasEnglishContentChange = true;//we need also the array here
+            }
+        }
+
+        private void _open_SaveFileClick(object sender, EventArgs e)
+        {
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Start", CurrentClassName, showMessagesLevel);
+            try
+            {
+                //string content = _view.FileContent;
+                //_manager.SaveContent(content, _currentFilePath);
+                _messageService.ShowMessage("File saved sucessfully!");
+                wasEnglishContentChange = false;
+                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " wasEnglishContentChange = ", wasEnglishContentChange.ToString(), CurrentClassName, showMessagesLevel);
+            }
+            catch (Exception ex)
+            {
+                _messageService.ShowError(ex.Message);
             }
         }
 

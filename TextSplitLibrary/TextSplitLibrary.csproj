@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Declaration.cs" />
     <Compile Include="FileManager.cs" />
     <Compile Include="FormsObjectsNames.cs" />
     <Compile Include="IMessageService.cs" />

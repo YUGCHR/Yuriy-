@@ -19,7 +19,7 @@ namespace TextSplit
         int[] FilesToDo { get; set; }
 
         //event EventHandler FormOpenClick;
-        event EventHandler FilesSaveClick;
+        //event EventHandler FilesSaveClick;
         event EventHandler OpenTextSplitOpenForm;
         
         
@@ -45,7 +45,7 @@ namespace TextSplit
         readonly private int showMessagesLevel = Declaration.ShowMessagesLevel;
 
         //public event EventHandler FormOpenClick;
-        public event EventHandler FilesSaveClick;
+        //public event EventHandler FilesSaveClick;
         public event EventHandler OpenTextSplitOpenForm;
         
         //public event EventHandler TextSplitFormClosing;
@@ -61,7 +61,7 @@ namespace TextSplit
             InitializeComponent();
             
             butOpenForm.Click += new EventHandler(butOpenForm_Click);
-            butSaveFiles.Click += butSaveFiles_Click;
+            //butSaveFiles.Click += butSaveFiles_Click;
            
             
             FormClosing += TextSplitForm_FormClosing;
@@ -95,11 +95,11 @@ namespace TextSplit
         }
 
         
-        private void butSaveFiles_Click(object sender, EventArgs e)
-        {
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesSaveClick = ", FilesSaveClick.ToString(), CurrentClassName, showMessagesLevel);
-            if (FilesSaveClick != null) FilesSaveClick(this, EventArgs.Empty);
-        }
+        //private void butSaveFiles_Click(object sender, EventArgs e)
+        //{
+        //    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesSaveClick = ", FilesSaveClick.ToString(), CurrentClassName, showMessagesLevel);
+        //    if (FilesSaveClick != null) FilesSaveClick(this, EventArgs.Empty);
+        //}
 
 
         #endregion

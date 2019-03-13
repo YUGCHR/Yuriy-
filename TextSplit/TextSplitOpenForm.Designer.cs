@@ -29,8 +29,8 @@
         private void InitializeComponent()
         {
             this.butAllFilesOpen = new System.Windows.Forms.Button();
-            this.butMfLeftBox = new System.Windows.Forms.Button();
-            this.butMfRightBox = new System.Windows.Forms.Button();
+            this.butMfLeftTextBox = new System.Windows.Forms.Button();
+            this.butMfRightTextBox = new System.Windows.Forms.Button();
             this.butSelectResultFile = new System.Windows.Forms.Button();
             this.butCreateResultFile = new System.Windows.Forms.Button();
             this.fld2CreateResultFileName = new System.Windows.Forms.TextBox();
@@ -74,27 +74,27 @@
             this.butAllFilesOpen.Text = "Open All selected Files";
             this.butAllFilesOpen.UseVisualStyleBackColor = true;
             // 
-            // butMfLeftBox
+            // butMfLeftTextBox
             // 
-            this.butMfLeftBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.butMfLeftBox.Location = new System.Drawing.Point(34, 588);
-            this.butMfLeftBox.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.butMfLeftBox.Name = "butMfLeftBox";
-            this.butMfLeftBox.Size = new System.Drawing.Size(216, 24);
-            this.butMfLeftBox.TabIndex = 5;
-            this.butMfLeftBox.Text = "Empty on start";
-            this.butMfLeftBox.UseVisualStyleBackColor = true;
+            this.butMfLeftTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.butMfLeftTextBox.Location = new System.Drawing.Point(34, 588);
+            this.butMfLeftTextBox.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.butMfLeftTextBox.Name = "butMfLeftTextBox";
+            this.butMfLeftTextBox.Size = new System.Drawing.Size(216, 24);
+            this.butMfLeftTextBox.TabIndex = 5;
+            this.butMfLeftTextBox.Text = "Empty on start";
+            this.butMfLeftTextBox.UseVisualStyleBackColor = true;
             // 
-            // butMfRightBox
+            // butMfRightTextBox
             // 
-            this.butMfRightBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.butMfRightBox.Location = new System.Drawing.Point(519, 588);
-            this.butMfRightBox.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.butMfRightBox.Name = "butMfRightBox";
-            this.butMfRightBox.Size = new System.Drawing.Size(216, 24);
-            this.butMfRightBox.TabIndex = 8;
-            this.butMfRightBox.Text = "Empty on start";
-            this.butMfRightBox.UseVisualStyleBackColor = true;
+            this.butMfRightTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.butMfRightTextBox.Location = new System.Drawing.Point(519, 588);
+            this.butMfRightTextBox.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.butMfRightTextBox.Name = "butMfRightTextBox";
+            this.butMfRightTextBox.Size = new System.Drawing.Size(216, 24);
+            this.butMfRightTextBox.TabIndex = 8;
+            this.butMfRightTextBox.Text = "Empty on start";
+            this.butMfRightTextBox.UseVisualStyleBackColor = true;
             // 
             // butSelectResultFile
             // 
@@ -451,9 +451,9 @@
             this.Controls.Add(this.fld2CreateResultFileName);
             this.Controls.Add(this.butCreateResultFile);
             this.Controls.Add(this.butSelectResultFile);
-            this.Controls.Add(this.butMfRightBox);
+            this.Controls.Add(this.butMfRightTextBox);
             this.Controls.Add(this.butAllFilesOpen);
-            this.Controls.Add(this.butMfLeftBox);
+            this.Controls.Add(this.butMfLeftTextBox);
             this.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "TextSplitOpenForm";
@@ -466,8 +466,8 @@
         }
 
         #endregion
-        private System.Windows.Forms.Button butMfLeftBox;
-        private System.Windows.Forms.Button butMfRightBox;
+        private System.Windows.Forms.Button butMfLeftTextBox;
+        private System.Windows.Forms.Button butMfRightTextBox;
         private System.Windows.Forms.Button butSelectResultFile;
         private System.Windows.Forms.Button butAllFilesOpen;
         private System.Windows.Forms.Button butCreateResultFile;
