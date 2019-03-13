@@ -21,6 +21,7 @@ namespace TextSplit
         void SetFileContent(string[] filesContent, int theAffectedElementNumber);
         void SetSymbolCount(int[] counts, int[] filesToDo);
         string GetbutMfOpenSaveLanguageNames(int mfButtonPlaceTexts, int mfButtonNameTexts);
+        int ChangeOnButtonText(int mfButtonPlace, int mfButtonText, bool mfButtonEnableFlag);
 
         event EventHandler ContentChanged;
         event EventHandler OpenFileClick;
@@ -32,15 +33,16 @@ namespace TextSplit
 
     public partial class TextSplitOpenForm : Form, ITextSplitOpenForm
     {
-        private readonly IMessageService _messageService;        
+        private readonly IMessageService _messageService;
 
-        public string[] FilesPath;// { get; set; }        
-        public int[] FilesToDo;
-        public string[] FilesContent;
+        private string[] FilesPath;// { get; set; }        
+        private int[] FilesToDo;
+        private string[] FilesContent;
 
-        public Label[] lblSymbolsCount;
-        public TextBox[] txtboxFilesPath;
-        public string[,] butMfOpenSaveLanguageNames;
+        private Label[] lblSymbolsCount;
+        private TextBox[] txtboxFilesPath;
+        private Button[] butMF;
+        private string[,] butMfOpenSaveLanguageNames;
 
         readonly private int filesQuantity;
         readonly private int filesQuantityPlus;
@@ -80,6 +82,8 @@ namespace TextSplit
 
             lblSymbolsCount = new Label[] { lblSymbolCount1, lblSymbolCount2 };//, lblSymbolCount3 };
             txtboxFilesPath = new TextBox[] { fld0EnglishFilePath, fld1RussianFilePath };//, fld2ResultFilePath  };
+            butMF = new Button[] { butMfLeftTextBox, butMfRightTextBox };
+
             butMfOpenSaveLanguageNames = new string[,] { { "Open English File", "Save English File" }, { "Open Russian File", "Save Russian File" } };
             // English - butMfLeftTextBox, Russian - butMfRightTextBox
             //butMfOpenSaveLanguageNames[0, 0] = Open English File [(int)MfButtonPlaceTexts.EnglishFile, (int)MfButtonNameTexts.OpenFile]
@@ -87,9 +91,11 @@ namespace TextSplit
             //butMfOpenSaveLanguageNames[1, 0] = Open Russian File [(int)MfButtonPlaceTexts.RussianFile, (int)MfButtonNameTexts.OpenFile]
             //butMfOpenSaveLanguageNames[1, 1] = Save Russian File [(int)MfButtonPlaceTexts.RussianFile, (int)MfButtonNameTexts.SaveFile]
 
+            
+
             butAllFilesOpen.Click += new EventHandler (butAllFilesOpen_Click);
-            butMfLeftTextBox.Click += butMfBox_Click;
-            butMfRightTextBox.Click += butMfBox_Click;
+            butMF[(int)MfButtonPlaceTexts.EnglishFile].Click += butMfBox_Click;
+            butMF[(int)MfButtonPlaceTexts.RussianFile].Click += butMfBox_Click;
             butEnglishToDataBase.Click += ButEnglishToDataBase_Click;
             //butSelectResultFile.Click += butSelectFile_Click;
 
@@ -104,10 +110,11 @@ namespace TextSplit
 
             FormClosing += TextSplitOpenForm_FormClosing;
 
-            butMfLeftTextBox.Text = butMfOpenSaveLanguageNames[0, 0];//первоначальная установка названий кнопок на старте
-            butMfRightTextBox.Text = butMfOpenSaveLanguageNames[1, 0];//потом заменить вызовом метода с нужными параметрами
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "butMfEnglishBox ==> " + butMfLeftTextBox.Text +
-                strCRLF + "butMfRussianBox ==> " + butMfRightTextBox.Text, CurrentClassName, showMessagesLevel);
+            butMF[(int)MfButtonPlaceTexts.EnglishFile].Text = butMfOpenSaveLanguageNames[0, 0];//первоначальная установка названий кнопок на старте
+            butMF[(int)MfButtonPlaceTexts.RussianFile].Text = butMfOpenSaveLanguageNames[1, 0];//потом заменить вызовом метода с нужными параметрами
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), 
+                "butMfEnglishBox ==> " + butMfLeftTextBox.Text + strCRLF + 
+                "butMfRussianBox ==> " + butMfRightTextBox.Text, CurrentClassName, showMessagesLevel);
             
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), 
                 " butMfOpenSaveLanguageNames[0,0] = " + butMfOpenSaveLanguageNames[(int)MfButtonPlaceTexts.EnglishFile, (int)MfButtonNameTexts.OpenFile] + strCRLF +
@@ -155,6 +162,36 @@ namespace TextSplit
             return butMfOpenSaveLanguageNames[mfButtonPlaceTexts, mfButtonNameTexts];
         }
 
+        public int ChangeOnButtonText(int mfButtonPlace, int mfButtonText, bool mfButtonEnableFlag)
+        {
+            if (mfButtonPlace < textFieldsQuantity && mfButtonText < textFieldsQuantity)
+            {
+                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(),
+                    "on the button " + butMF[mfButtonPlace].Name + strCRLF +
+                    "the text is " + butMF[mfButtonPlace].Text + strCRLF +
+                    " set name " + butMfOpenSaveLanguageNames[mfButtonPlace, mfButtonText] + strCRLF +
+                    " enabled = " + mfButtonEnableFlag, CurrentClassName, showMessagesLevel);
+
+                if (butMF[mfButtonPlace].Text != butMfOpenSaveLanguageNames[mfButtonPlace, mfButtonText])//если название надо менять, то меняем
+                {
+                    butMF[mfButtonPlace].Text = butMfOpenSaveLanguageNames[mfButtonPlace, mfButtonText];//установили требуемое название на нужной кнопке
+                }
+                butMF[mfButtonPlace].Enabled = mfButtonEnableFlag;//сделали кнопку Enabled или нет
+
+                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(),
+                    "on the button " + butMF[mfButtonPlace].Name + strCRLF +
+                    " set name " + butMfOpenSaveLanguageNames[mfButtonPlace, mfButtonText] + strCRLF +
+                    " enabled = " + mfButtonEnableFlag, CurrentClassName, showMessagesLevel);
+
+                return mfButtonPlace + mfButtonText;
+            }
+            else
+            {
+                _messageService.ShowExclamation("Your requests exceed reasonable limits!");                
+                return mfButtonPlace + mfButtonText;
+            }
+        }
+
         private void TextSplitOpenForm_FormClosing(object sender, FormClosingEventArgs e)//it needs to clear up
         {            
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Start", CurrentClassName, showMessagesLevel);
@@ -198,8 +235,7 @@ namespace TextSplit
             listOpenFormButtonMethods.Add(currentButtonMethod);
 
             for (int i = 0; i < textFieldsQuantity; i++)//0 - Left (English), 1 - Right (Russian), last field is not used yet
-            {                                                         // цикл 1 начат
-                
+            {                                                         // цикл 1 начат                
                 currentOpenFormButtonPlace = Enum.GetNames(typeof(OpenFormButtonNames))[i];// проход 1 цикла 1 - выбрали левая для места кнопки
 
                 _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " i = " + i.ToString() +
@@ -217,7 +253,7 @@ namespace TextSplit
 
                         if (buttonText == currentOpenFormButtonName)  // если совпало с именем нажатой кнопки - вызвали метод открытия файла, если нет - проход 2 цикла 2 - похоже, надо делать Save
                         {
-                            if (j == 0) listOpenFormButtonMethods[j](i);//if - temp, need the second method
+                            listOpenFormButtonMethods[j](i);
                         }
                     }
                 }
@@ -226,7 +262,7 @@ namespace TextSplit
 
         private void PathForOpenFile(int i)
         {
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " PathForOpenFile has fetched i = " + i.ToString(), CurrentClassName, 3);
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " PathForOpenFile has fetched i = " + i.ToString(), CurrentClassName, showMessagesLevel);
 
             OpenFileDialog dlg = new OpenFileDialog();
             dlg.Filter = "Text files|*.txt|All files|*.*";
@@ -243,25 +279,25 @@ namespace TextSplit
 
         private void SaveFileFromTextBox(int i)
         {
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " SaveFileFromTextBox has fetched i = " + i.ToString(), CurrentClassName, 3);
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " SaveFileFromTextBox has fetched i = " + i.ToString(), CurrentClassName, showMessagesLevel);
 
             FilesToDo[i] = (int)WhatNeedDoWithFiles.SaveFile;
 
             statusBottomLabel.Text = Enum.GetNames(typeof(OpenFormProgressStatusMessages))[i] + " - " + FilesPath[i];//Set the short type of current action in the status bar
 
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " FilesSaveClick = " + SaveFileClick.ToString(), CurrentClassName, 3);
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " FilesSaveClick = " + SaveFileClick.ToString(), CurrentClassName, showMessagesLevel);
             if (SaveFileClick != null) SaveFileClick(this, EventArgs.Empty);
         }
         
         private void Method3(int i)
         { }
 
-        public int ChangeOnButtonText(string[,] butMfOpenSaveLanguageNames, int theAffectedElementNumber)//меняет текст на кнопке (Open - Save)
-        {
-            int i = 0;
+        //public int ChangeOnButtonText(string[,] butMfOpenSaveLanguageNames, int theAffectedElementNumber)//меняет текст на кнопке (Open - Save)
+        //{
+        //    int i = 0;
 
-            return i;
-        }
+        //    return i;
+        //}
 
         public void SetFileContent(string[] filesContent, int theAffectedElementNumber)// сделать присваивание массиву в цикле и добавить коды возврата
         {            
@@ -279,7 +315,7 @@ namespace TextSplit
         {
             TextBox textBox = sender as TextBox;
             string TextBoxName = textBox.Name;
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Text Changed in TextBox - " + TextBoxName, CurrentClassName, 3);
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Text Changed in TextBox - " + TextBoxName, CurrentClassName, showMessagesLevel);
             
 
             for (int i = 0; i < textFieldsQuantity; i++)
@@ -288,11 +324,11 @@ namespace TextSplit
                 if (TextBoxName == currentFormFieldName)
                 {
                     FilesToDo[i] = (int)WhatNeedDoWithFiles.ContentChanged;
-                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesToDo[i] - ", FilesToDo[i].ToString(), CurrentClassName, 3);
+                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesToDo[i] - ", FilesToDo[i].ToString(), CurrentClassName, showMessagesLevel);
                     FilesContent[i] = textBox.Text;
                 }
             }
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " ContentChanged - ", ContentChanged.ToString(), CurrentClassName, 3);
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " ContentChanged - ", ContentChanged.ToString(), CurrentClassName, showMessagesLevel);
             if (ContentChanged != null) ContentChanged(this, EventArgs.Empty);
         }
 

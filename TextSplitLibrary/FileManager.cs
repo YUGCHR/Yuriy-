@@ -13,8 +13,8 @@ namespace TextSplitLibrary
         string[] GetContents(string[] FilesPath, int[] FilesToDo);
         string[] GetContents(string[] FilesPath, int[] FilesToDo, Encoding encoding);
         //to add third method for one file
-        void SaveContents(string[] FilesContent, string[] FilePath, int[] FilesToDo);
-        void SaveContents(string[] FilesContent, string[] FilePath, int[] FilesToDo, Encoding encoding);
+        void SaveContents(string[] FilesContent, string[] FilesPath, int[] FilesToDo);
+        void SaveContents(string[] FilesContent, string[] FilesPath, int[] FilesToDo, Encoding encoding);
         //to add third method for one file
         int[] GetSymbolCounts(string[] FilesContent);
         int GetSymbolCounts(string[] FilesContent, int i);

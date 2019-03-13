@@ -30,7 +30,7 @@ namespace TextSplitLibrary
     public enum FormFieldsNames : int { fld0EnglishContent = 0, fld1RussianContent = 1, fld2ResultContent = 2 };
 
     public enum OpenFormFieldNames : int { fld0EnglishFilePath = 0, fld1RussianFilePath = 1, fld2ResultFilePath = 2, fld2CreateResultFileName = 3 };
-    public enum OpenFormButtonNames : int { butMfLeftBox = 0, butMfRightBox = 1, butOpenResultFile = 2 };
+    public enum OpenFormButtonNames : int { butMfLeftTextBox = 0, butMfRightTextBox = 1, butOpenResultFile = 2 };
 
     public enum OpenFormProgressStatusMessages : int { EnglishFilePathSelected = 0, RussianFilePathSelected = 1, ResultFilePathSelected = 2, ResultFileCreated = 3 };
     public enum OpenFormTextBoxImplementationMessages : int { EnglishFilePathSelected = 0, RussianFilePathSelected = 1, ResultFilePathSelected = 2, ResultFileCreated = 3 };
@@ -56,7 +56,7 @@ namespace TextSplitLibrary
         StopProcessing = 9,
         SaveGroupStarted = 10,
         SaveFileFirst = 11,
-        FileSavedFirst = 12,
+        FileWasSavedDontAsk = 12,
         SaveFile = 13
     };
 
