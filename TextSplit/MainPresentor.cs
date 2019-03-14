@@ -30,6 +30,7 @@ namespace TextSplit
         private string resultFileName;        
 
         private int[] filesToDo;
+        private int[] filesToSave;
         private int[] counts;
         private string[] filesPath;
         private string[] filesContent;        
@@ -55,6 +56,7 @@ namespace TextSplit
             _messageService.ShowTrace(mainStart + MethodBase.GetCurrentMethod().ToString(), " Started", CurrentClassName, showMessagesLevel);
 
             filesToDo = new int[filesQuantityPlus];
+            filesToSave = new int[filesQuantityPlus];
             counts = new int[filesQuantity];
             //_open.SetSymbolCount(counts, filesToDo);//Саид, зачем ты здесь?
 
@@ -207,40 +209,76 @@ namespace TextSplit
             }
         }
 
-        private void _open_SaveFileClick(object sender, EventArgs e)//сделать return с кодом возврата при удачном сохранении, поставить после цикла "сохранить не удалось"
-        {//где-то там, где вызывают, определить, первый раз сохраняют или нет - по признаку FileWasSavedDontAsk и поставить указание - либо SaveFileFirst, либо SaveFile
+        private void _open_SaveFileClick(object sender, EventArgs e)
+        {
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Start", CurrentClassName, showMessagesLevel);
+            int prepareFileSaveResult = PrepareSaveTextInFile();
+            //if (fileSaveResult == (int)WhatNeedSaveFiles.CannotSaveFile) - все пропало
+        }
+
+        private int PrepareSaveTextInFile()
+        {            
+            filesToSave = _open.GetFilesToSave();            
+
+            for (int i = 0; i < textFieldsQuantity; i++)
+            {
+                if (filesToSave[i] == (int)WhatNeedSaveFiles.SaveFileFirst)
+                {
+                    //сообщить, что файл будет перезаписан и если не копия, то пусть идет и делает сам копию, то шо нефиг (после первого сохранения больше не спрашивать)
+                    _messageService.ShowMessage("File will be rewritten!");
+                    //тут сделать выбор - сохранять или выйти из программы, чтобы сделать рабочую копию (или сделать копию автоматически отсюда)
+                    //типа return                        
+                    int fileSaveResult = SaveTextInFile(i);
+                    if (fileSaveResult == (int)WhatNeedSaveFiles.FileWasSavedSuccessfully) return (int)WhatNeedSaveFiles.FileWasSavedSuccessfully;
+                    return (int)WhatNeedSaveFiles.CannotSaveFile;
+                }
+                if (filesToSave[i] == (int)WhatNeedSaveFiles.SaveFile)
+                {
+                    int fileSaveResult = SaveTextInFile(i);
+                    if (fileSaveResult == (int)WhatNeedSaveFiles.FileWasSavedSuccessfully) return (int)WhatNeedSaveFiles.FileWasSavedSuccessfully;
+                    return (int)WhatNeedSaveFiles.CannotSaveFile;                    
+                }
+            }
+            return (int)WhatNeedSaveFiles.CannotSaveFile;            
+        }
+
+        private int SaveTextInFile(int i)
+        {
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "SaveTextInFile fetched i = " + i.ToString(), CurrentClassName, showMessagesLevel);
+
+            filesPath = _open.GetFilesPath();
+            filesContent = _open.GetFilesContent();
+            filesToSave[i] = (int)WhatNeedSaveFiles.FileWasSavedSuccessfully;
+
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(),                
+                "filesToSave [i] - " + filesToSave[i].ToString() + strCRLF +
+                "filesPath [i] ==> " + filesPath[i].ToString() + strCRLF +
+                "filesContent [i] ==> " + filesContent[i].ToString(), CurrentClassName, showMessagesLevel);
+
             try
             {
-                filesToDo = _open.GetFilesToDo();
-                filesPath = _open.GetFilesPath();
-                filesContent = _open.GetFilesContent();
+                _manager.SaveContents(filesContent, filesPath, filesToSave);//хочется код возврата
+                _messageService.ShowMessage("File saved sucessfully!");
+                //тут сделать кнопку Save серой
+                int mfButtonPlace = i; // Place of the button the same as changed field (English or Russian)
+                int mfButtonText = 1; // ButtonName leave Save
+                bool mfButtonEnableFlag = false; //текст сохранен, кнопку погасили
+                int checkOnButtonTextResult = mfButtonPlace + mfButtonText; // типа, контроль
 
-                for (int i = 0; i < textFieldsQuantity; i++)
-                {
-                    if (filesToDo[i] == (int)WhatNeedDoWithFiles.SaveFileFirst)
-                    {
-                        //сообщить, что файл будет перезаписан и если не копия, то пусть идет и делает сам копию, то шо нефиг (после первого сохранения больше не спрашивать)
-                        
-                        _manager.SaveContents(filesContent, filesPath, filesToDo);
-                        _messageService.ShowMessage("File saved sucessfully!");
-                        //тут сделать кнопку Save серой, код ниже допилить
-                        int mfButtonPlace = i; // Place of the button the same as changed field (English or Russian)
-                        int mfButtonText = 1; // ButtonName leave Save
-                        bool mfButtonEnableFlag = true; //активировать кнопку - текст изменился и его можно сохранить                    
-                        int checkOnButtonTextResult = mfButtonPlace + mfButtonText; // типа, контроль
-                        int changeOnButtonTextResult = _open.ChangeOnButtonText(mfButtonPlace, mfButtonText, mfButtonEnableFlag);
-                        //if (changeOnButtonTextResult == checkOnButtonTextResult) - allright
-                        //присвоить filesToDo[i] == (int)WhatNeedDoWithFiles.FileWasSavedDontAsk
-                        _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "чего-то напечатать", CurrentClassName, showMessagesLevel);
-                    }
+                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(),
+                "mfButtonPlace = " + mfButtonPlace.ToString() + strCRLF +
+                "mfButtonText = " + mfButtonText.ToString() + strCRLF +
+                "mfButtonEnableFlag ==> " + mfButtonEnableFlag.ToString() + strCRLF, CurrentClassName, showMessagesLevel);
 
-                    //добавить if с проверкой SaveFile, вынести весь блок сохранения в один метод и вызывать его отсюда и из SaveFileFirst
-                }
+                int changeOnButtonTextResult = _open.ChangeOnButtonText(mfButtonPlace, mfButtonText, mfButtonEnableFlag);
+                //if (changeOnButtonTextResult == checkOnButtonTextResult) - allright                
+                
+                return filesToSave[i];//или прямо написать (int)WhatNeedSaveFiles.FileWasSavedSuccessfully
             }
             catch (Exception ex)
             {
                 _messageService.ShowError(ex.Message);
+                return (int)WhatNeedSaveFiles.CannotSaveFile;
             }
         }
 

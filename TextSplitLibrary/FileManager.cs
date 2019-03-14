@@ -13,8 +13,8 @@ namespace TextSplitLibrary
         string[] GetContents(string[] FilesPath, int[] FilesToDo);
         string[] GetContents(string[] FilesPath, int[] FilesToDo, Encoding encoding);
         //to add third method for one file
-        void SaveContents(string[] FilesContent, string[] FilesPath, int[] FilesToDo);
-        void SaveContents(string[] FilesContent, string[] FilesPath, int[] FilesToDo, Encoding encoding);
+        void SaveContents(string[] FilesContent, string[] FilesPath, int[] filesToSave);
+        void SaveContents(string[] FilesContent, string[] FilesPath, int[] filesToSave, Encoding encoding);
         //to add third method for one file
         int[] GetSymbolCounts(string[] FilesContent);
         int GetSymbolCounts(string[] FilesContent, int i);
@@ -102,25 +102,28 @@ namespace TextSplitLibrary
         }
         #endregion
         #region SaveContent
-        public void SaveContents(string[] filesContent, string[] filesPath, int[] filesToDo)
+        public void SaveContents(string[] filesContent, string[] filesPath, int[] filesToSave)
         {
-            SaveContents(filesContent, filesPath, filesToDo, _defaultEncoding);
+            SaveContents(filesContent, filesPath, filesToSave, _defaultEncoding);
         }
 
-        public void SaveContents(string[] filesContent, string[] filesPath, int[] filesToDo, Encoding encoding)
+        public void SaveContents(string[] filesContent, string[] filesPath, int[] filesToSave, Encoding encoding)
         {
             for (int i = 0; i < filesQuantity; i++)
             {
-                if (filesToDo[i] != 0)
+                if (filesToSave[i] == (int)WhatNeedSaveFiles.SaveFile)
                 {
-                    SaveContent(filesContent, filesPath, i, _defaultEncoding);
+                    SaveContent(filesContent[i], filesPath[i], _defaultEncoding);
                 }
             }            
         }
 
-        public void SaveContent(string[] filesContent, string[] filesPath, int i, Encoding encoding)
-        {            
-            File.WriteAllText(filesPath[i], filesContent[i], encoding);
+        private void SaveContent(string fileContent, string filePath, Encoding encoding)
+        {
+            MessageBox.Show("fileContent = " + fileContent + "\r\n" +
+                            "filePath = " + filePath + "\r\n",
+                            "Start - SaveContent ", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            File.WriteAllText(filePath, fileContent, encoding);
         }
         #endregion
         #region GetSymbolCount

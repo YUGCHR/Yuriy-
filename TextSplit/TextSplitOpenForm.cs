@@ -17,7 +17,9 @@ namespace TextSplit
         string[] GetFilesContent();
         string[] GetFilesPath();
         int[] GetFilesToDo();
+        int[] GetFilesToSave();
         void SetFilesToDo(int[] filesToDo);
+        void SetFilesToSave(int[] filesToSave);
         void SetFileContent(string[] filesContent, int theAffectedElementNumber);
         void SetSymbolCount(int[] counts, int[] filesToDo);
         string GetbutMfOpenSaveLanguageNames(int mfButtonPlaceTexts, int mfButtonNameTexts);
@@ -37,6 +39,7 @@ namespace TextSplit
 
         private string[] FilesPath;// { get; set; }        
         private int[] FilesToDo;
+        private int[] FilesToSave;
         private string[] FilesContent;
 
         private Label[] lblSymbolsCount;
@@ -77,6 +80,7 @@ namespace TextSplit
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "InitializeComponent in TextSplitOpenForm", CurrentClassName, showMessagesLevel);
 
             FilesToDo = new int[filesQuantityPlus];
+            FilesToSave = new int[filesQuantityPlus];
             FilesPath = new string[filesQuantity];
             FilesContent = new string[filesQuantity];
 
@@ -148,9 +152,20 @@ namespace TextSplit
             return FilesToDo;
         }
 
+        public int[] GetFilesToSave()
+        {
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " FilesToSave[] = ", FilesToSave.ToString(), CurrentClassName, showMessagesLevel);
+            return FilesToSave;
+        }
+
         public void SetFilesToDo(int[] filesToDo)
         {
             FilesToDo = filesToDo;
+        }
+
+        public void SetFilesToSave(int[] filesToSave)
+        {
+            FilesToSave = filesToSave;
         }
 
         public string GetbutMfOpenSaveLanguageNames(int mfButtonPlaceTexts, int mfButtonNameTexts)//передавать i и j нужного элемента и получать один нужный, а не весь массив (или еще как)
@@ -227,9 +242,9 @@ namespace TextSplit
             
             var listOpenFormButtonMethods = new List<Action<int>>();
             Action<int> currentButtonMethod;
-            currentButtonMethod = PathForOpenFile;
+            currentButtonMethod = PathForOpenFile;// listOpenFormButtonMethods[0]
             listOpenFormButtonMethods.Add(currentButtonMethod);
-            currentButtonMethod = SaveFileFromTextBox;
+            currentButtonMethod = SaveFileFromTextBox;// listOpenFormButtonMethods[1]
             listOpenFormButtonMethods.Add(currentButtonMethod);
             currentButtonMethod = Method3;
             listOpenFormButtonMethods.Add(currentButtonMethod);
@@ -253,7 +268,7 @@ namespace TextSplit
 
                         if (buttonText == currentOpenFormButtonName)  // если совпало с именем нажатой кнопки - вызвали метод открытия файла, если нет - проход 2 цикла 2 - похоже, надо делать Save
                         {
-                            listOpenFormButtonMethods[j](i);
+                            listOpenFormButtonMethods[j](i);//только тут мы знаем i - чтобы не передавать его в Main обрабатываем его тут и заносим в FilesToDo[i] или в FilesToSave[i]
                         }
                     }
                 }
@@ -269,7 +284,7 @@ namespace TextSplit
             if (dlg.ShowDialog() == DialogResult.OK)
             {
                 FilesPath[i] = dlg.FileName;
-                txtboxFilesPath[i].Text = FilesPath[0];
+                txtboxFilesPath[i].Text = FilesPath[i];
                 FilesToDo[i] = (int)WhatNeedDoWithFiles.ReadFileFirst;
             }
             statusBottomLabel.Text = Enum.GetNames(typeof(OpenFormProgressStatusMessages))[i] + " - " + FilesPath[i];//Set the short type of current action in the status bar
@@ -278,14 +293,18 @@ namespace TextSplit
         }
 
         private void SaveFileFromTextBox(int i)
-        {
+        {//определить, первый раз сохраняют или нет - по признаку FileWasSavedSuccessfully и поставить указание - либо SaveFileFirst, либо SaveFile
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " SaveFileFromTextBox has fetched i = " + i.ToString(), CurrentClassName, showMessagesLevel);
-
-            FilesToDo[i] = (int)WhatNeedDoWithFiles.SaveFile;
-
+            if (FilesToSave[i] == (int)WhatNeedSaveFiles.FileWasSavedSuccessfully)
+            {
+                FilesToSave[i] = (int)WhatNeedSaveFiles.SaveFile;//молча сохраняем файл
+            }
+            else
+            {
+                FilesToSave[i] = (int)WhatNeedSaveFiles.SaveFileFirst;//спрашиваем, но в Main - но можно и тут
+            }
             statusBottomLabel.Text = Enum.GetNames(typeof(OpenFormProgressStatusMessages))[i] + " - " + FilesPath[i];//Set the short type of current action in the status bar
-
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " FilesSaveClick = " + SaveFileClick.ToString(), CurrentClassName, showMessagesLevel);
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " FilesToSave[i] = " + FilesToSave[i].ToString(), CurrentClassName, showMessagesLevel);
             if (SaveFileClick != null) SaveFileClick(this, EventArgs.Empty);
         }
         
@@ -308,7 +327,11 @@ namespace TextSplit
                 numEnglishFont_FirstSet();
             }
                 
-            if (theAffectedElementNumber == 1) fld1RussianContent.Text = FilesContent[1];            
+            if (theAffectedElementNumber == 1) 
+            {
+                fld1RussianContent.Text = FilesContent[1];
+                //numRussianFont_FirstSet();//тут притаилась ошибка!
+            }
         }
 
         private void fldContent_TextChanged(object sender, EventArgs e)
@@ -348,6 +371,13 @@ namespace TextSplit
             var font = fld0EnglishContent.Font;
             //ContentBox.SelectedItem = font.Name;
             numEnglishFont.SelectedIndex = Convert.ToInt32(font.Size);
+        }
+
+        private void numRussianFont_FirstSet()
+        {
+            var font = fld1RussianContent.Font;
+            //ContentBox.SelectedItem = font.Name;
+            numRussianFont.SelectedIndex = Convert.ToInt32(font.Size);
         }
 
         private void numEnglishFont_SelectedIndexChanged(object sender, EventArgs e)

@@ -53,11 +53,21 @@ namespace TextSplitLibrary
         CountSentences = 5,
         WittingIncomplete = 7,
         ContinueProcessing = 8,
+        StopProcessing = 9,        
+    };
+
+    public enum WhatNeedSaveFiles : int
+    {
+        PassThrough = 0,
+        SaveFileFirst = 1,        
+        SaveFile = 2,        
+        FileWasSavedSuccessfully = 3,
+        CannotSaveFile = 4,
+        Reserved5 = 5,
+        Reserved6 = 6,
+        WittingIncomplete = 7,
+        ContinueProcessing = 8,
         StopProcessing = 9,
-        SaveGroupStarted = 10,
-        SaveFileFirst = 11,
-        FileWasSavedDontAsk = 12,
-        SaveFile = 13
     };
 
     public enum WhatNeedDoWithTables : int
