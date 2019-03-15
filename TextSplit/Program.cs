@@ -19,15 +19,16 @@ namespace TextSplit
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            FileManager manager = new FileManager(Declaration.FilesQuantity);
-            MessageService service = new MessageService(manager);
+            AllBookData book = new AllBookData();
+            FileManager manager = new FileManager(book);
+            MessageService service = new MessageService(manager);            
             LogFileMessages logs = new LogFileMessages();
-            TextSplitOpenForm open = new TextSplitOpenForm(service);
+            TextSplitOpenForm open = new TextSplitOpenForm(service, book);
             TextSplitForm view = new TextSplitForm(service, logs);
-            DataAccessor data = new DataAccessor(service);
-            LoadTextToDataBase load = new LoadTextToDataBase(data, service);
+            DataBaseAccessor data = new DataBaseAccessor(service);
+            LoadTextToDataBase load = new LoadTextToDataBase(book, data, service);
             //MessageBox.Show("All Modules Declared", "Program", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            MainPresentor presentor = new MainPresentor(view, open, manager, service, logs, load);            
+            MainPresentor presentor = new MainPresentor(view, open, manager, service, logs, load, book);            
             //MessageBox.Show("Main Called", "Program", MessageBoxButtons.OK, MessageBoxIcon.Information);
             Application.Run(view);            
         }

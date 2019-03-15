@@ -10,15 +10,16 @@ namespace TextSplit
 {
     public interface ILoadTextToDataBase
     {
-        int PortionTextForDataBase(string[] filesContent, int[] filesToDo, int ID_Language);
+        int PortionTextForDataBase(int ID_Language);
         //int FindChapterNumber(string currentParagraph, int ID_Language, int id_Chapter, bool isPreviousLineBlank);
         //int PortionParagraphOnSentences(string[] currentParagraphSentences, int ID_Language, int id_Chapter, int id_Paragraph, int id_Sentenses);
     }
 
     class LoadTextToDataBase : ILoadTextToDataBase
     {
+        private readonly IAllBookData _book;
         private readonly IMessageService _messageService;
-        private readonly IDataAccessor _data;
+        private readonly IDataBaseAccessor _data;
 
         readonly private string strCRLF;
 
@@ -28,12 +29,13 @@ namespace TextSplit
         private int showMessagesLevel;
         private int filesQuantity;
 
-        public LoadTextToDataBase(IDataAccessor data, IMessageService service)
+        public LoadTextToDataBase(IAllBookData book, IDataBaseAccessor data, IMessageService service)
         {
             strCRLF = Declaration.StrCRLF;
             showMessagesLevel = Declaration.ShowMessagesLevel;
             filesQuantity = Declaration.FilesQuantity;
 
+            _book = book;
             _messageService = service;
             _data = data;
 
@@ -48,11 +50,11 @@ namespace TextSplit
 
         }
 
-        public int PortionTextForDataBase(string[] filesContent, int[] filesToDo, int ID_Language)
+        public int PortionTextForDataBase(int ID_Language)
         {
             char[] charsParagraphSeparator = new char[] { '\r', '\n' };            
 
-            string currentText = filesContent[(int)TableLanguagesContent.English];
+            string currentText = _book.GetFileContent((int)TableLanguagesContent.English);
             string[] currentTextParagraphsPortioned = currentText.Split(charsParagraphSeparator);//portioned English content in the ParagraphsArray
             
             _data.OpenConnection();

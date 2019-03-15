@@ -27,21 +27,15 @@ namespace TextSplitLibrary
 
     }
 
-    public enum FormFieldsNames : int { fld0EnglishContent = 0, fld1RussianContent = 1, fld2ResultContent = 2 };
+    public enum TablesNamesNumbers : int { Languages = 0, Chapters = 1, Paragraphs = 2, Sentences = 3 };
 
-    public enum OpenFormFieldNames : int { fld0EnglishFilePath = 0, fld1RussianFilePath = 1, fld2ResultFilePath = 2, fld2CreateResultFileName = 3 };
-    public enum OpenFormButtonNames : int { butMfLeftTextBox = 0, butMfRightTextBox = 1, butOpenResultFile = 2 };
+    public enum MfButtonPlaceTexts : int { EnglishFile = 0, RussianFile = 1, Reserved = 2 };
+    public enum MfButtonNameTexts : int { OpenFile = 0, SaveFile = 1, Reserved = 2 };    
 
     public enum OpenFormProgressStatusMessages : int { EnglishFilePathSelected = 0, RussianFilePathSelected = 1, ResultFilePathSelected = 2, ResultFileCreated = 3 };
     public enum OpenFormTextBoxImplementationMessages : int { EnglishFilePathSelected = 0, RussianFilePathSelected = 1, ResultFilePathSelected = 2, ResultFileCreated = 3 };
 
     public enum TableLanguagesContent : int { English = 0, Russian = 1, Result = 2 };
-
-    //0 - Languages - cannot insert records
-    //1 - Chapters - Columns - ID, ID_Language, int Chapter, nvchar10 Chapter_name
-    //2 - Paragraphs - Columns - ID, ID_Language, ID_Chapter, int Paragraph, nvchar10 Paragraph_name
-    //3 - Sentences - Columns - ID, ID_Language, ID_Chapter, ID_Paragraph, int Sentence, ntext Sentence_name
-    public enum TablesNamesNumbers : int { Languages = 0, Chapters = 1, Paragraphs = 2, Sentences = 3 };
 
     public enum WhatNeedDoWithFiles : int
     {
@@ -61,13 +55,26 @@ namespace TextSplitLibrary
         PassThrough = 0,
         SaveFileFirst = 1,        
         SaveFile = 2,        
-        FileWasSavedSuccessfully = 3,
+        FileSavedSuccessfully = 3,
         CannotSaveFile = 4,
         Reserved5 = 5,
         Reserved6 = 6,
         WittingIncomplete = 7,
         ContinueProcessing = 8,
         StopProcessing = 9,
+    };
+
+    public enum WhatDoSaveResults : int
+    {
+        Successfully = 0,
+        Reserved1 = 1,
+        CannotRead = 2,
+        Reserved3 = 3,
+        CannotWrite = 4,
+        Reserved4 = 5,
+        WittingIncomplete = 6,
+        ContinueProcessing = 6,
+        StopProcessing = 8,
     };
 
     public enum WhatNeedDoWithTables : int

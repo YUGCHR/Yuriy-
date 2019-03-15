@@ -10,17 +10,13 @@ namespace TextSplitLibrary
 {
     public interface IFileManager
     {        
-        string[] GetContents(string[] FilesPath, int[] FilesToDo);
-        string[] GetContents(string[] FilesPath, int[] FilesToDo, Encoding encoding);
-        //to add third method for one file
-        void SaveContents(string[] FilesContent, string[] FilesPath, int[] filesToSave);
-        void SaveContents(string[] FilesContent, string[] FilesPath, int[] filesToSave, Encoding encoding);
-        //to add third method for one file
-        int[] GetSymbolCounts(string[] FilesContent);
-        int GetSymbolCounts(string[] FilesContent, int i);
-        bool[] IsFilesExist(string[] FilesPath);
-        bool IsFilesExist(string FilesPath);
-        int[] FilesToDo { get; set; }
+        string GetContent(int i);
+        string GetContent(int i, Encoding encoding);        
+        int SaveContent(int i);
+        int SaveContent(int i, Encoding encoding);        
+        int GetSymbolsCount(int i);        
+        bool IsFileExist(string FilesPath);
+        
         void WriteToFilePathPlus(string[] textParagraphes, string filesPath, string filesPathPlus);
         void AppendContent(string tracePointName, string tracePointValue, string tracePointPlace);
         void AppendContent(string tracePointName, string tracePointValue, string tracePointPlace, Encoding encoding);
@@ -30,25 +26,20 @@ namespace TextSplitLibrary
     }
     public class FileManager : IFileManager
     {
-        //private readonly IMessageService _messageService;        
-
-        public int[] FilesToDo { get; set; }        
+        private readonly IAllBookData _book;
+        //private readonly IMessageService _messageService;
         private readonly Encoding _defaultEncoding = Encoding.GetEncoding(1251);
-        public string[] FilesPath;
-        public string[] FilesContent;
-        //readonly private string strCRLF;
+        
         private readonly int filesQuantity;//we will reveice the value from Declaration.LanguagesQuantity;
         private string logFilePathName;
         private bool isLogFileExist;        
         string logFilePath = Directory.GetCurrentDirectory();//Will check log-file existing        
 
-        public FileManager(int filesQuantity) //IMessageService service
-        {            
-            this.filesQuantity = filesQuantity;
-            //strCRLF = Declaration.StrCRLF;
-            FilesPath = new string[filesQuantity];
-            FilesContent = new string[filesQuantity];
-            FilesToDo = new int[filesQuantity];
+        public FileManager(IAllBookData book) //IMessageService service
+        {
+            _book = book;
+            filesQuantity = Declaration.FilesQuantity;
+                        
             string[] logFilePathandName = { logFilePath, "log.txt" };
             logFilePathName = String.Join("\\", logFilePathandName);
             isLogFileExist = File.Exists(logFilePathName);
@@ -59,96 +50,48 @@ namespace TextSplitLibrary
             }
             
         }
+
         
-
-        #region IsFileExists
-        public bool[] IsFilesExist(string[] filesPath)
+        public bool IsFileExist(string filePath)
+        {
+            return File.Exists(filePath);
+        }        
+       
+        public string GetContent(int i)
         {            
-            bool[] isFilesExist = new bool[filesQuantity];
-            for (int i = 0; i < filesQuantity; i++)
+                return GetContent(i, _defaultEncoding); 
+        }
+
+        public string GetContent(int i, Encoding encoding)//This method cannot be access outside so we do not need to check isFileExist
+        {
+            return File.ReadAllText(_book.GetFilePath(i), encoding);            
+        }
+        
+        public int SaveContent(int i)
+        {
+            return SaveContent(i, _defaultEncoding);
+        }
+
+        public int SaveContent(int i, Encoding encoding)
+        {
+            try
             {
-                string currentFilePath = filesPath[i];
-                isFilesExist[i] = File.Exists(currentFilePath);
+                File.WriteAllText(_book.GetFilePath(i), _book.GetFileContent(i), encoding);
+                return (int)WhatDoSaveResults.Successfully;
             }
-            return isFilesExist;
-        }
-        public bool IsFilesExist(string filesPath)
-        {
-            return File.Exists(filesPath);
-        }
-        #endregion
-        #region GetContent
-        public string[] GetContents(string[] filesPath, int[] filesToDo)
-        {            
-                return GetContents(filesPath, filesToDo, _defaultEncoding); 
-        }
-
-        public string[] GetContents(string[] filesPath, int[] filesToDo, Encoding encoding)
-        {
-            string[] getContents = new string[filesQuantity];
-            for (int i = 0; i < filesQuantity; i++)
-            {
-                if (filesToDo[i] == (int)WhatNeedDoWithFiles.ReadFileFirst)
-                {
-                    getContents[i] = GetContent(filesPath, i, _defaultEncoding);
-                }                    
+            catch
+            {                
+                return (int)WhatDoSaveResults.CannotWrite;
             }
-            return getContents;
         }
-
-        public string GetContent(string[] filesPath, int i, Encoding encoding)//This method cannot be access outside so we do not need to check isFileExist
+       
+        public int GetSymbolsCount(int i)
         {
-            return File.ReadAllText(filesPath[i], encoding);            
-        }
-        #endregion
-        #region SaveContent
-        public void SaveContents(string[] filesContent, string[] filesPath, int[] filesToSave)
-        {
-            SaveContents(filesContent, filesPath, filesToSave, _defaultEncoding);
-        }
-
-        public void SaveContents(string[] filesContent, string[] filesPath, int[] filesToSave, Encoding encoding)
-        {
-            for (int i = 0; i < filesQuantity; i++)
-            {
-                if (filesToSave[i] == (int)WhatNeedSaveFiles.SaveFile)
-                {
-                    SaveContent(filesContent[i], filesPath[i], _defaultEncoding);
-                }
-            }            
-        }
-
-        private void SaveContent(string fileContent, string filePath, Encoding encoding)
-        {
-            MessageBox.Show("fileContent = " + fileContent + "\r\n" +
-                            "filePath = " + filePath + "\r\n",
-                            "Start - SaveContent ", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            File.WriteAllText(filePath, fileContent, encoding);
-        }
-        #endregion
-        #region GetSymbolCount
-        public int[] GetSymbolCounts(string[] filesContent)
-        {            
-            if (filesContent != null)
-            {
-                //MessageBox.Show("Start - filesContent not null", "GetSymbolCounts", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                int[] counts = new int[filesQuantity];
-                for (int i = 0; i < filesQuantity; i++)
-                {
-                    counts[i] = GetSymbolCounts(filesContent, i);
-                }
-                return counts;
-            }
-            else return null;
-        }
-        public int GetSymbolCounts(string[] filesContent, int i)
-        {
-            //MessageBox.Show(i.ToString(), "GetSymbolCounts - Last", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            if (filesContent[i] != null) return filesContent[i].Length;
+            string fileContent = _book.GetFileContent(i);
+            if (fileContent != null) return fileContent.Length;
             else return 0;
         }
-
-        #endregion
+        
         #region WriteToFile
         public void WriteToFilePathPlus(string[] textParagraphes, string filesPath, string filesPathPlus)
         {
@@ -203,7 +146,7 @@ namespace TextSplitLibrary
         {
             //check is path exist
             string logFilePathName = Path.GetDirectoryName(filesPathSample) + "\\" + resultFileName + ".txt";
-            if (IsFilesExist(logFilePathName)) return null;//ordered file is exist, cannot create it
+            if (IsFileExist(logFilePathName)) return null;//ordered file is exist, cannot create it
             
             string fileLineAppend = "New result file created \r\n";
             File.AppendAllText(logFilePathName, fileLineAppend, _defaultEncoding);

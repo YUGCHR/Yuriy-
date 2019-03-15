@@ -11,6 +11,7 @@ namespace TextSplit
 {
     public class MainPresentor
     {
+        private readonly IAllBookData _book;
         private readonly ITextSplitForm _view;
         private ITextSplitOpenForm _open;
         private readonly IFileManager _manager;
@@ -27,18 +28,12 @@ namespace TextSplit
         readonly private int resultFileNumber;
         readonly private int showMessagesLevel;
 
-        private string resultFileName;        
+        private string resultFileName;
 
-        private int[] filesToDo;
-        private int[] filesToSave;
-        private int[] counts;
-        private string[] filesPath;
-        private string[] filesContent;        
-
-        public MainPresentor(ITextSplitForm view, ITextSplitOpenForm open, IFileManager manager, IMessageService service, ILogFileMessages logs, ILoadTextToDataBase load)
+        public MainPresentor(ITextSplitForm view, ITextSplitOpenForm open, IFileManager manager, IMessageService service, ILogFileMessages logs, ILoadTextToDataBase load, IAllBookData book)
         {
-            _view = view;
-            //_open = open;//потом - для работы с формами отдельный класс и там все события нажатия кнопок, а текстовые поля - в отдельном классе?
+            _book = book;
+            _view = view;            
             _manager = manager;
             _messageService = service;
             _logs = logs;
@@ -55,37 +50,31 @@ namespace TextSplit
             string mainStart = "******************************************************************************************************************************************* \r\n";//Log-file separator
             _messageService.ShowTrace(mainStart + MethodBase.GetCurrentMethod().ToString(), " Started", CurrentClassName, showMessagesLevel);
 
-            filesToDo = new int[filesQuantityPlus];
-            filesToSave = new int[filesQuantityPlus];
-            counts = new int[filesQuantity];
-            //_open.SetSymbolCount(counts, filesToDo);//Саид, зачем ты здесь?
-
-            filesPath = new string[filesQuantity];
-            filesContent = new string[filesQuantity];
-
             _view.OpenTextSplitOpenForm += new EventHandler(_view_OpenTextSplitOpenForm);            
             _view.TextSplitFormClosing += new EventHandler<FormClosingEventArgs>(_view_TextSplitFormClosing);
             // All EventHandlers for _open (TextSplitOpenForm) are located inside _view_OpenTextSplitOpenForm method
-
         }
 
         private void _open_LoadEnglishToDataBase(object sender, EventArgs e)
         {   // обобщить метод для любого языка
             // разрешать запускать только после сохранения текста - гасить кнопку или менять название - Save на dB Load
             int ID_Language = 0;//работа с английской таблицей базы - может, надо убрать, по ToDo ясно, с кем работаем (но это не точно)
-            filesToDo = _open.GetFilesToDo();
-            filesContent = _open.GetFilesContent();
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + strCRLF + "filesToDo[English] must be 4 here ==> ", filesToDo[(int)TableLanguagesContent.English].ToString(), CurrentClassName, showMessagesLevel);
-            if (filesToDo[(int)TableLanguagesContent.English] == (int)WhatNeedDoWithFiles.CountSymbols)//check is English content filled in the filesContent - CountSymbols was done
+            
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(),
+                "filesToDo[English] must be CountSymbols here ==> " + 
+                Enum.GetNames(typeof(WhatNeedDoWithFiles))[(int)TableLanguagesContent.English], 
+                CurrentClassName, showMessagesLevel);
+
+            if (_book.GetFileToDo((int)TableLanguagesContent.English) == (int)WhatNeedDoWithFiles.CountSymbols)//check is English content filled in the filesContent - CountSymbols was done
             {
                 //ID_Language = -1; //временный костыль для заполнения таблицы, потом перевесить в настройки главной формы, для обычной работы пока что просто закомментировать
-                int insertPortionResult = _load.PortionTextForDataBase(filesContent, filesToDo, ID_Language); // - возможно, вызывается 2 раза, проверить и найти почему
+                int insertPortionResult = _load.PortionTextForDataBase(ID_Language); // - ID_Language можно тоже не передавать
                 _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + strCRLF + " insertPortionResult ==> ", insertPortionResult.ToString(), CurrentClassName, showMessagesLevel);
             }            
         }
 
         private void _view_TextSplitFormClosing(object sender, FormClosingEventArgs e)
-        {
+        {            
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " Closing attempt catched", CurrentClassName, showMessagesLevel);
             //var formArgs = (FormClosingEventArgs)e;
             e.Cancel = wasEnglishContentChange;
@@ -95,7 +84,7 @@ namespace TextSplit
 
         void _view_OpenTextSplitOpenForm(object sender, EventArgs e)//обрабатываем нажатие кнопки Open, которое означает открытие вспомогательной формы
         {            
-            TextSplitOpenForm openForm = new TextSplitOpenForm(_messageService);
+            TextSplitOpenForm openForm = new TextSplitOpenForm(_messageService, _book);
 
             _open = openForm;
             _open.OpenFileClick += new EventHandler(_open_OpenFileClick);
@@ -111,39 +100,30 @@ namespace TextSplit
         {
             try
             {
-                filesPath = _open.GetFilesPath();
-                filesToDo = _open.GetFilesToDo();
-                
-                int numberOfPerformedActionElement = isFilesExistCheckAndOpen();//получили номер элемента, с которым произведено действие
-                
-                if (filesToDo[numberOfPerformedActionElement] == (int)WhatNeedDoWithFiles.ContinueProcessing)//добавить else WittingIncomplete)//если в элементе сказано, что все хорошо, отправляем данные в форму
-                {
+                int theAffectedElementNumber = isFilesExistCheckAndOpen();//там проверили ToDo, узнали, какую кнопку нажали, получили и вернули сюда номер элемента, с которым произведено действие
+                //еще в том же методе проверили наличие файла по номеру FilePath и открыли его в массив FileContent - и теперь он там есть
 
-                    _open.SetFileContent(filesContent, numberOfPerformedActionElement);
+                if (_book.GetFileToDo(theAffectedElementNumber) == (int)WhatNeedDoWithFiles.ContinueProcessing)//добавить else WittingIncomplete)//если в элементе сказано, что все хорошо, отправляем данные в форму
+                {
+                    _open.SetFileContent(theAffectedElementNumber);//открытый в isFilesExistCheckAndOpen отправили в текстовое поле формы
                     //подходящий момент поменять название на кнопках - поставить Save вместо Open
                     //передать номер названия кнопки 0,0 - Open English File, 1, 0 - Save English File, 1, 0 - Open Russian File, 1, 1 - Save Russian File
                     //butMfOpenSaveLanguageNames[0, 0] = Open English File [(int)MfButtonPlaceTexts.EnglishFile, (int)MfButtonNameTexts.OpenFile]
                     //butMfOpenSaveLanguageNames[0, 1] = Save English File [(int)MfButtonPlaceTexts.EnglishFile, (int)MfButtonNameTexts.SaveFile]
                     //butMfOpenSaveLanguageNames[1, 0] = Open Russian File [(int)MfButtonPlaceTexts.RussianFile, (int)MfButtonNameTexts.OpenFile]
                     //butMfOpenSaveLanguageNames[1, 1] = Save Russian File [(int)MfButtonPlaceTexts.RussianFile, (int)MfButtonNameTexts.SaveFile]
-                    int mfButtonPlace = numberOfPerformedActionElement; // Place of the button which was pressed (English or Russian)
+                    int mfButtonPlace = theAffectedElementNumber; // Place of the button which was pressed (English or Russian)
                     int mfButtonText = 1; //change ButtonName from Open to Save
                     bool mfButtonEnableFlag = false; //кнопка серая - текст только загружен и не изменялся
 
                     string butMfOpenSaveLanguageName = _open.GetbutMfOpenSaveLanguageNames(mfButtonPlace, mfButtonText);//непонятно зачем это делается, но может потом пригодится
                     _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "fetched pressed button place and name ==> " + butMfOpenSaveLanguageName, CurrentClassName, showMessagesLevel);
-
-                    //вызывается метод смены названия на кнопке и меняется на нужное
-                    //и еще (сразу в первый раз)/(а потом как?) сделать кнопку Save серой - скорее всего в ChangeContent
+                                        
                     int checkOnButtonTextResult = mfButtonPlace + mfButtonText;
-                    int changeOnButtonTextResult = _open.ChangeOnButtonText(mfButtonPlace, mfButtonText, mfButtonEnableFlag);
+                    int changeOnButtonTextResult = _open.ChangeOnButtonText(mfButtonPlace, mfButtonText, mfButtonEnableFlag);//вызывается метод смены названия на кнопке и меняется на нужное
                     //if (changeOnButtonTextResult == checkOnButtonTextResult) - allright
-                    
-                    _open.SetFileContent(filesContent, numberOfPerformedActionElement);
-                    filesToDo[numberOfPerformedActionElement] = (int)WhatNeedDoWithFiles.CountSymbols;//передаем указание посчитать символы и это является подтверждением, что файл успешно открыли и записали в форму
-                    counts[numberOfPerformedActionElement] = _manager.GetSymbolCounts(filesContent, numberOfPerformedActionElement);
-                    _open.SetFilesToDo(filesToDo);//передали значение "посчитать символы" в управляющий массив, как указание, что открытие и запись в textbox прошла успешно
-                    _open.SetSymbolCount(counts, filesToDo);
+
+                    int SetSymbolsCountResult = SetSymbolsCountOnLabel(theAffectedElementNumber);
                 }
             }
             catch (Exception ex)
@@ -154,39 +134,39 @@ namespace TextSplit
 
         int isFilesExistCheckAndOpen()
         {
-            for (int i = 0; i < textFieldsQuantity; i++)
-            {
-                int theAffectedElementNumber = filesToDo[i];
-                
+            for (int i = 0; i < textFieldsQuantity; i++)//если добавится textBox для Result, то сделать <=
+            {                
+                int theAffectedElementNumber = _book.GetFileToDo(i);
+
+                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(),
+                    "isFilesExistCheckAndOpen ==> i = " + i.ToString() + strCRLF + 
+                    "theAffectedElementNumber = " + Enum.GetNames(typeof(WhatNeedDoWithFiles))[theAffectedElementNumber], CurrentClassName, showMessagesLevel);                
+
                 if (theAffectedElementNumber == (int)WhatNeedDoWithFiles.ReadFileFirst)
-                {                    
-                    if (_manager.IsFilesExist(filesPath[i]))
-                    {                        
-                        filesContent = _manager.GetContents(filesPath, filesToDo);
-                        filesToDo[i] = (int)WhatNeedDoWithFiles.ContinueProcessing;
+                {
+                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(),
+                    "ReadFileFirst ==> i = " + i.ToString() + strCRLF +
+                    "_book.GetFilePath(i) = " + _book.GetFilePath(i), CurrentClassName, showMessagesLevel);
+
+                    if (_manager.IsFileExist(_book.GetFilePath(i)))
+                    {                           
+                        int setFilesContentResult = _book.SetFileContent(_manager.GetContent(i), i);
+                        int setToDoResult = _book.SetFileToDo((int)WhatNeedDoWithFiles.ContinueProcessing, i);
                         return i;
-                    }
-                    else
-                    {
-                        _messageService.ShowExclamation("The source file does not exist, please select it!");
-                        return i; //some file does not exist
-                    }
+                    }                    
                 }
             }
-            _messageService.ShowExclamation("Something was wrong!");
+            _messageService.ShowExclamation("The source file does not exist, please select it!");            
             return -1; //some file does not exist
         }
         
         void _open_ContentChanged(object sender, EventArgs e)
-        {//где-то тут сделать кнопку Save активной
-            filesToDo = _open.GetFilesToDo();
-            filesContent = _open.GetFilesContent();            
-            //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " filesContent - ", filesContent, CurrentClassName, 3);
+        {
             for (int i = 0; i < textFieldsQuantity; i++)
             {
-                if (filesToDo[i] == (int)WhatNeedDoWithFiles.ContentChanged)
-                {
-                    //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " filesToDo[i] - ", filesToDo[i].ToString(), CurrentClassName, 3); 
+                int WhatNeedDoWith = _book.GetFileToDo(i);
+                if (WhatNeedDoWith == (int)WhatNeedDoWithFiles.ContentChanged)
+                {                   
                     int mfButtonPlace = i; // Place of the button the same as changed field (English or Russian)
                     int mfButtonText = 1; // ButtonName leave Save
                     bool mfButtonEnableFlag = true; //активировать кнопку - текст изменился и его можно сохранить                    
@@ -194,19 +174,19 @@ namespace TextSplit
                     int changeOnButtonTextResult = _open.ChangeOnButtonText(mfButtonPlace, mfButtonText, mfButtonEnableFlag);
                     //if (changeOnButtonTextResult == checkOnButtonTextResult) - allright
 
-                    filesToDo[i] = (int)WhatNeedDoWithFiles.CountSymbols;
-                    counts[i] = _manager.GetSymbolCounts(filesContent, i);
-                    _open.SetFilesToDo(filesToDo);
-                    _open.SetSymbolCount(counts, filesToDo);
-                }
-
-
-                //string[] contents = _view.FilesContent;                        
-                //int[] counts = _manager.GetSymbolCounts(contents);
-                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + "wasEnglishContentChange", wasEnglishContentChange.ToString(), CurrentClassName, showMessagesLevel);
-                //_view.SetSymbolCount(counts, _view.FilesToDo);
-                wasEnglishContentChange = true;//we need also the array here
+                    int SetSymbolsCountResult = SetSymbolsCountOnLabel(i);
+                }                
             }
+        }
+
+        private int SetSymbolsCountOnLabel(int i)
+        {
+            int setToDoResult = _book.SetFileToDo((int)WhatNeedDoWithFiles.CountSymbols, i);
+            int valueSymbolsCount = _manager.GetSymbolsCount(i);
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "valueSymbolsCount = " + valueSymbolsCount.ToString(), CurrentClassName, showMessagesLevel);
+            int setSymbolsCountResult = _book.SetSymbolsCount(valueSymbolsCount, i);
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "setSymbolsCountResult = " + setSymbolsCountResult.ToString(), CurrentClassName, showMessagesLevel);            
+            return _open.SetSymbolCount(i);
         }
 
         private void _open_SaveFileClick(object sender, EventArgs e)
@@ -217,63 +197,67 @@ namespace TextSplit
         }
 
         private int PrepareSaveTextInFile()
-        {            
-            filesToSave = _open.GetFilesToSave();            
-
+        {
+            //filesToSave = _open.GetFilesToSave();
             for (int i = 0; i < textFieldsQuantity; i++)
             {
-                if (filesToSave[i] == (int)WhatNeedSaveFiles.SaveFileFirst)
+                int theAffectedElementNumber = _book.GetFileToSave(i);
+                if (theAffectedElementNumber == (int)WhatNeedSaveFiles.SaveFileFirst)
                 {
                     //сообщить, что файл будет перезаписан и если не копия, то пусть идет и делает сам копию, то шо нефиг (после первого сохранения больше не спрашивать)
                     _messageService.ShowMessage("File will be rewritten!");
                     //тут сделать выбор - сохранять или выйти из программы, чтобы сделать рабочую копию (или сделать копию автоматически отсюда)
                     //типа return                        
                     int fileSaveResult = SaveTextInFile(i);
-                    if (fileSaveResult == (int)WhatNeedSaveFiles.FileWasSavedSuccessfully) return (int)WhatNeedSaveFiles.FileWasSavedSuccessfully;
+                    if (fileSaveResult == (int)WhatNeedSaveFiles.FileSavedSuccessfully) return (int)WhatNeedSaveFiles.FileSavedSuccessfully;
                     return (int)WhatNeedSaveFiles.CannotSaveFile;
                 }
-                if (filesToSave[i] == (int)WhatNeedSaveFiles.SaveFile)
+                if (theAffectedElementNumber == (int)WhatNeedSaveFiles.SaveFile)
                 {
                     int fileSaveResult = SaveTextInFile(i);
-                    if (fileSaveResult == (int)WhatNeedSaveFiles.FileWasSavedSuccessfully) return (int)WhatNeedSaveFiles.FileWasSavedSuccessfully;
+                    if (fileSaveResult == (int)WhatNeedSaveFiles.FileSavedSuccessfully) return (int)WhatNeedSaveFiles.FileSavedSuccessfully;
                     return (int)WhatNeedSaveFiles.CannotSaveFile;                    
                 }
             }
-            return (int)WhatNeedSaveFiles.CannotSaveFile;            
+            return (int)WhatNeedSaveFiles.CannotSaveFile;
         }
 
         private int SaveTextInFile(int i)
         {
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "SaveTextInFile fetched i = " + i.ToString(), CurrentClassName, showMessagesLevel);
 
-            filesPath = _open.GetFilesPath();
-            filesContent = _open.GetFilesContent();
-            filesToSave[i] = (int)WhatNeedSaveFiles.FileWasSavedSuccessfully;
+            int setToSaveResult = _book.SetFileToSave((int)WhatNeedSaveFiles.FileSavedSuccessfully, i);
 
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(),                
-                "filesToSave [i] - " + filesToSave[i].ToString() + strCRLF +
-                "filesPath [i] ==> " + filesPath[i].ToString() + strCRLF +
-                "filesContent [i] ==> " + filesContent[i].ToString(), CurrentClassName, showMessagesLevel);
-
+                "filesToSave [i] - " + _book.GetFileToSave(i).ToString() + strCRLF +
+                "filesPath [i] ==> " + _book.GetFilePath(i).ToString() + strCRLF +
+                "filesContent [i] ==> " + _book.GetFileContent(i).ToString(), CurrentClassName, showMessagesLevel);
             try
             {
-                _manager.SaveContents(filesContent, filesPath, filesToSave);//хочется код возврата
-                _messageService.ShowMessage("File saved sucessfully!");
-                //тут сделать кнопку Save серой
-                int mfButtonPlace = i; // Place of the button the same as changed field (English or Russian)
-                int mfButtonText = 1; // ButtonName leave Save
-                bool mfButtonEnableFlag = false; //текст сохранен, кнопку погасили
-                int checkOnButtonTextResult = mfButtonPlace + mfButtonText; // типа, контроль
+                int fileSaveResult = _manager.SaveContent(i);
+                if (fileSaveResult == (int)WhatDoSaveResults.Successfully)
+                {
+                    _messageService.ShowMessage("File saved sucessfully!");
+                    //тут сделать кнопку Save серой
+                    int mfButtonPlace = i; // Place of the button the same as changed field (English or Russian)
+                    int mfButtonText = 1; // ButtonName leave Save
+                    bool mfButtonEnableFlag = false; //текст сохранен, кнопку погасили
+                    int checkOnButtonTextResult = mfButtonPlace + mfButtonText; // типа, контроль
 
-                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(),
-                "mfButtonPlace = " + mfButtonPlace.ToString() + strCRLF +
-                "mfButtonText = " + mfButtonText.ToString() + strCRLF +
-                "mfButtonEnableFlag ==> " + mfButtonEnableFlag.ToString() + strCRLF, CurrentClassName, showMessagesLevel);
+                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(),
+                    "mfButtonPlace = " + mfButtonPlace.ToString() + strCRLF +
+                    "mfButtonText = " + mfButtonText.ToString() + strCRLF +
+                    "mfButtonEnableFlag ==> " + mfButtonEnableFlag.ToString() + strCRLF, CurrentClassName, showMessagesLevel);
 
-                int changeOnButtonTextResult = _open.ChangeOnButtonText(mfButtonPlace, mfButtonText, mfButtonEnableFlag);
-                //if (changeOnButtonTextResult == checkOnButtonTextResult) - allright                
-                
-                return filesToSave[i];//или прямо написать (int)WhatNeedSaveFiles.FileWasSavedSuccessfully
+                    int changeOnButtonTextResult = _open.ChangeOnButtonText(mfButtonPlace, mfButtonText, mfButtonEnableFlag);
+                    //if (changeOnButtonTextResult == checkOnButtonTextResult) - allright                
+
+                    return (int)WhatDoSaveResults.Successfully;
+                }
+                else
+                {                    
+                    return (int)WhatNeedSaveFiles.CannotSaveFile;
+                }
             }
             catch (Exception ex)
             {

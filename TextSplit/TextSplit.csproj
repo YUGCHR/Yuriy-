@@ -48,7 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="LoadTextToDataBase.cs" />
-    <Compile Include="DataAccessor.cs" />
+    <Compile Include="DataBaseAccessor.cs" />
     <Compile Include="MainPresentor.cs" />
     <Compile Include="MessageService.cs" />
     <Compile Include="TextSplitForm.cs">

@@ -12,7 +12,7 @@ using TextSplitLibrary;
 
 namespace TextSplit
 {
-    public interface IDataAccessor
+    public interface IDataBaseAccessor
     {
         void OpenConnection();        
         void ExecuteReader();
@@ -24,7 +24,7 @@ namespace TextSplit
         int InsertTableLanguagesRecords(int filesQuantity, int[] dataBaseTableToDo);
     }
 
-    public class DataAccessor : IDataAccessor//abstract
+    public class DataBaseAccessor : IDataBaseAccessor//abstract
     {
         private readonly IMessageService _messageService;
 
@@ -41,7 +41,7 @@ namespace TextSplit
         private int[] dataBaseTableToDo;
         private readonly int dataBaseTableQuantuty;        
 
-        public DataAccessor(IMessageService service)
+        public DataBaseAccessor(IMessageService service)
         {
             _messageService = service;
 
