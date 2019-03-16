@@ -21,14 +21,15 @@ namespace TextSplit
 
             AllBookData book = new AllBookData();
             FileManager manager = new FileManager(book);
-            MessageService service = new MessageService(manager);            
             LogFileMessages logs = new LogFileMessages();
+            MessageService service = new MessageService(manager);            
             TextSplitOpenForm open = new TextSplitOpenForm(service, book);
             TextSplitForm view = new TextSplitForm(service, logs);
+            TextBookAnalysis analysis = new TextBookAnalysis();
             DataBaseAccessor data = new DataBaseAccessor(service);
             LoadTextToDataBase load = new LoadTextToDataBase(book, data, service);
             //MessageBox.Show("All Modules Declared", "Program", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            MainPresentor presentor = new MainPresentor(view, open, manager, service, logs, load, book);            
+            MainPresentor presentor = new MainPresentor(view, open, manager, service, analysis, load, book);            
             //MessageBox.Show("Main Called", "Program", MessageBoxButtons.OK, MessageBoxIcon.Information);
             Application.Run(view);            
         }

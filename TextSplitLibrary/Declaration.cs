@@ -12,7 +12,7 @@ namespace TextSplitLibrary
         public const int ToDoQuantity = FilesQuantity + 1; //the length of the FilesToDo array (+1 for BreakpointManager)
         public const int FilesQuantityPlus = FilesQuantity + 1; //the length of the FilesToDo array (+1 for BreakpointManager)
         public const int ResultFileNumber = FilesQuantity - 1;
-        public const int TextFieldsQuantity = FilesQuantity - 1;////quantity of the text fields in the Open Form
+        public const int TextFieldsQuantity = 2;//количество текстовых окон в форме OpenForm (используется в Main - в isFilesExistCheckAndOpen)
         public const int IBreakpointManager = FilesQuantityPlus - 1; //index of BreakpointManager in the FilesToDo array
         public const string StrCRLF = "\r\n";
         public const string ResultFileName = "sampleResultTextDoc";
@@ -27,13 +27,9 @@ namespace TextSplitLibrary
 
     }
 
-    public enum TablesNamesNumbers : int { Languages = 0, Chapters = 1, Paragraphs = 2, Sentences = 3 };
+    public enum TextBoxImplementationMessages : int { EnglishFilePathSelected = 0, RussianFilePathSelected = 1, ResultFilePathSelected = 2, ResultFileCreated = 3 };
 
-    public enum MfButtonPlaceTexts : int { EnglishFile = 0, RussianFile = 1, Reserved = 2 };
-    public enum MfButtonNameTexts : int { OpenFile = 0, SaveFile = 1, Reserved = 2 };    
-
-    public enum OpenFormProgressStatusMessages : int { EnglishFilePathSelected = 0, RussianFilePathSelected = 1, ResultFilePathSelected = 2, ResultFileCreated = 3 };
-    public enum OpenFormTextBoxImplementationMessages : int { EnglishFilePathSelected = 0, RussianFilePathSelected = 1, ResultFilePathSelected = 2, ResultFileCreated = 3 };
+    public enum TablesNamesNumbers : int { Languages = 0, Chapters = 1, Paragraphs = 2, Sentences = 3 }; 
 
     public enum TableLanguagesContent : int { English = 0, Russian = 1, Result = 2 };
 
@@ -54,7 +50,7 @@ namespace TextSplitLibrary
     {
         PassThrough = 0,
         SaveFileFirst = 1,        
-        SaveFile = 2,        
+        SaveFile = 2,
         FileSavedSuccessfully = 3,
         CannotSaveFile = 4,
         Reserved5 = 5,
@@ -64,18 +60,18 @@ namespace TextSplitLibrary
         StopProcessing = 9,
     };
 
-    public enum WhatDoSaveResults : int
-    {
-        Successfully = 0,
-        Reserved1 = 1,
-        CannotRead = 2,
-        Reserved3 = 3,
-        CannotWrite = 4,
-        Reserved4 = 5,
-        WittingIncomplete = 6,
-        ContinueProcessing = 6,
-        StopProcessing = 8,
-    };
+    //public enum SavingResults : int
+    //{
+    //    PassThrough = 0,
+    //    FileSavedSuccessfully = 1,
+    //    CannotRead = 2,
+    //    Reserved3 = 3,
+    //    CannotWrite = 4,
+    //    Reserved4 = 5,
+    //    WittingIncomplete = 6,
+    //    ContinueProcessing = 6,
+    //    StopProcessing = 8,
+    //};
 
     public enum WhatNeedDoWithTables : int
     {

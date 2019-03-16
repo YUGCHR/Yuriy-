@@ -29,16 +29,14 @@ namespace TextSplitLibrary
         private readonly IAllBookData _book;
         //private readonly IMessageService _messageService;
         private readonly Encoding _defaultEncoding = Encoding.GetEncoding(1251);
-        
-        private readonly int filesQuantity;//we will reveice the value from Declaration.LanguagesQuantity;
+
         private string logFilePathName;
         private bool isLogFileExist;        
         string logFilePath = Directory.GetCurrentDirectory();//Will check log-file existing        
 
         public FileManager(IAllBookData book) //IMessageService service
         {
-            _book = book;
-            filesQuantity = Declaration.FilesQuantity;
+            _book = book;            
                         
             string[] logFilePathandName = { logFilePath, "log.txt" };
             logFilePathName = String.Join("\\", logFilePathandName);
@@ -77,11 +75,11 @@ namespace TextSplitLibrary
             try
             {
                 File.WriteAllText(_book.GetFilePath(i), _book.GetFileContent(i), encoding);
-                return (int)WhatDoSaveResults.Successfully;
+                return (int)WhatNeedSaveFiles.FileSavedSuccessfully;
             }
             catch
             {                
-                return (int)WhatDoSaveResults.CannotWrite;
+                return (int)WhatNeedSaveFiles.CannotSaveFile;
             }
         }
        

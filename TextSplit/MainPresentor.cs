@@ -16,34 +16,24 @@ namespace TextSplit
         private ITextSplitOpenForm _open;
         private readonly IFileManager _manager;
         private readonly IMessageService _messageService;
-        private readonly ILogFileMessages _logs;        
+        private readonly ITextBookAnalysis _analysis;        
         private readonly ILoadTextToDataBase _load;
 
         private bool wasEnglishContentChange = false;
-        readonly private string strCRLF;
-        readonly private int filesQuantity;
-        readonly private int filesQuantityPlus;
-        readonly private int textFieldsQuantity;
-        readonly private int iBreakpointManager;
-        readonly private int resultFileNumber;
+        readonly private string strCRLF;        
+        readonly private int textFieldsQuantity;        
         readonly private int showMessagesLevel;
 
-        private string resultFileName;
-
-        public MainPresentor(ITextSplitForm view, ITextSplitOpenForm open, IFileManager manager, IMessageService service, ILogFileMessages logs, ILoadTextToDataBase load, IAllBookData book)
+        public MainPresentor(ITextSplitForm view, ITextSplitOpenForm open, IFileManager manager, IMessageService service, ITextBookAnalysis analysis, ILoadTextToDataBase load, IAllBookData book)
         {
             _book = book;
             _view = view;            
             _manager = manager;
             _messageService = service;
-            _logs = logs;
+            _analysis = analysis;
             _load = load;
-
-            resultFileNumber = Declaration.ResultFileNumber;
-            filesQuantity = Declaration.FilesQuantity;
-            filesQuantityPlus = Declaration.FilesQuantityPlus;
-            textFieldsQuantity = Declaration.TextFieldsQuantity;
-            iBreakpointManager = Declaration.IBreakpointManager;
+            
+            textFieldsQuantity = Declaration.TextFieldsQuantity;            
             showMessagesLevel = Declaration.ShowMessagesLevel;
             strCRLF = Declaration.StrCRLF;
 
@@ -99,26 +89,18 @@ namespace TextSplit
         private void _open_OpenFileClick(object sender, EventArgs e)
         {
             try
-            {
+            {                
                 int theAffectedElementNumber = isFilesExistCheckAndOpen();//там проверили ToDo, узнали, какую кнопку нажали, получили и вернули сюда номер элемента, с которым произведено действие
                 //еще в том же методе проверили наличие файла по номеру FilePath и открыли его в массив FileContent - и теперь он там есть
-
+                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "theAffectedElementNumber = " + theAffectedElementNumber.ToString(), CurrentClassName, showMessagesLevel);
                 if (_book.GetFileToDo(theAffectedElementNumber) == (int)WhatNeedDoWithFiles.ContinueProcessing)//добавить else WittingIncomplete)//если в элементе сказано, что все хорошо, отправляем данные в форму
                 {
                     _open.SetFileContent(theAffectedElementNumber);//открытый в isFilesExistCheckAndOpen отправили в текстовое поле формы
-                    //подходящий момент поменять название на кнопках - поставить Save вместо Open
-                    //передать номер названия кнопки 0,0 - Open English File, 1, 0 - Save English File, 1, 0 - Open Russian File, 1, 1 - Save Russian File
-                    //butMfOpenSaveLanguageNames[0, 0] = Open English File [(int)MfButtonPlaceTexts.EnglishFile, (int)MfButtonNameTexts.OpenFile]
-                    //butMfOpenSaveLanguageNames[0, 1] = Save English File [(int)MfButtonPlaceTexts.EnglishFile, (int)MfButtonNameTexts.SaveFile]
-                    //butMfOpenSaveLanguageNames[1, 0] = Open Russian File [(int)MfButtonPlaceTexts.RussianFile, (int)MfButtonNameTexts.OpenFile]
-                    //butMfOpenSaveLanguageNames[1, 1] = Save Russian File [(int)MfButtonPlaceTexts.RussianFile, (int)MfButtonNameTexts.SaveFile]
+                    
                     int mfButtonPlace = theAffectedElementNumber; // Place of the button which was pressed (English or Russian)
                     int mfButtonText = 1; //change ButtonName from Open to Save
                     bool mfButtonEnableFlag = false; //кнопка серая - текст только загружен и не изменялся
 
-                    string butMfOpenSaveLanguageName = _open.GetbutMfOpenSaveLanguageNames(mfButtonPlace, mfButtonText);//непонятно зачем это делается, но может потом пригодится
-                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "fetched pressed button place and name ==> " + butMfOpenSaveLanguageName, CurrentClassName, showMessagesLevel);
-                                        
                     int checkOnButtonTextResult = mfButtonPlace + mfButtonText;
                     int changeOnButtonTextResult = _open.ChangeOnButtonText(mfButtonPlace, mfButtonText, mfButtonEnableFlag);//вызывается метод смены названия на кнопке и меняется на нужное
                     //if (changeOnButtonTextResult == checkOnButtonTextResult) - allright
@@ -134,6 +116,7 @@ namespace TextSplit
 
         int isFilesExistCheckAndOpen()
         {
+            //textFieldsQuantity количество текстовых окон в форме OpenForm, возможно изменить на количество файлов - если открывать и файл результатов
             for (int i = 0; i < textFieldsQuantity; i++)//если добавится textBox для Result, то сделать <=
             {                
                 int theAffectedElementNumber = _book.GetFileToDo(i);
@@ -235,7 +218,7 @@ namespace TextSplit
             try
             {
                 int fileSaveResult = _manager.SaveContent(i);
-                if (fileSaveResult == (int)WhatDoSaveResults.Successfully)
+                if (fileSaveResult == (int)WhatNeedSaveFiles.FileSavedSuccessfully)
                 {
                     _messageService.ShowMessage("File saved sucessfully!");
                     //тут сделать кнопку Save серой
@@ -252,7 +235,7 @@ namespace TextSplit
                     int changeOnButtonTextResult = _open.ChangeOnButtonText(mfButtonPlace, mfButtonText, mfButtonEnableFlag);
                     //if (changeOnButtonTextResult == checkOnButtonTextResult) - allright                
 
-                    return (int)WhatDoSaveResults.Successfully;
+                    return (int)WhatNeedSaveFiles.FileSavedSuccessfully;
                 }
                 else
                 {                    

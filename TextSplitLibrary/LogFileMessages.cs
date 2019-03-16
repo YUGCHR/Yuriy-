@@ -18,13 +18,13 @@ namespace TextSplitLibrary
 
         public LogFileMessages()
         {
-            int OpenFormTextBoxImplementationMessagesCount = Enum.GetNames(typeof(OpenFormTextBoxImplementationMessages)).Length;
+            int OpenFormTextBoxImplementationMessagesCount = Enum.GetNames(typeof(TextBoxImplementationMessages)).Length;
             LogFileMessagesTexts = new string[OpenFormTextBoxImplementationMessagesCount];
 
-            LogFileMessagesTexts[(int)OpenFormTextBoxImplementationMessages.EnglishFilePathSelected] = "Following path of English file has been selected - ";
-            LogFileMessagesTexts[(int)OpenFormTextBoxImplementationMessages.RussianFilePathSelected] = "Following path of Russian file has been selected - ";
-            LogFileMessagesTexts[(int)OpenFormTextBoxImplementationMessages.ResultFilePathSelected] = "Following path of result file has been selected - ";
-            LogFileMessagesTexts[(int)OpenFormTextBoxImplementationMessages.ResultFileCreated] = "Following result file has been created sucessfully - ";
+            LogFileMessagesTexts[(int)TextBoxImplementationMessages.EnglishFilePathSelected] = "Following path of English file has been selected - ";
+            LogFileMessagesTexts[(int)TextBoxImplementationMessages.RussianFilePathSelected] = "Following path of Russian file has been selected - ";
+            LogFileMessagesTexts[(int)TextBoxImplementationMessages.ResultFilePathSelected] = "Following path of result file has been selected - ";
+            LogFileMessagesTexts[(int)TextBoxImplementationMessages.ResultFileCreated] = "Following result file has been created sucessfully - ";
         }
 
         public string GetLogFileMessages(int i)

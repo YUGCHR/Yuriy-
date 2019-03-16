@@ -29,8 +29,8 @@
         private void InitializeComponent()
         {
             this.butAllFilesOpen = new System.Windows.Forms.Button();
-            this.butMfLeftTextBox = new System.Windows.Forms.Button();
-            this.butMfRightTextBox = new System.Windows.Forms.Button();
+            this.butLeftTextBoxLeftSide = new System.Windows.Forms.Button();
+            this.butRightTextBoxLeftSide = new System.Windows.Forms.Button();
             this.butSelectResultFile = new System.Windows.Forms.Button();
             this.butCreateResultFile = new System.Windows.Forms.Button();
             this.fld2CreateResultFileName = new System.Windows.Forms.TextBox();
@@ -59,7 +59,8 @@
             this.label2 = new System.Windows.Forms.Label();
             this.numEnglishFont = new System.Windows.Forms.ComboBox();
             this.label7 = new System.Windows.Forms.Label();
-            this.butEnglishToDataBase = new System.Windows.Forms.Button();
+            this.butLeftTextBoxRightSide = new System.Windows.Forms.Button();
+            this.butRightTextBoxRightSide = new System.Windows.Forms.Button();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -74,27 +75,27 @@
             this.butAllFilesOpen.Text = "Open All selected Files";
             this.butAllFilesOpen.UseVisualStyleBackColor = true;
             // 
-            // butMfLeftTextBox
+            // butLeftTextBoxLeftSide
             // 
-            this.butMfLeftTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.butMfLeftTextBox.Location = new System.Drawing.Point(34, 588);
-            this.butMfLeftTextBox.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.butMfLeftTextBox.Name = "butMfLeftTextBox";
-            this.butMfLeftTextBox.Size = new System.Drawing.Size(216, 24);
-            this.butMfLeftTextBox.TabIndex = 5;
-            this.butMfLeftTextBox.Text = "Empty on start";
-            this.butMfLeftTextBox.UseVisualStyleBackColor = true;
+            this.butLeftTextBoxLeftSide.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.butLeftTextBoxLeftSide.Location = new System.Drawing.Point(34, 588);
+            this.butLeftTextBoxLeftSide.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.butLeftTextBoxLeftSide.Name = "butLeftTextBoxLeftSide";
+            this.butLeftTextBoxLeftSide.Size = new System.Drawing.Size(216, 24);
+            this.butLeftTextBoxLeftSide.TabIndex = 5;
+            this.butLeftTextBoxLeftSide.Text = "Empty on start";
+            this.butLeftTextBoxLeftSide.UseVisualStyleBackColor = true;
             // 
-            // butMfRightTextBox
+            // butRightTextBoxLeftSide
             // 
-            this.butMfRightTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.butMfRightTextBox.Location = new System.Drawing.Point(519, 588);
-            this.butMfRightTextBox.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.butMfRightTextBox.Name = "butMfRightTextBox";
-            this.butMfRightTextBox.Size = new System.Drawing.Size(216, 24);
-            this.butMfRightTextBox.TabIndex = 8;
-            this.butMfRightTextBox.Text = "Empty on start";
-            this.butMfRightTextBox.UseVisualStyleBackColor = true;
+            this.butRightTextBoxLeftSide.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.butRightTextBoxLeftSide.Location = new System.Drawing.Point(519, 588);
+            this.butRightTextBoxLeftSide.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.butRightTextBoxLeftSide.Name = "butRightTextBoxLeftSide";
+            this.butRightTextBoxLeftSide.Size = new System.Drawing.Size(216, 24);
+            this.butRightTextBoxLeftSide.TabIndex = 8;
+            this.butRightTextBoxLeftSide.Text = "Empty on start";
+            this.butRightTextBoxLeftSide.UseVisualStyleBackColor = true;
             // 
             // butSelectResultFile
             // 
@@ -219,7 +220,6 @@
             this.fld1RussianContent.ScrollBars = System.Windows.Forms.ScrollBars.Both;
             this.fld1RussianContent.Size = new System.Drawing.Size(479, 431);
             this.fld1RussianContent.TabIndex = 38;
-            this.fld1RussianContent.TextChanged += new System.EventHandler(this.fld1RussianContent_TextChanged);
             // 
             // fld1RussianFilePath
             // 
@@ -408,23 +408,35 @@
             this.label7.TabIndex = 69;
             this.label7.Text = "Select Font Size";
             // 
-            // butEnglishToDataBase
+            // butLeftTextBoxRightSide
             // 
-            this.butEnglishToDataBase.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.butEnglishToDataBase.Location = new System.Drawing.Point(297, 588);
-            this.butEnglishToDataBase.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
-            this.butEnglishToDataBase.Name = "butEnglishToDataBase";
-            this.butEnglishToDataBase.Size = new System.Drawing.Size(216, 24);
-            this.butEnglishToDataBase.TabIndex = 73;
-            this.butEnglishToDataBase.Text = "English text to dB";
-            this.butEnglishToDataBase.UseVisualStyleBackColor = true;
+            this.butLeftTextBoxRightSide.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.butLeftTextBoxRightSide.Location = new System.Drawing.Point(297, 588);
+            this.butLeftTextBoxRightSide.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.butLeftTextBoxRightSide.Name = "butLeftTextBoxRightSide";
+            this.butLeftTextBoxRightSide.Size = new System.Drawing.Size(216, 24);
+            this.butLeftTextBoxRightSide.TabIndex = 73;
+            this.butLeftTextBoxRightSide.Text = "Empty on start";
+            this.butLeftTextBoxRightSide.UseVisualStyleBackColor = true;
+            // 
+            // butRightTextBoxRightSide
+            // 
+            this.butRightTextBoxRightSide.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.butRightTextBoxRightSide.Location = new System.Drawing.Point(782, 588);
+            this.butRightTextBoxRightSide.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.butRightTextBoxRightSide.Name = "butRightTextBoxRightSide";
+            this.butRightTextBoxRightSide.Size = new System.Drawing.Size(216, 24);
+            this.butRightTextBoxRightSide.TabIndex = 74;
+            this.butRightTextBoxRightSide.Text = "English text to dB";
+            this.butRightTextBoxRightSide.UseVisualStyleBackColor = true;
             // 
             // TextSplitOpenForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 14F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1437, 689);
-            this.Controls.Add(this.butEnglishToDataBase);
+            this.Controls.Add(this.butRightTextBoxRightSide);
+            this.Controls.Add(this.butLeftTextBoxRightSide);
             this.Controls.Add(this.numRussianFont);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.numEnglishFont);
@@ -451,9 +463,9 @@
             this.Controls.Add(this.fld2CreateResultFileName);
             this.Controls.Add(this.butCreateResultFile);
             this.Controls.Add(this.butSelectResultFile);
-            this.Controls.Add(this.butMfRightTextBox);
+            this.Controls.Add(this.butRightTextBoxLeftSide);
             this.Controls.Add(this.butAllFilesOpen);
-            this.Controls.Add(this.butMfLeftTextBox);
+            this.Controls.Add(this.butLeftTextBoxLeftSide);
             this.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "TextSplitOpenForm";
@@ -466,8 +478,8 @@
         }
 
         #endregion
-        private System.Windows.Forms.Button butMfLeftTextBox;
-        private System.Windows.Forms.Button butMfRightTextBox;
+        private System.Windows.Forms.Button butLeftTextBoxLeftSide;
+        private System.Windows.Forms.Button butRightTextBoxLeftSide;
         private System.Windows.Forms.Button butSelectResultFile;
         private System.Windows.Forms.Button butAllFilesOpen;
         private System.Windows.Forms.Button butCreateResultFile;
@@ -497,6 +509,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.ComboBox numEnglishFont;
         private System.Windows.Forms.Label label7;
-        private System.Windows.Forms.Button butEnglishToDataBase;
+        private System.Windows.Forms.Button butLeftTextBoxRightSide;
+        private System.Windows.Forms.Button butRightTextBoxRightSide;
     }
 }
