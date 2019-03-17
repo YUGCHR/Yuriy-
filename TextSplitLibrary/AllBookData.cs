@@ -19,8 +19,23 @@ namespace TextSplitLibrary
         string GetFilePath(int i);
         int SetFilePath(string filePath, int i);
 
+        string GetSelectedText(int i);
+        int SetSelectedText(string selectedText, int i);
+
         string GetFileContent(int i);
         int SetFileContent(string fileContent, int i);
+
+        string GetParagraphText(int paragraphCount, int langauageIndex);
+        int GetParagraphTextLength(int langauageIndex);
+        int AddParagraphText(string paragraphText, int langauageIndex);//тоже возвращает количество элементов
+
+        string GetChapterName(int chapterCount, int langauageIndex);
+        int GetChapterNameLength(int langauageIndex);
+        int AddChapterName(string chapterNameWithNumber, int langauageIndex);
+
+        int GetChapterNumber(int chapterCount, int langauageIndex);
+        int GetChapterNumberLength(int langauageIndex);
+        int AddChapterNumber(int chapterNumberOnly, int langauageIndex);
 
         string GetSymbolsCount(int i);
         int SetSymbolsCount(int symbolsCount, int i);
@@ -33,9 +48,15 @@ namespace TextSplitLibrary
         private int[] filesToDo;
         private int[] filesToSave;
         private int[] symbolsCounts;
+        
         private string[] filesPath;
-        private string[] filesContent;
-
+        private string[] selectedTexts;
+        private string[] filesContents;
+        //private string[] paragraphsTexts;
+        //private List<string> paragraphsTexts = new List<string>();
+        private List<List<string>> paragraphsTexts = new List<List<string>>(); //инициализация динамического двумерного массива с абзацами (на двух языках + когда-то результат)
+        private List<List<string>> chaptersNamesWithNumbers = new List<List<string>>(); //массив полных названий глав
+        private List<List<int>> chaptersNamesNumbersOnly = new List<List<int>>(); //только цифры из названий глав (надо ли?)
 
         public AllBookData()
         {
@@ -45,7 +66,15 @@ namespace TextSplitLibrary
             filesToSave = new int[filesQuantity];
             symbolsCounts = new int[filesQuantity];
             filesPath = new string[filesQuantity];
-            filesContent = new string[filesQuantity];
+            selectedTexts = new string[filesQuantity];
+            filesContents = new string[filesQuantity];
+
+            paragraphsTexts.Add(new List<string>());
+            paragraphsTexts.Add(new List<string>()); //добавление второй строки для абзацев второго языка (пока нужно всего 2 строки)
+            chaptersNamesWithNumbers.Add(new List<string>());
+            chaptersNamesWithNumbers.Add(new List<string>());
+            chaptersNamesNumbersOnly.Add(new List<int>());
+            chaptersNamesNumbersOnly.Add(new List<int>());
         }        
 
         public int GetFileToDo(int i)
@@ -81,15 +110,77 @@ namespace TextSplitLibrary
             return 0;
         }
 
+        public string GetSelectedText(int i)
+        {
+            return selectedTexts[i];
+        }
+
+        public int SetSelectedText(string selectedText, int i)
+        {
+            selectedTexts[i] = selectedText;
+            return 0;
+        }
+
         public string GetFileContent(int i)
         {
-            return filesContent[i];
+            return filesContents[i];
         }
 
         public int SetFileContent(string fileContent, int i)
         {
-            filesContent[i] = fileContent;
+            filesContents[i] = fileContent;
             return 0;
+        }
+        //группа массива Абзац текста
+        public string GetParagraphText(int paragraphCount, int langauageIndex)
+        {
+            return paragraphsTexts[langauageIndex][paragraphCount];            
+        }
+
+        public int GetParagraphTextLength(int langauageIndex)
+        {
+            return paragraphsTexts[langauageIndex].Count;
+        }
+
+        public int AddParagraphText(string paragraphText, int langauageIndex)
+        {
+            paragraphsTexts[langauageIndex].Add(paragraphText);//добавление столбца в новую строку            
+            return paragraphsTexts[langauageIndex].Count;
+        }
+        //группа массива Главы имя
+        public string GetChapterName(int chapterCount, int langauageIndex)
+        {
+            if (chaptersNamesWithNumbers[langauageIndex][chapterCount] != null) return paragraphsTexts[langauageIndex][chapterCount];
+            return null;
+        }
+
+        public int GetChapterNameLength(int langauageIndex)
+        {
+            return chaptersNamesWithNumbers[langauageIndex].Count;
+        }
+
+        public int AddChapterName(string chapterNameWithNumber, int langauageIndex)
+        {
+            chaptersNamesWithNumbers[langauageIndex].Add(chapterNameWithNumber);//добавление столбца в новую строку            
+            return chaptersNamesWithNumbers[langauageIndex].Count;
+        }
+
+        //группа массива Главы Номер
+        public int GetChapterNumber(int chapterCount, int langauageIndex)
+        {
+            if (chaptersNamesNumbersOnly[langauageIndex][chapterCount] !=  0) return chaptersNamesNumbersOnly[langauageIndex][chapterCount];
+            return -1;
+        }
+
+        public int GetChapterNumberLength(int langauageIndex)
+        {
+            return chaptersNamesNumbersOnly[langauageIndex].Count;
+        }
+
+        public int AddChapterNumber(int chapterNumberOnly, int langauageIndex)
+        {
+            chaptersNamesNumbersOnly[langauageIndex].Add(chapterNumberOnly);//добавление столбца в новую строку            
+            return chaptersNamesNumbersOnly[langauageIndex].Count;
         }
 
         public string GetSymbolsCount(int i)

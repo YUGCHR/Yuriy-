@@ -20,8 +20,10 @@ namespace TextSplit
         private readonly ILoadTextToDataBase _load;
 
         private bool wasEnglishContentChange = false;
-        readonly private string strCRLF;        
-        readonly private int textFieldsQuantity;        
+        readonly private string strCRLF;
+        readonly private int filesQuantity;
+        readonly private int textFieldsQuantity;
+        readonly private int buttonNamesCountInLanguageGroup;
         readonly private int showMessagesLevel;
 
         public MainPresentor(ITextSplitForm view, ITextSplitOpenForm open, IFileManager manager, IMessageService service, ITextBookAnalysis analysis, ILoadTextToDataBase load, IAllBookData book)
@@ -32,8 +34,10 @@ namespace TextSplit
             _messageService = service;
             _analysis = analysis;
             _load = load;
-            
-            textFieldsQuantity = Declaration.TextFieldsQuantity;            
+
+            filesQuantity = Declaration.FilesQuantity;
+            textFieldsQuantity = Declaration.TextFieldsQuantity;
+            buttonNamesCountInLanguageGroup = Declaration.ButtonNamesCountInLanguageGroup;
             showMessagesLevel = Declaration.ShowMessagesLevel;
             strCRLF = Declaration.StrCRLF;
 
@@ -42,7 +46,30 @@ namespace TextSplit
 
             _view.OpenTextSplitOpenForm += new EventHandler(_view_OpenTextSplitOpenForm);            
             _view.TextSplitFormClosing += new EventHandler<FormClosingEventArgs>(_view_TextSplitFormClosing);
+            _analysis.AnalyseInvokeTheMain += _analysis_AnalyseInvokeTheMain;
+
             // All EventHandlers for _open (TextSplitOpenForm) are located inside _view_OpenTextSplitOpenForm method
+        }
+
+        private void _analysis_AnalyseInvokeTheMain(object sender, EventArgs e)//тут просим пользователя выделить название любой главы
+        {
+            //узнать, по какому поводу вызвали и с каким языком
+            int invokeFrom = -1;
+
+            for (int i = 0; i < textFieldsQuantity; i++)
+            {
+                invokeFrom = _book.GetFileToDo(i);
+                if (invokeFrom == (int)WhatNeedDoWithFiles.SelectChapterName)
+                {
+                    //поменять название на кнопке на Select Chapter Name
+                    int placeButton = i + buttonNamesCountInLanguageGroup; // Place of the button the same as changed field (English or Russian) - смещаем выбор на соседнюю кнопку в том же языке (окне)                    
+                    int changeOnButtonTextResult = _open.ChangeOnButtonText(placeButton, (int)ButtonName.SelectChapterName, true);
+                    //if (changeOnButtonTextResult == ?) - allright
+
+                    //string selectedChapterName = _open.UserSelectChapterName(i);//вызвали выделить пользователем название главы и нужный язык находится в i
+
+                }
+            }   //();
         }
 
         private void _open_LoadEnglishToDataBase(object sender, EventArgs e)
@@ -97,19 +124,14 @@ namespace TextSplit
                 if (_book.GetFileToDo(theAffectedElementNumber) == (int)WhatNeedDoWithFiles.ContinueProcessing)//добавить else WittingIncomplete)//если в элементе сказано, что все хорошо, отправляем данные в форму
                 {
                     _open.SetFileContent(theAffectedElementNumber);//открытый в isFilesExistCheckAndOpen отправили в текстовое поле формы
-                    
-                    int placeButton = theAffectedElementNumber; // Place of the button which was pressed (English or Russian)
-                    int textButton = (int)ButtonName.SaveFile; //change ButtonName from Open to Save
-                    bool flagButtonEnable = false; //кнопка серая - текст только загружен и не изменялся
-                    int checkOnButtonTextResult = placeButton + textButton;
-                    int changeOnButtonTextResult = _open.ChangeOnButtonText(placeButton, textButton, flagButtonEnable);//вызывается метод смены названия на кнопке и меняется на нужное
-                    //if (changeOnButtonTextResult == checkOnButtonTextResult) - allright
+                                        
+                    //change ButtonName from Open to Save - кнопка серая - текст только загружен и не изменялся                    
+                    int changeOnButtonTextResult = _open.ChangeOnButtonText(theAffectedElementNumber, (int)ButtonName.SaveFile, false);//вызывается метод смены названия на кнопке и меняется на нужное
+                    //if (changeOnButtonTextResult == ?) - allright
 
-                    placeButton = placeButton + 2;
-                    textButton = (int)ButtonName.AnalyseText; //change ButtonName AnalyseText
-                    flagButtonEnable = true; //зажечь кнопку AnalyseText
-                    checkOnButtonTextResult = placeButton + textButton;
-                    changeOnButtonTextResult = _open.ChangeOnButtonText(placeButton, textButton, flagButtonEnable);//вызывается метод смены названия на кнопке и меняется на нужное
+                    //change ButtonName AnalyseText и зажечь
+                    int placeButton = theAffectedElementNumber + buttonNamesCountInLanguageGroup; // Place of the button the same as changed field (English or Russian) - смещаем выбор на соседнюю кнопку в том же языке (окне)                    
+                    changeOnButtonTextResult = _open.ChangeOnButtonText(placeButton, (int)ButtonName.AnalyseText, true);//вызывается метод смены названия на кнопке и меняется на нужное
 
                     int SetSymbolsCountResult = SetSymbolsCountOnLabel(theAffectedElementNumber);
                 }
@@ -124,13 +146,11 @@ namespace TextSplit
         {
             //textFieldsQuantity количество текстовых окон в форме OpenForm, возможно изменить на количество файлов - если открывать и файл результатов
             for (int i = 0; i < textFieldsQuantity; i++)//если добавится textBox для Result, то сделать <=
-            {                
+            {
+                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "for (int i = " + i.ToString(), CurrentClassName, showMessagesLevel);
+
                 int theAffectedElementNumber = _book.GetFileToDo(i);
-
-                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(),
-                    "isFilesExistCheckAndOpen ==> i = " + i.ToString() + strCRLF + 
-                    "theAffectedElementNumber = " + Enum.GetNames(typeof(WhatNeedDoWithFiles))[theAffectedElementNumber], CurrentClassName, showMessagesLevel);                
-
+                                
                 if (theAffectedElementNumber == (int)WhatNeedDoWithFiles.ReadFileFirst)
                 {
                     _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(),
@@ -145,7 +165,7 @@ namespace TextSplit
                     }                    
                 }
             }
-            _messageService.ShowExclamation("The source file does not exist, please select it!");            
+            _messageService.ShowExclamation("The source file does not exist, please select it!");
             return -1; //some file does not exist
         }
         
@@ -156,12 +176,9 @@ namespace TextSplit
                 int WhatNeedDoWith = _book.GetFileToDo(i);
                 if (WhatNeedDoWith == (int)WhatNeedDoWithFiles.ContentChanged)
                 {                   
-                    int placeButton = i; // Place of the button the same as changed field (English or Russian)
-                    int textButton = (int)ButtonName.SaveFile; // ButtonName leave Save
-                    bool flagButtonEnable = true; //активировать кнопку - текст изменился и его можно сохранить                    
-                    int checkOnButtonTextResult = placeButton + textButton; // типа, контроль
-                    int changeOnButtonTextResult = _open.ChangeOnButtonText(placeButton, textButton, flagButtonEnable);
-                    //if (changeOnButtonTextResult == checkOnButtonTextResult) - allright
+                    // Place of the button the same as changed field (English or Russian) - ButtonName leave Save and активировать кнопку - текст изменился и его можно сохранить                    
+                    int changeOnButtonTextResult = _open.ChangeOnButtonText(i, (int)ButtonName.SaveFile, true);
+                    //if (changeOnButtonTextResult == ?) - allright
                     //возможно, тут погасить кнопку AnalyseText
                     int SetSymbolsCountResult = SetSymbolsCountOnLabel(i);
                 }                
@@ -211,34 +228,26 @@ namespace TextSplit
             return (int)WhatNeedSaveFiles.CannotSaveFile;
         }
 
-        private int SaveTextInFile(int i)
+        private int SaveTextInFile(int iLanguage)
         {
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "SaveTextInFile fetched i = " + i.ToString(), CurrentClassName, showMessagesLevel);
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "SaveTextInFile fetched i = " + iLanguage.ToString(), CurrentClassName, showMessagesLevel);
 
-            int setToSaveResult = _book.SetFileToSave((int)WhatNeedSaveFiles.FileSavedSuccessfully, i);
+            int setToSaveResult = _book.SetFileToSave((int)WhatNeedSaveFiles.FileSavedSuccessfully, iLanguage);
 
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(),                
-                "filesToSave [i] - " + _book.GetFileToSave(i).ToString() + strCRLF +
-                "filesPath [i] ==> " + _book.GetFilePath(i) + strCRLF +
-                "filesContent [i] ==> " + _book.GetFileContent(i), CurrentClassName, showMessagesLevel);
+                "filesToSave [i] - " + _book.GetFileToSave(iLanguage).ToString() + strCRLF +
+                "filesPath [i] ==> " + _book.GetFilePath(iLanguage) + strCRLF +
+                "filesContent [i] ==> " + _book.GetFileContent(iLanguage), CurrentClassName, showMessagesLevel);
             try
             {
-                int fileSaveResult = _manager.SaveContent(i);
+                int fileSaveResult = _manager.SaveContent(iLanguage);
                 if (fileSaveResult == (int)WhatNeedSaveFiles.FileSavedSuccessfully)
                 {
                     _messageService.ShowMessage("File saved sucessfully!");
-                    //тут сделать кнопку Save серой
-                    int placeButton = i; // Place of the button the same as changed field (English or Russian)
-                    int textButton = (int)ButtonName.SaveFile; // ButtonName leave Save
-                    bool flagButtonEnable = false; //текст сохранен, кнопку погасили
-                    int checkOnButtonTextResult = placeButton + textButton; // типа, контроль
-                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(),
-                    "placeButton = " + placeButton.ToString() + strCRLF +
-                    "textButton = " + textButton.ToString() + strCRLF +
-                    "flagButtonEnable ==> " + flagButtonEnable.ToString() + strCRLF, CurrentClassName, showMessagesLevel);
                     //возможно, тут зажечь кнопку AnalyseText
-                    int changeOnButtonTextResult = _open.ChangeOnButtonText(placeButton, textButton, flagButtonEnable);
-                    //if (changeOnButtonTextResult == checkOnButtonTextResult) - allright                
+                    //делаем кнопку Save серой                    
+                    int changeOnButtonTextResult = _open.ChangeOnButtonText(iLanguage, (int)ButtonName.SaveFile, false);
+                    //if (changeOnButtonTextResult == what?) - allright                
 
                     return (int)WhatNeedSaveFiles.FileSavedSuccessfully;
                 }
@@ -257,9 +266,9 @@ namespace TextSplit
         private void _open_TimeToAnalyseTextBook(object sender, EventArgs e)
         {
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Start", CurrentClassName, showMessagesLevel);
-            int analysisResult = _analysis.AnalyseTextBook();
-            
-        }        
+            // где-то тут погасить кнопку, но какую надпись - непонятно
+            int analysisResult = _analysis.AnalyseTextBook();//еще можно было бы сразу анализировать текст на стандартные слова нумерации глав, а уже потом приставать к пользователю
+        }
 
         public static string CurrentClassName
         {

@@ -13,6 +13,7 @@ namespace TextSplitLibrary
         public const int FilesQuantityPlus = FilesQuantity + 1; //the length of the FilesToDo array (+1 for BreakpointManager)
         public const int ResultFileNumber = FilesQuantity - 1;
         public const int TextFieldsQuantity = 2;//количество текстовых окон в форме OpenForm (используется в Main - в isFilesExistCheckAndOpen)
+        public const int ButtonNamesCountInLanguageGroup = 2;//количество названий для одной кнопки - перенести на прямое измерение массива или enum
         public const int IBreakpointManager = FilesQuantityPlus - 1; //index of BreakpointManager in the FilesToDo array
         public const string StrCRLF = "\r\n";
         public const string ResultFileName = "sampleResultTextDoc";
@@ -27,7 +28,7 @@ namespace TextSplitLibrary
 
     }
 
-    public enum ButtonName : int { OpenFile = 0, SaveFile = 1, AnalyseText = 2, TextToDb = 3, Reserved = 4 };
+    public enum ButtonName : int { OpenFile = 0, SaveFile = 1, AnalyseText = 2, SelectChapterName = 3, Reserved = 4 };
 
     public enum TextBoxImplementationMessages : int { EnglishFilePathSelected = 0, RussianFilePathSelected = 1, ResultFilePathSelected = 2, ResultFileCreated = 3 };
 
@@ -45,7 +46,11 @@ namespace TextSplitLibrary
         CountSentences = 5,
         WittingIncomplete = 7,
         ContinueProcessing = 8,
-        StopProcessing = 9,        
+        StopProcessing = 9,
+        Reserved10 = 10,
+        SelectChapterName = 11,
+        Reserved12 = 12,
+        AnalyseChapterName = 13
     };
 
     public enum WhatNeedSaveFiles : int
@@ -59,7 +64,7 @@ namespace TextSplitLibrary
         Reserved6 = 6,
         WittingIncomplete = 7,
         ContinueProcessing = 8,
-        StopProcessing = 9,
+        StopProcessing = 9
     };
 
     //public enum SavingResults : int

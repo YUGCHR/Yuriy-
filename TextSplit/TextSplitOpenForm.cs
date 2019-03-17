@@ -16,7 +16,9 @@ namespace TextSplit
     {
         int SetFileContent(int theAffectedElementNumber);
         int SetSymbolCount(int i);        
-        int ChangeOnButtonText(int mfButtonPlace, int mfButtonText, bool mfButtonEnableFlag);
+        int ChangeOnButtonText(int placeButton, int textButton, bool flagButtonEnable);
+        int setStatusBottomLabel(int j, string textForStatusBottomLabel);
+        //string UserSelectChapterName(int i);
 
         event EventHandler ContentChanged;
         event EventHandler OpenFileClick;
@@ -42,6 +44,7 @@ namespace TextSplit
         readonly private int buttonLanguages;
         readonly private int buttonTextsQuantity;
         readonly private int textFieldsQuantity;
+        readonly private int buttonNamesCountInLanguageGroup;
         readonly private int showMessagesLevel;
         readonly private string strCRLF;       
 
@@ -72,7 +75,7 @@ namespace TextSplit
             textFieldsQuantity = Declaration.TextFieldsQuantity;//количество текстовых окон - пока глобальное (нужно в Main)
             buttonLanguages = Enum.GetNames(typeof(LeftButtons)).Length; //количество языков на кнопках
             buttonTextsQuantity = 2 + 2;//количество вариантов текста на кнопках под текстовыми окнами
-
+            buttonNamesCountInLanguageGroup = Declaration.ButtonNamesCountInLanguageGroup;
             showMessagesLevel = Declaration.ShowMessagesLevel;
             strCRLF = Declaration.StrCRLF;
 
@@ -85,8 +88,8 @@ namespace TextSplit
             butMF = new Button[] { butLeftTextBoxLeftSide, butRightTextBoxLeftSide, butLeftTextBoxRightSide, butRightTextBoxRightSide };
 
             buttonDuty = new string[,]
-            { { "Open English File", "Save English File", "Analyse English Text", "English Text to dB" },
-                { "Open Russian File", "Save Russian File", "Analyse Russian Text", "Russian Text to dB" }, };
+            { { "Open English File", "Save English File", "Analyse English Text", "Select Chapter Name" },
+                { "Open Russian File", "Save Russian File", "Analyse Russian Text", "Select Chapter Name" }, };
 
             butMF[(int)ButtonPlace.EnglishFile].Click += butMF_Click;
             butMF[(int)ButtonPlace.RussianFile].Click += butMF_Click;
@@ -200,10 +203,10 @@ namespace TextSplit
             string currentButtonName = "";
             
             var listButtonMethods = new List<Action<int>>();            
-            listButtonMethods.Add(PathForOpenFile);     // listOpenFormButtonMethods[0]            
-            listButtonMethods.Add(SaveFileFromTextBox); // listOpenFormButtonMethods[1]            
-            listButtonMethods.Add(AnalyseTextBook);     // listOpenFormButtonMethods[2]            
-            listButtonMethods.Add(Method4);             // listOpenFormButtonMethods[3]
+            listButtonMethods.Add(PathForOpenFile);       // listOpenFormButtonMethods[0]            
+            listButtonMethods.Add(SaveFileFromTextBox);   // listOpenFormButtonMethods[1]            
+            listButtonMethods.Add(AnalyseTextBook);       // listOpenFormButtonMethods[2]            
+            listButtonMethods.Add(UserSelectChapterName); // listOpenFormButtonMethods[3]
 
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " buttonLanguages = " + buttonLanguages.ToString(), CurrentClassName, showMessagesLevel);
             for (int i = 0; i < buttonLanguages; i++)//0 - Left-Left, 1 - Right-Left, 2 - Left-Right, 3 - Right-Right
@@ -248,10 +251,9 @@ namespace TextSplit
             {
                 currentFilePath = dlg.FileName;
                 _book.SetFilePath(currentFilePath, j);
-                txtBoxFilesPath[j].Text = currentFilePath; //записали путь и имя файла в поле над текстом файла
                 _book.SetFileToDo((int)WhatNeedDoWithFiles.ReadFileFirst, j); // записали в нужный элемент ToDo значение, что надо открывать файл
             }
-            statusBottomLabel.Text = Enum.GetNames(typeof(ProgressStatusMessages))[j] + " - " + currentFilePath;//Set the short type of current action in the status bar            
+            int setResult = setStatusBottomLabel(j, currentFilePath);
             if (OpenFileClick != null) OpenFileClick(this, EventArgs.Empty);//вызываем Main (сказать поменять надписи на кнопках - показать погасший Save)
         }
 
@@ -266,22 +268,47 @@ namespace TextSplit
             {
                 int test = _book.SetFileToSave((int)WhatNeedSaveFiles.SaveFileFirst, j);//спрашиваем о перезаписи (в Main)
             }
-            statusBottomLabel.Text = Enum.GetNames(typeof(ProgressStatusMessages))[j] + " - " + _book.GetFilePath(j);//Set the short type of current action in the status bar
+            int setResult = setStatusBottomLabel(j, _book.GetFilePath(j));//Set the short type of current action in the status bar
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " FilesToSave[j] = " + _book.GetFileToSave(j).ToString(), CurrentClassName, showMessagesLevel);
             if (SaveFileClick != null) SaveFileClick(this, EventArgs.Empty);
         }
-        
+
+        public int setStatusBottomLabel(int j, string textForStatusBottomLabel)
+        {
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " setStatusBottomLabel with j = " + j.ToString() + strCRLF +
+                " set to Status the following text = " + textForStatusBottomLabel, CurrentClassName, showMessagesLevel);
+            txtBoxFilesPath[j].Text = textForStatusBottomLabel; //записали путь и имя файла в поле над текстом файла
+            statusBottomLabel.Text = Enum.GetNames(typeof(ProgressStatusMessages))[j] + " - " + textForStatusBottomLabel;//Set the short type of current action in the status bar            
+            
+            return j;
+        }
+
         private void AnalyseTextBook(int j) // listOpenFormButtonMethods[2] - нажата одна из кнопок и на ней было написано Analyse, j хранит язык кнопки (0 - English)
         {
             int test = _book.SetFileToDo((int)WhatNeedDoWithFiles.AnalyseText, j);//сохраняем номер языка в ToDo
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Method3 AnalyseTextBook fetched j = " + j.ToString(), CurrentClassName, 3);
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Method3 AnalyseTextBook fetched j = " + j.ToString(), CurrentClassName, showMessagesLevel);
             if (TimeToAnalyseTextBook != null) TimeToAnalyseTextBook(this, EventArgs.Empty);
         }
 
-        private void Method4(int j) // listOpenFormButtonMethods[3] - нажата одна из кнопок и на ней было написано Load, i хранит язык кнопки (0 - English)
+        private void UserSelectChapterName(int j) // listOpenFormButtonMethods[3] - нажата одна из кнопок и на ней было написано Load, i хранит язык кнопки (0 - English)
         {
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Method4 PortionTextForDataBase fetched j = " + j.ToString(), CurrentClassName, 3);
-        }
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Method4 UserSelectChapterName fetched j = " + j.ToString(), CurrentClassName, showMessagesLevel);
+            //получить выделенный пользователем текст - предположительно имя главы
+            TextBox currentTexBox = txtBoxFilesContent[j];
+            string userSelectedText = currentTexBox.SelectedText;
+            if (userSelectedText.Length > 0)
+            {
+                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "In the TextBox " + currentTexBox.Name + strCRLF +
+                "User Selected the following Text ==> " + userSelectedText, CurrentClassName, showMessagesLevel);
+            
+                int test = _book.SetSelectedText(userSelectedText, j);//сохраняем выбранный пользователем фрагмент
+                test = _book.SetFileToDo((int)WhatNeedDoWithFiles.AnalyseChapterName, j);//сохраняем номер языка в ToDo
+                int placeButton = j + buttonNamesCountInLanguageGroup; // Place of the button the same as changed field (English or Russian) - смещаем выбор на соседнюю кнопку в том же языке (окне)
+                ChangeOnButtonText(placeButton, (int)ButtonName.AnalyseText, false);
+                if (TimeToAnalyseTextBook != null) TimeToAnalyseTextBook(this, EventArgs.Empty);
+            }
+            else _messageService.ShowExclamation("Please, select any Chapter name with number in the text!");
+        }            
 
         private void fldContent_TextChanged(object sender, EventArgs e)
         {
@@ -334,6 +361,12 @@ namespace TextSplit
             return -1;
         }
 
+        //public string UserSelectChapterName(int i)//пока не нужна
+        //{
+        //    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "UserSelectChapterName fetched i = " + i.ToString(), CurrentClassName, showMessagesLevel);
+        //    return "";
+        //}
+
         private void numEnglishFont_FirstSet(int theAffectedElementNumber)
         {
             var font = txtBoxFilesContent[theAffectedElementNumber].Font;            
@@ -345,7 +378,7 @@ namespace TextSplit
             {
                 fld0EnglishContent.Font = new Font("Tahoma", numEnglishFont.SelectedIndex);
             }
-        }        
+        } 
 
         public static string CurrentClassName
         {
