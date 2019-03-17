@@ -23,9 +23,9 @@ namespace TextSplit
             FileManager manager = new FileManager(book);
             LogFileMessages logs = new LogFileMessages();
             MessageService service = new MessageService(manager);            
-            TextSplitOpenForm open = new TextSplitOpenForm(service, book);
+            TextSplitOpenForm open = new TextSplitOpenForm(book, service);
             TextSplitForm view = new TextSplitForm(service, logs);
-            TextBookAnalysis analysis = new TextBookAnalysis();
+            TextBookAnalysis analysis = new TextBookAnalysis(book, service);
             DataBaseAccessor data = new DataBaseAccessor(service);
             LoadTextToDataBase load = new LoadTextToDataBase(book, data, service);
             //MessageBox.Show("All Modules Declared", "Program", MessageBoxButtons.OK, MessageBoxIcon.Information);

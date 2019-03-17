@@ -74,12 +74,13 @@ namespace TextSplit
 
         void _view_OpenTextSplitOpenForm(object sender, EventArgs e)//обрабатываем нажатие кнопки Open, которое означает открытие вспомогательной формы
         {            
-            TextSplitOpenForm openForm = new TextSplitOpenForm(_messageService, _book);
+            TextSplitOpenForm openForm = new TextSplitOpenForm(_book, _messageService);
 
             _open = openForm;
             _open.OpenFileClick += new EventHandler(_open_OpenFileClick);
             _open.ContentChanged += new EventHandler(_open_ContentChanged);
             _open.SaveFileClick += new EventHandler(_open_SaveFileClick);
+            _open.TimeToAnalyseTextBook += new EventHandler(_open_TimeToAnalyseTextBook);
             _open.LoadEnglishToDataBase += _open_LoadEnglishToDataBase;
 
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "openForm will start now", CurrentClassName, showMessagesLevel);
@@ -97,13 +98,18 @@ namespace TextSplit
                 {
                     _open.SetFileContent(theAffectedElementNumber);//открытый в isFilesExistCheckAndOpen отправили в текстовое поле формы
                     
-                    int mfButtonPlace = theAffectedElementNumber; // Place of the button which was pressed (English or Russian)
-                    int mfButtonText = 1; //change ButtonName from Open to Save
-                    bool mfButtonEnableFlag = false; //кнопка серая - текст только загружен и не изменялся
-
-                    int checkOnButtonTextResult = mfButtonPlace + mfButtonText;
-                    int changeOnButtonTextResult = _open.ChangeOnButtonText(mfButtonPlace, mfButtonText, mfButtonEnableFlag);//вызывается метод смены названия на кнопке и меняется на нужное
+                    int placeButton = theAffectedElementNumber; // Place of the button which was pressed (English or Russian)
+                    int textButton = (int)ButtonName.SaveFile; //change ButtonName from Open to Save
+                    bool flagButtonEnable = false; //кнопка серая - текст только загружен и не изменялся
+                    int checkOnButtonTextResult = placeButton + textButton;
+                    int changeOnButtonTextResult = _open.ChangeOnButtonText(placeButton, textButton, flagButtonEnable);//вызывается метод смены названия на кнопке и меняется на нужное
                     //if (changeOnButtonTextResult == checkOnButtonTextResult) - allright
+
+                    placeButton = placeButton + 2;
+                    textButton = (int)ButtonName.AnalyseText; //change ButtonName AnalyseText
+                    flagButtonEnable = true; //зажечь кнопку AnalyseText
+                    checkOnButtonTextResult = placeButton + textButton;
+                    changeOnButtonTextResult = _open.ChangeOnButtonText(placeButton, textButton, flagButtonEnable);//вызывается метод смены названия на кнопке и меняется на нужное
 
                     int SetSymbolsCountResult = SetSymbolsCountOnLabel(theAffectedElementNumber);
                 }
@@ -150,13 +156,13 @@ namespace TextSplit
                 int WhatNeedDoWith = _book.GetFileToDo(i);
                 if (WhatNeedDoWith == (int)WhatNeedDoWithFiles.ContentChanged)
                 {                   
-                    int mfButtonPlace = i; // Place of the button the same as changed field (English or Russian)
-                    int mfButtonText = 1; // ButtonName leave Save
-                    bool mfButtonEnableFlag = true; //активировать кнопку - текст изменился и его можно сохранить                    
-                    int checkOnButtonTextResult = mfButtonPlace + mfButtonText; // типа, контроль
-                    int changeOnButtonTextResult = _open.ChangeOnButtonText(mfButtonPlace, mfButtonText, mfButtonEnableFlag);
+                    int placeButton = i; // Place of the button the same as changed field (English or Russian)
+                    int textButton = (int)ButtonName.SaveFile; // ButtonName leave Save
+                    bool flagButtonEnable = true; //активировать кнопку - текст изменился и его можно сохранить                    
+                    int checkOnButtonTextResult = placeButton + textButton; // типа, контроль
+                    int changeOnButtonTextResult = _open.ChangeOnButtonText(placeButton, textButton, flagButtonEnable);
                     //if (changeOnButtonTextResult == checkOnButtonTextResult) - allright
-
+                    //возможно, тут погасить кнопку AnalyseText
                     int SetSymbolsCountResult = SetSymbolsCountOnLabel(i);
                 }                
             }
@@ -213,8 +219,8 @@ namespace TextSplit
 
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(),                
                 "filesToSave [i] - " + _book.GetFileToSave(i).ToString() + strCRLF +
-                "filesPath [i] ==> " + _book.GetFilePath(i).ToString() + strCRLF +
-                "filesContent [i] ==> " + _book.GetFileContent(i).ToString(), CurrentClassName, showMessagesLevel);
+                "filesPath [i] ==> " + _book.GetFilePath(i) + strCRLF +
+                "filesContent [i] ==> " + _book.GetFileContent(i), CurrentClassName, showMessagesLevel);
             try
             {
                 int fileSaveResult = _manager.SaveContent(i);
@@ -222,17 +228,16 @@ namespace TextSplit
                 {
                     _messageService.ShowMessage("File saved sucessfully!");
                     //тут сделать кнопку Save серой
-                    int mfButtonPlace = i; // Place of the button the same as changed field (English or Russian)
-                    int mfButtonText = 1; // ButtonName leave Save
-                    bool mfButtonEnableFlag = false; //текст сохранен, кнопку погасили
-                    int checkOnButtonTextResult = mfButtonPlace + mfButtonText; // типа, контроль
-
+                    int placeButton = i; // Place of the button the same as changed field (English or Russian)
+                    int textButton = (int)ButtonName.SaveFile; // ButtonName leave Save
+                    bool flagButtonEnable = false; //текст сохранен, кнопку погасили
+                    int checkOnButtonTextResult = placeButton + textButton; // типа, контроль
                     _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(),
-                    "mfButtonPlace = " + mfButtonPlace.ToString() + strCRLF +
-                    "mfButtonText = " + mfButtonText.ToString() + strCRLF +
-                    "mfButtonEnableFlag ==> " + mfButtonEnableFlag.ToString() + strCRLF, CurrentClassName, showMessagesLevel);
-
-                    int changeOnButtonTextResult = _open.ChangeOnButtonText(mfButtonPlace, mfButtonText, mfButtonEnableFlag);
+                    "placeButton = " + placeButton.ToString() + strCRLF +
+                    "textButton = " + textButton.ToString() + strCRLF +
+                    "flagButtonEnable ==> " + flagButtonEnable.ToString() + strCRLF, CurrentClassName, showMessagesLevel);
+                    //возможно, тут зажечь кнопку AnalyseText
+                    int changeOnButtonTextResult = _open.ChangeOnButtonText(placeButton, textButton, flagButtonEnable);
                     //if (changeOnButtonTextResult == checkOnButtonTextResult) - allright                
 
                     return (int)WhatNeedSaveFiles.FileSavedSuccessfully;
@@ -248,6 +253,13 @@ namespace TextSplit
                 return (int)WhatNeedSaveFiles.CannotSaveFile;
             }
         }
+
+        private void _open_TimeToAnalyseTextBook(object sender, EventArgs e)
+        {
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Start", CurrentClassName, showMessagesLevel);
+            int analysisResult = _analysis.AnalyseTextBook();
+            
+        }        
 
         public static string CurrentClassName
         {

@@ -427,7 +427,7 @@
             this.butRightTextBoxRightSide.Name = "butRightTextBoxRightSide";
             this.butRightTextBoxRightSide.Size = new System.Drawing.Size(216, 24);
             this.butRightTextBoxRightSide.TabIndex = 74;
-            this.butRightTextBoxRightSide.Text = "English text to dB";
+            this.butRightTextBoxRightSide.Text = "Empty on start";
             this.butRightTextBoxRightSide.UseVisualStyleBackColor = true;
             // 
             // TextSplitOpenForm

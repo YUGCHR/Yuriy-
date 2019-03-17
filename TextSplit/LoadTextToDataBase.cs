@@ -21,13 +21,12 @@ namespace TextSplit
         private readonly IMessageService _messageService;
         private readonly IDataBaseAccessor _data;
 
-        readonly private string strCRLF;
-
         private string[] dataBaseTableNames;
         private int[] dataBaseTableToDo;
-        private int dataBaseTableQuantuty;        
-        private int showMessagesLevel;
-        private int filesQuantity;
+        readonly private int dataBaseTableQuantuty;
+        readonly private int showMessagesLevel;
+        readonly private int filesQuantity;
+        readonly private string strCRLF;
 
         public LoadTextToDataBase(IAllBookData book, IDataBaseAccessor data, IMessageService service)
         {

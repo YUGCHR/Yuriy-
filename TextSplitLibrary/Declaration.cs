@@ -27,6 +27,8 @@ namespace TextSplitLibrary
 
     }
 
+    public enum ButtonName : int { OpenFile = 0, SaveFile = 1, AnalyseText = 2, TextToDb = 3, Reserved = 4 };
+
     public enum TextBoxImplementationMessages : int { EnglishFilePathSelected = 0, RussianFilePathSelected = 1, ResultFilePathSelected = 2, ResultFileCreated = 3 };
 
     public enum TablesNamesNumbers : int { Languages = 0, Chapters = 1, Paragraphs = 2, Sentences = 3 }; 
@@ -38,7 +40,7 @@ namespace TextSplitLibrary
         PassThrough = 0,
         ReadFileFirst = 1,
         ContentChanged = 2,
-        Reserved = 3,
+        AnalyseText = 3,
         CountSymbols = 4,
         CountSentences = 5,
         WittingIncomplete = 7,
