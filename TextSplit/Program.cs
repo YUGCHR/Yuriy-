@@ -28,8 +28,9 @@ namespace TextSplit
             TextBookAnalysis analysis = new TextBookAnalysis(book, service);
             DataBaseAccessor data = new DataBaseAccessor(service);
             LoadTextToDataBase load = new LoadTextToDataBase(book, data, service);
+            MainLogicCultivation logic = new MainLogicCultivation(book, service, manager);
             //MessageBox.Show("All Modules Declared", "Program", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            MainPresentor presentor = new MainPresentor(view, open, manager, service, analysis, load, book);            
+            MainPresentor presentor = new MainPresentor(view, open, service, analysis, load, book, logic);            
             //MessageBox.Show("Main Called", "Program", MessageBoxButtons.OK, MessageBoxIcon.Information);
             Application.Run(view);            
         }

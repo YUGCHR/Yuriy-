@@ -13,11 +13,11 @@ namespace TextSplit
     {
         private readonly IAllBookData _book;
         private readonly ITextSplitForm _view;
-        private ITextSplitOpenForm _open;
-        private readonly IFileManager _manager;
+        private ITextSplitOpenForm _open;        
         private readonly IMessageService _messageService;
         private readonly ITextBookAnalysis _analysis;        
         private readonly ILoadTextToDataBase _load;
+        private readonly IMainLogicCultivation _logic;
 
         private bool wasEnglishContentChange = false;
         readonly private string strCRLF;
@@ -26,14 +26,14 @@ namespace TextSplit
         readonly private int buttonNamesCountInLanguageGroup;
         readonly private int showMessagesLevel;
 
-        public MainPresentor(ITextSplitForm view, ITextSplitOpenForm open, IFileManager manager, IMessageService service, ITextBookAnalysis analysis, ILoadTextToDataBase load, IAllBookData book)
+        public MainPresentor(ITextSplitForm view, ITextSplitOpenForm open, IMessageService service, ITextBookAnalysis analysis, ILoadTextToDataBase load, IAllBookData book, IMainLogicCultivation logic)
         {
             _book = book;
             _view = view;            
-            _manager = manager;
             _messageService = service;
             _analysis = analysis;
             _load = load;
+            _logic = logic;
 
             filesQuantity = Declaration.FilesQuantity;
             textFieldsQuantity = Declaration.TextFieldsQuantity;
@@ -47,29 +47,19 @@ namespace TextSplit
             _view.OpenTextSplitOpenForm += new EventHandler(_view_OpenTextSplitOpenForm);            
             _view.TextSplitFormClosing += new EventHandler<FormClosingEventArgs>(_view_TextSplitFormClosing);
             _analysis.AnalyseInvokeTheMain += _analysis_AnalyseInvokeTheMain;
-
             // All EventHandlers for _open (TextSplitOpenForm) are located inside _view_OpenTextSplitOpenForm method
         }
 
         private void _analysis_AnalyseInvokeTheMain(object sender, EventArgs e)//тут просим пользователя выделить название любой главы
-        {
-            //узнать, по какому поводу вызвали и с каким языком
-            int invokeFrom = -1;
-
-            for (int i = 0; i < textFieldsQuantity; i++)
+        {   //вызвали только для того, чтобы поменять имя на кноке (самому TextBookAnalysis делать это не положено)
+            //узнать, с каким языком вызвали - теперь для этого есть int indexToDo = _book.WhatFileNeedToDo(int whatNeedToDo);
+            int invokeFrom = _book.WhatFileNeedToDo((int)WhatNeedDoWithFiles.SelectChapterName);//надо придумать, как сюда сообщить, зачем его вызвали - чтобы был универсальным
+            if (invokeFrom != (int)MethodFindResult.NothingFound) //нашли - тогда поменять название на кнопке Analyse/Select на Select Chapter Name
             {
-                invokeFrom = _book.GetFileToDo(i);
-                if (invokeFrom == (int)WhatNeedDoWithFiles.SelectChapterName)
-                {
-                    //поменять название на кнопке на Select Chapter Name
-                    int placeButton = i + buttonNamesCountInLanguageGroup; // Place of the button the same as changed field (English or Russian) - смещаем выбор на соседнюю кнопку в том же языке (окне)                    
-                    int changeOnButtonTextResult = _open.ChangeOnButtonText(placeButton, (int)ButtonName.SelectChapterName, true);
-                    //if (changeOnButtonTextResult == ?) - allright
-
-                    //string selectedChapterName = _open.UserSelectChapterName(i);//вызвали выделить пользователем название главы и нужный язык находится в i
-
-                }
-            }   //();
+                int placeButton = invokeFrom + buttonNamesCountInLanguageGroup; // Place of the button the same as changed field (English or Russian) - для группы Analyse/Select смещаем выбор на соседнюю кнопку в том же языке (окне)                    
+                int changeOnButtonTextResult = _open.ChangeOnButtonText(placeButton, (int)ButtonName.SelectChapterName, true);
+                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "changeOnButtonTextResult ==> " + changeOnButtonTextResult.ToString(), CurrentClassName, showMessagesLevel);                
+            }            
         }
 
         private void _open_LoadEnglishToDataBase(object sender, EventArgs e)
@@ -115,155 +105,77 @@ namespace TextSplit
         }        
         
         private void _open_OpenFileClick(object sender, EventArgs e)
-        {
+        {//вынести весь блок try/catch со внешнюю логику
             try
             {                
-                int theAffectedElementNumber = isFilesExistCheckAndOpen();//там проверили ToDo, узнали, какую кнопку нажали, получили и вернули сюда номер элемента, с которым произведено действие
+                int theAffectedElementNumber = _logic.isFilesExistCheckAndOpen();//там проверили ToDo, узнали, какую кнопку нажали, получили и вернули сюда номер элемента, с которым произведено действие
                 //еще в том же методе проверили наличие файла по номеру FilePath и открыли его в массив FileContent - и теперь он там есть
                 _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "theAffectedElementNumber = " + theAffectedElementNumber.ToString(), CurrentClassName, showMessagesLevel);
                 if (_book.GetFileToDo(theAffectedElementNumber) == (int)WhatNeedDoWithFiles.ContinueProcessing)//добавить else WittingIncomplete)//если в элементе сказано, что все хорошо, отправляем данные в форму
                 {
-                    _open.SetFileContent(theAffectedElementNumber);//открытый в isFilesExistCheckAndOpen отправили в текстовое поле формы
-                                        
+                    _open.SetFileContent(theAffectedElementNumber);//открытый в isFilesExistCheckAndOpen отправили в текстовое поле формы                                        
                     //change ButtonName from Open to Save - кнопка серая - текст только загружен и не изменялся                    
                     int changeOnButtonTextResult = _open.ChangeOnButtonText(theAffectedElementNumber, (int)ButtonName.SaveFile, false);//вызывается метод смены названия на кнопке и меняется на нужное
-                    //if (changeOnButtonTextResult == ?) - allright
-
                     //change ButtonName AnalyseText и зажечь
                     int placeButton = theAffectedElementNumber + buttonNamesCountInLanguageGroup; // Place of the button the same as changed field (English or Russian) - смещаем выбор на соседнюю кнопку в том же языке (окне)                    
                     changeOnButtonTextResult = _open.ChangeOnButtonText(placeButton, (int)ButtonName.AnalyseText, true);//вызывается метод смены названия на кнопке и меняется на нужное
 
-                    int SetSymbolsCountResult = SetSymbolsCountOnLabel(theAffectedElementNumber);
+                    int SetSymbolsCountResult = _logic.SetSymbolsCountOnLabel(theAffectedElementNumber);//посчитали количество символов
+                    _open.SetSymbolCount(theAffectedElementNumber);//записали количество символов в поле формы
                 }
             }
             catch (Exception ex)
             {
                 _messageService.ShowError(ex.Message);
             }
-        }
-
-        int isFilesExistCheckAndOpen()
-        {
-            //textFieldsQuantity количество текстовых окон в форме OpenForm, возможно изменить на количество файлов - если открывать и файл результатов
-            for (int i = 0; i < textFieldsQuantity; i++)//если добавится textBox для Result, то сделать <=
-            {
-                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "for (int i = " + i.ToString(), CurrentClassName, showMessagesLevel);
-
-                int theAffectedElementNumber = _book.GetFileToDo(i);
-                                
-                if (theAffectedElementNumber == (int)WhatNeedDoWithFiles.ReadFileFirst)
-                {
-                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(),
-                    "ReadFileFirst ==> i = " + i.ToString() + strCRLF +
-                    "_book.GetFilePath(i) = " + _book.GetFilePath(i), CurrentClassName, showMessagesLevel);
-
-                    if (_manager.IsFileExist(_book.GetFilePath(i)))
-                    {                           
-                        int setFilesContentResult = _book.SetFileContent(_manager.GetContent(i), i);
-                        int setToDoResult = _book.SetFileToDo((int)WhatNeedDoWithFiles.ContinueProcessing, i);
-                        return i;
-                    }                    
-                }
-            }
-            _messageService.ShowExclamation("The source file does not exist, please select it!");
-            return -1; //some file does not exist
-        }
+        }        
         
         void _open_ContentChanged(object sender, EventArgs e)
         {
-            for (int i = 0; i < textFieldsQuantity; i++)
+            int theAffectedElementNumber = _book.WhatFileNeedToDo((int)WhatNeedDoWithFiles.ContentChanged);//спросили, на каком языке есть это значение
+            if (theAffectedElementNumber != (int)MethodFindResult.NothingFound) //нашли - значение ContentChanged
             {
-                int WhatNeedDoWith = _book.GetFileToDo(i);
-                if (WhatNeedDoWith == (int)WhatNeedDoWithFiles.ContentChanged)
-                {                   
-                    // Place of the button the same as changed field (English or Russian) - ButtonName leave Save and активировать кнопку - текст изменился и его можно сохранить                    
-                    int changeOnButtonTextResult = _open.ChangeOnButtonText(i, (int)ButtonName.SaveFile, true);
-                    //if (changeOnButtonTextResult == ?) - allright
-                    //возможно, тут погасить кнопку AnalyseText
-                    int SetSymbolsCountResult = SetSymbolsCountOnLabel(i);
-                }                
-            }
-        }
+                // Place of the button the same as changed field (English or Russian) - ButtonName leave Save and активировать кнопку - текст изменился и его можно сохранить                    
+                int changeOnButtonTextResult = _open.ChangeOnButtonText(theAffectedElementNumber, (int)ButtonName.SaveFile, true);
+                //надо как-то проверять результаты переименования кнопки (отдельный метод прочитать текущие названия на всех кнопках?)
+                //и погасить кнопку AnalyseText - пока текст не записан в файл (хотя, это не обязательно
+                int placeButton = theAffectedElementNumber + buttonNamesCountInLanguageGroup; // Place of the button the same as changed field (English or Russian) - смещаем выбор на соседнюю кнопку в том же языке (окне)                    
+                changeOnButtonTextResult = _open.ChangeOnButtonText(placeButton, (int)ButtonName.AnalyseText, false);//вызывается метод смены названия на кнопке и меняется на нужное
 
-        private int SetSymbolsCountOnLabel(int i)
-        {
-            int setToDoResult = _book.SetFileToDo((int)WhatNeedDoWithFiles.CountSymbols, i);
-            int valueSymbolsCount = _manager.GetSymbolsCount(i);
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "valueSymbolsCount = " + valueSymbolsCount.ToString(), CurrentClassName, showMessagesLevel);
-            int setSymbolsCountResult = _book.SetSymbolsCount(valueSymbolsCount, i);
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "setSymbolsCountResult = " + setSymbolsCountResult.ToString(), CurrentClassName, showMessagesLevel);            
-            return _open.SetSymbolCount(i);
-        }
+                int SetSymbolsCountResult = _logic.SetSymbolsCountOnLabel(theAffectedElementNumber);
+                _open.SetSymbolCount(theAffectedElementNumber);
+            }
+        }        
 
         private void _open_SaveFileClick(object sender, EventArgs e)
-        {
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Start", CurrentClassName, showMessagesLevel);
-            int prepareFileSaveResult = PrepareSaveTextInFile();
-            //if (fileSaveResult == (int)WhatNeedSaveFiles.CannotSaveFile) - все пропало
-        }
-
-        private int PrepareSaveTextInFile()
-        {
-            //filesToSave = _open.GetFilesToSave();
-            for (int i = 0; i < textFieldsQuantity; i++)
+        {            
+            int theAffectedElementNumber = _book.WhatFileNeedToSave((int)WhatNeedSaveFiles.SaveFileFirst);//проверяем насчет сохранения в первый раз
+            if (theAffectedElementNumber != (int)MethodFindResult.NothingFound) //нашли - значение SaveFileFirst - сохраняем в первый раз, надо спросить
             {
-                int theAffectedElementNumber = _book.GetFileToSave(i);
-                if (theAffectedElementNumber == (int)WhatNeedSaveFiles.SaveFileFirst)
-                {
-                    //сообщить, что файл будет перезаписан и если не копия, то пусть идет и делает сам копию, то шо нефиг (после первого сохранения больше не спрашивать)
-                    _messageService.ShowMessage("File will be rewritten!");
-                    //тут сделать выбор - сохранять или выйти из программы, чтобы сделать рабочую копию (или сделать копию автоматически отсюда)
-                    //типа return                        
-                    int fileSaveResult = SaveTextInFile(i);
-                    if (fileSaveResult == (int)WhatNeedSaveFiles.FileSavedSuccessfully) return (int)WhatNeedSaveFiles.FileSavedSuccessfully;
-                    return (int)WhatNeedSaveFiles.CannotSaveFile;
-                }
-                if (theAffectedElementNumber == (int)WhatNeedSaveFiles.SaveFile)
-                {
-                    int fileSaveResult = SaveTextInFile(i);
-                    if (fileSaveResult == (int)WhatNeedSaveFiles.FileSavedSuccessfully) return (int)WhatNeedSaveFiles.FileSavedSuccessfully;
-                    return (int)WhatNeedSaveFiles.CannotSaveFile;                    
-                }
+                int prepareFileSaveResult = _logic.IfSaveTextInFileFirtTime(theAffectedElementNumber);//предупреждение о перезаписи и возможные действия                
+                _book.SetFileToSave(prepareFileSaveResult, theAffectedElementNumber);//записали признак обычного сохранения в индикатор (или признак выхода из программы)
             }
-            return (int)WhatNeedSaveFiles.CannotSaveFile;
-        }
-
-        private int SaveTextInFile(int iLanguage)
-        {
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "SaveTextInFile fetched i = " + iLanguage.ToString(), CurrentClassName, showMessagesLevel);
-
-            int setToSaveResult = _book.SetFileToSave((int)WhatNeedSaveFiles.FileSavedSuccessfully, iLanguage);
-
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(),                
-                "filesToSave [i] - " + _book.GetFileToSave(iLanguage).ToString() + strCRLF +
-                "filesPath [i] ==> " + _book.GetFilePath(iLanguage) + strCRLF +
-                "filesContent [i] ==> " + _book.GetFileContent(iLanguage), CurrentClassName, showMessagesLevel);
-            try
+            theAffectedElementNumber = _book.WhatFileNeedToSave((int)WhatNeedSaveFiles.SaveFile);//теперь проверяем обычное сохранение
+            if (theAffectedElementNumber != (int)MethodFindResult.NothingFound) //нашли - значение SaveFile
             {
-                int fileSaveResult = _manager.SaveContent(iLanguage);
+                int fileSaveResult = _logic.SaveTextInFile(theAffectedElementNumber);//сохраняем файл
                 if (fileSaveResult == (int)WhatNeedSaveFiles.FileSavedSuccessfully)
-                {
-                    _messageService.ShowMessage("File saved sucessfully!");
-                    //возможно, тут зажечь кнопку AnalyseText
-                    //делаем кнопку Save серой                    
-                    int changeOnButtonTextResult = _open.ChangeOnButtonText(iLanguage, (int)ButtonName.SaveFile, false);
-                    //if (changeOnButtonTextResult == what?) - allright                
+                {   //делаем кнопку Save серой                    
+                    int changeOnButtonTextResult = _open.ChangeOnButtonText(theAffectedElementNumber, (int)ButtonName.SaveFile, false);                    
+                    //и зажечь кнопку AnalyseText
+                    int placeButton = theAffectedElementNumber + buttonNamesCountInLanguageGroup; // Place of the button the same as changed field (English or Russian) - смещаем выбор на соседнюю кнопку в том же языке (окне)                    
+                    changeOnButtonTextResult = _open.ChangeOnButtonText(placeButton, (int)ButtonName.AnalyseText, true);//вызывается метод смены названия на кнопке и меняется на нужное
+                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), strCRLF +
+                        "theAffectedElementNumber = " + theAffectedElementNumber.ToString() + strCRLF +
+                        "prepareFileSaveResult = " + fileSaveResult.ToString(), CurrentClassName, showMessagesLevel);
 
-                    return (int)WhatNeedSaveFiles.FileSavedSuccessfully;
-                }
-                else
-                {                    
-                    return (int)WhatNeedSaveFiles.CannotSaveFile;
-                }
-            }
-            catch (Exception ex)
-            {
-                _messageService.ShowError(ex.Message);
-                return (int)WhatNeedSaveFiles.CannotSaveFile;
+                    _book.SetFileToSave((int)WhatNeedSaveFiles.FileSavedSuccessfully, theAffectedElementNumber);//сохранили в индикатор успешное сохранение
+                }                
+                else _book.SetFileToSave((int)WhatNeedSaveFiles.StopProcessing, theAffectedElementNumber);//если сохранение не получилось, то сохранили в индикатор завершение работы
             }
         }
 
-        private void _open_TimeToAnalyseTextBook(object sender, EventArgs e)
+        private void _open_TimeToAnalyseTextBook(object sender, EventArgs e)//пока не используется?
         {
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Start", CurrentClassName, showMessagesLevel);
             // где-то тут погасить кнопку, но какую надпись - непонятно

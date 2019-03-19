@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="MainLogicCultivation.cs" />
     <Compile Include="LoadTextToDataBase.cs" />
     <Compile Include="DataBaseAccessor.cs" />
     <Compile Include="MainPresentor.cs" />

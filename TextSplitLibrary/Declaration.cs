@@ -28,6 +28,8 @@ namespace TextSplitLibrary
 
     }
 
+    public enum MethodFindResult : int { English = 0, Russian = 1, Result = 2, AllRight = 3, Error = 4, NothingFound = -1 }; // for work with (not only) AllBookData (int)MethodFindResult.AllRight
+
     public enum ButtonName : int { OpenFile = 0, SaveFile = 1, AnalyseText = 2, SelectChapterName = 3, Reserved = 4 };
 
     public enum TextBoxImplementationMessages : int { EnglishFilePathSelected = 0, RussianFilePathSelected = 1, ResultFilePathSelected = 2, ResultFileCreated = 3 };

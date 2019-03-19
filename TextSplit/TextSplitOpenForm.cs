@@ -17,8 +17,7 @@ namespace TextSplit
         int SetFileContent(int theAffectedElementNumber);
         int SetSymbolCount(int i);        
         int ChangeOnButtonText(int placeButton, int textButton, bool flagButtonEnable);
-        int setStatusBottomLabel(int j, string textForStatusBottomLabel);
-        //string UserSelectChapterName(int i);
+        int setStatusBottomLabel(int j, string textForStatusBottomLabel);        
 
         event EventHandler ContentChanged;
         event EventHandler OpenFileClick;
@@ -134,7 +133,7 @@ namespace TextSplit
 
             // выделили номер языка из места кнопки в placeGroupButtons - 0/Endlish, 1/Russian
             if (placeButton < buttonLanguages) placeGroupButtons = placeButton;
-            else placeGroupButtons = placeButton - 2;
+            else placeGroupButtons = placeButton - buttonNamesCountInLanguageGroup;
             
             if (textButton < buttonTextsQuantity) 
             {
@@ -194,6 +193,7 @@ namespace TextSplit
 
             int buttonPlace = ButClickLabelNow(ButtonName, ButtonText);      // вызвали обработчик
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "здесь надо остановиться", CurrentClassName, showMessagesLevel);
+            //тут пока окончание цепочки обработки нажатия кнопок
         }        
 
         private int ButClickLabelNow(string buttonName, string buttonText)// алгоритм выбора метода по нажатым кнопкам
@@ -233,7 +233,7 @@ namespace TextSplit
                         if (buttonText == currentButtonName)  // если имя нажатой кнопки совпало с именем из двумерного массива, то - 
                         {                  //[j] - выбираем метод из массива List методов, а (i) - аргумент, передаваемый в метод (фактически язык 0 - Englis, 1 - Russian)
                             listButtonMethods[j](i);//только тут мы знаем i - чтобы передать его в Main, заносим в методах в FilesToDo[i] или в FilesToSave[i]
-                            return i;//возвращаем что-нибудь
+                            return i;//возвращаем что-нибудь - возможно признак завершения работы при неудачном Save
                         }
                     }
                 }
@@ -259,7 +259,7 @@ namespace TextSplit
 
         private void SaveFileFromTextBox(int j) // listOpenFormButtonMethods[1] - нажата одна из кнопок и на ней было написано Save, j хранит язык кнопки (0 - English)
         {//определить, первый раз сохраняют или нет - по признаку FileWasSavedSuccessfully и поставить указание - либо SaveFileFirst, либо SaveFile
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Method2 SaveFileFromTextBox fetched j = " + j.ToString(), CurrentClassName, showMessagesLevel);            
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Method2 SaveFileFromTextBox fetched j = " + j.ToString(), CurrentClassName, showMessagesLevel);
             if (_book.GetFileToSave(j) == (int)WhatNeedSaveFiles.FileSavedSuccessfully) // проверяем значение индикатора, что файл уже сохранялся
             {
                 int test = _book.SetFileToSave((int)WhatNeedSaveFiles.SaveFile, j);//молча сохраняем файл (в Main)
@@ -271,6 +271,8 @@ namespace TextSplit
             int setResult = setStatusBottomLabel(j, _book.GetFilePath(j));//Set the short type of current action in the status bar
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), " FilesToSave[j] = " + _book.GetFileToSave(j).ToString(), CurrentClassName, showMessagesLevel);
             if (SaveFileClick != null) SaveFileClick(this, EventArgs.Empty);
+            // тут проверить индикатор, сохранилось успешно или появился признак завершения работы?
+            // проще сразу же воззвать к событию закрытия формы в Main
         }
 
         public int setStatusBottomLabel(int j, string textForStatusBottomLabel)
@@ -356,16 +358,10 @@ namespace TextSplit
                     "lblSymbolsCount[i] ==> " + lblSymbolsCount[i].Name + strCRLF +
                     "SymbolsCount(i) = " + _book.GetSymbolsCount(i).ToString(), CurrentClassName, showMessagesLevel);
                 lblSymbolsCount[i].Text = _book.GetSymbolsCount(i);
-                return 0;
+                return (int)MethodFindResult.AllRight;
             }
-            return -1;
-        }
-
-        //public string UserSelectChapterName(int i)//пока не нужна
-        //{
-        //    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "UserSelectChapterName fetched i = " + i.ToString(), CurrentClassName, showMessagesLevel);
-        //    return "";
-        //}
+            return (int)MethodFindResult.NothingFound;
+        }        
 
         private void numEnglishFont_FirstSet(int theAffectedElementNumber)
         {
