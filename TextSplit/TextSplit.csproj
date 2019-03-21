@@ -47,11 +47,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AnalysisLogicChapter.cs" />
+    <Compile Include="AnalysisLogicCultivation.cs" />
+    <Compile Include="AnalysisLogicParagraph.cs" />
+    <Compile Include="AnalysisLogicSentences.cs" />
     <Compile Include="MainLogicCultivation.cs" />
     <Compile Include="LoadTextToDataBase.cs" />
     <Compile Include="DataBaseAccessor.cs" />
     <Compile Include="MainPresentor.cs" />
     <Compile Include="MessageService.cs" />
+    <Compile Include="OpenFormLogicCultivation.cs" />
     <Compile Include="TextBookAnalysis.cs" />
     <Compile Include="TextSplitForm.cs">
       <SubType>Form</SubType>

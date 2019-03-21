@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
-
+using System.Windows.Forms;//Temp
 
 namespace TextSplitLibrary
 {
@@ -30,6 +30,7 @@ namespace TextSplitLibrary
         string GetParagraphText(int paragraphCount, int langauageIndex);//возвращает строку из двумерного списка List
         int GetParagraphTextLength(int langauageIndex);
         int AddParagraphText(string paragraphText, int langauageIndex);//тоже возвращает количество элементов
+        int RemoveAtParagraphText(int paragraphCount, int langauageIndex);//удаляет элемент списка с индексом paragraphCount
 
         string GetChapterName(int chapterCount, int langauageIndex);
         int GetChapterNameLength(int langauageIndex);
@@ -45,6 +46,8 @@ namespace TextSplitLibrary
 
     public class AllBookData : IAllBookData
     {
+        //private readonly IMessageService _messageService;
+
         readonly private int filesQuantity;
 
         private int[] filesToDo;
@@ -54,14 +57,15 @@ namespace TextSplitLibrary
         private string[] filesPath;
         private string[] selectedTexts;
         private string[] filesContents;
-        //private string[] paragraphsTexts;
-        //private List<string> paragraphsTexts = new List<string>();
-        private List<List<string>> paragraphsTexts = new List<List<string>>(); //инициализация динамического двумерного массива с абзацами (на двух языках + когда-то результат)
+        
+        private List<List<string>> paragraphsTexts = new List<List<string>>(); //инициализация динамического двумерного массива с абзацами (на двух языках + когда-то результат)        
         private List<List<string>> chaptersNamesWithNumbers = new List<List<string>>(); //массив полных названий глав
         private List<List<int>> chaptersNamesNumbersOnly = new List<List<int>>(); //только цифры из названий глав (надо ли?)        
 
-        public AllBookData()
+        public AllBookData()//IMessageService service
         {
+            //_messageService = service;
+
             filesQuantity = Declaration.FilesQuantity;
 
             filesToDo = new int[filesQuantity];
@@ -73,6 +77,7 @@ namespace TextSplitLibrary
 
             paragraphsTexts.Add(new List<string>());
             paragraphsTexts.Add(new List<string>()); //добавление второй строки для абзацев второго языка (пока нужно всего 2 строки)
+            
             chaptersNamesWithNumbers.Add(new List<string>());
             chaptersNamesWithNumbers.Add(new List<string>());
             chaptersNamesNumbersOnly.Add(new List<int>());
@@ -164,8 +169,24 @@ namespace TextSplitLibrary
 
         public int AddParagraphText(string paragraphText, int langauageIndex)
         {
-            paragraphsTexts[langauageIndex].Add(paragraphText);//добавление столбца в новую строку            
+            paragraphsTexts[langauageIndex].Add(paragraphText);//добавление нового элемента в строку
             return paragraphsTexts[langauageIndex].Count;
+        }
+
+        public int RemoveAtParagraphText(int paragraphCount, int langauageIndex)
+        {
+            if (paragraphCount >= paragraphsTexts[langauageIndex].Count)//сделать такие проверки во всех методах, придумать что-то с печатью (тревожное окно)
+            {
+                MessageBox.Show("запрошенный индекс = " + paragraphCount.ToString() + "\r\n" + "максимальный индекс = " + paragraphsTexts[langauageIndex].Count.ToString(), "AllBookData", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+
+            if (paragraphCount < 0)
+            {
+                MessageBox.Show("запрошенный индекс = " + paragraphCount.ToString(), "AllBookData", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+
+            paragraphsTexts[langauageIndex].RemoveAt(paragraphCount);//удаление элемента по индексу
+            return paragraphsTexts[langauageIndex].Count;//получение и возврат новой длины списка
         }
         //группа массива Главы имя
         public string GetChapterName(int chapterCount, int langauageIndex)
@@ -181,7 +202,7 @@ namespace TextSplitLibrary
 
         public int AddChapterName(string chapterNameWithNumber, int langauageIndex)
         {
-            chaptersNamesWithNumbers[langauageIndex].Add(chapterNameWithNumber);//добавление столбца в новую строку            
+            chaptersNamesWithNumbers[langauageIndex].Add(chapterNameWithNumber);//добавление нового элемента в строку
             return chaptersNamesWithNumbers[langauageIndex].Count;
         }
         //группа массива Главы Номер
@@ -198,7 +219,7 @@ namespace TextSplitLibrary
 
         public int AddChapterNumber(int chapterNumberOnly, int langauageIndex)
         {
-            chaptersNamesNumbersOnly[langauageIndex].Add(chapterNumberOnly);//добавление столбца в новую строку            
+            chaptersNamesNumbersOnly[langauageIndex].Add(chapterNumberOnly);//добавление нового элемента в строку
             return chaptersNamesNumbersOnly[langauageIndex].Count;
         }
         //группа массива подсчета символов
