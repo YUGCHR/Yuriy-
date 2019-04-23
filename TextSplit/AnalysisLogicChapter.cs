@@ -58,110 +58,152 @@ namespace TextSplit
 
         public int ChapterNameAnalysis(int desiredTextLanguage)//ищем все названия глав, складываем их по массивам, узнаем их количество и возвращаем его
         {
-            int intChapterNumber = 0;
             string firstWordOfParagraph = "";
-            string firstNumberOfParagraph = "";
-            int flagWordStarted = 0;
-            int flagNumberStarted = 0;
-            bool normalizeEmptyParagraphsFlag = false;//флаг пустой текущей строки, true - если пустая
-            bool firstWordOfParagraphEndFlag = false;
-
-            int maxKeyNameLength = ChapterKeyNamesAnalysis(desiredTextLanguage);
-
+            int firstNumberOfParagraph = 0;
+            int keyWordChapterName = 0;            
+            //bool normalizeEmptyParagraphsFlag = false;//флаг пустой текущей строки, true - если пустая
+            
+            int maxKeyNameLength = ChapterKeyNamesAnalysis(desiredTextLanguage);//непонятно, зачем это нужно, но пока пусть будет
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), strCRLF + "maxKeyNameLength = " + maxKeyNameLength.ToString(), CurrentClassName, 3);
 
             int paragraphTextLength = _book.GetParagraphTextLength(desiredTextLanguage);
             
             for (int i = 1; i < paragraphTextLength; i++)//перебираем все абзацы текста, начиная с второго - в первом главы быть не должно
             {
-                string currentParagraph = _book.GetParagraphText(i, desiredTextLanguage);//получаем текущий абзац текста
-                string previousParagraph = _book.GetParagraphText((i-1), desiredTextLanguage);//получаем предыдущий абзац
+                string currentParagraph = _book.GetParagraphText(i, desiredTextLanguage);
 
-                if (String.IsNullOrWhiteSpace(currentParagraph))//если текущая строка пустая, отмечаем ее и смотрим следующую строку
+                if (!String.IsNullOrWhiteSpace(currentParagraph))//если текущая строка не пустая, получаем и смотрим предыдущий абзац
                 {
-                    normalizeEmptyParagraphsFlag = true;                 
-                }
-                else //если текущая строка не пустая, проверяем предыдущую строку
-                {                    
-                    if (normalizeEmptyParagraphsFlag)//предыдущая строка была пустая, надо проверить наличие ключевого слова и цифр
-                    {
+                    string previousParagraph = _book.GetParagraphText((i - 1), desiredTextLanguage);
 
-                        foreach (char charOfChapterNumber in currentParagraph) //добываем первое слово из абзаца - до любого спецсимвола, игнорируя все спецсимволы до начала слова
+                    if (String.IsNullOrWhiteSpace(previousParagraph))
+                    {//начало анализа строки (абзаца)
+                        firstWordOfParagraph = FirstWordOfParagraphSearch(currentParagraph);//находим первое слово или цифры в текущем параграфе
+                        bool successSearchNumber = Int32.TryParse(firstWordOfParagraph, out firstNumberOfParagraph);
+                        if (successSearchNumber)
+                        {//первое слово - цифра, тогда проверяем остальной текст на номера глав без ключевых слов - искать просто по возрастанию - ждать следующего попадания сюда
+                            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), strCRLF +
+                                "firstWordOfParagraph - " + firstWordOfParagraph + strCRLF +
+                                "successSearchNumber - " + successSearchNumber.ToString() + strCRLF +
+                                "firstNumberOfParagraph = " + firstNumberOfParagraph.ToString() + strCRLF, CurrentClassName, 3);
+                        }
+                        else
                         {
-                            if (firstWordOfParagraphEndFlag)
+                            keyWordChapterName = FirstWordOfParagraphCompare(firstWordOfParagraph, desiredTextLanguage);//проверяем первое слово на совпадение с ключевыми
+                            if (keyWordChapterName >= 0)
                             {
-                                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "currentParagraph - " + currentParagraph + strCRLF +
-                                    "ChapterName found - " + firstWordOfParagraph, CurrentClassName, 3);
-
-                                for (int n = 0; n < chapterNamesSamplesCount; n++)
-                                {
-                                    //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), strCRLF + "n = " + n.ToString() + strCRLF +
-                                    //    "firstWordOfParagraph = " + firstWordOfParagraph.ToString() + strCRLF +
-                                    //    "chapterNamesSamplesCount = " + chapterNamesSamplesCount.ToString() + strCRLF +
-                                    //    chapterNamesSamples[desiredTextLanguage, n], CurrentClassName, 3);
-
-                                    bool currentfirstWordOfParagraph = firstWordOfParagraph.Contains(chapterNamesSamples[desiredTextLanguage, n]);//проверяем, содержатся ли стандартные называния глав в строке - с пробелом после слова
-                                    if (currentfirstWordOfParagraph)
-                                    {
-                                        _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "ChapterName found - " + strCRLF + firstWordOfParagraph, CurrentClassName, 3);
-
-
-                                        //нашли название главы, теперь найти номер сразу за названием
-
-
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                if (Char.IsLetter(charOfChapterNumber))
-                                {
-                                    firstWordOfParagraph = firstWordOfParagraph + charOfChapterNumber;
-                                    flagWordStarted++;
-                                }
-                                else
-                                {
-                                    if (flagWordStarted > 0)
-                                    {
-                                        firstWordOfParagraphEndFlag = true;
-                                    }                                    
-                                }
-
-                                if (Char.IsDigit(charOfChapterNumber))
-                                {
-                                    firstNumberOfParagraph = firstNumberOfParagraph + charOfChapterNumber;
-                                    flagNumberStarted++;
-                                }
-                                else
-                                {
-                                    if (flagNumberStarted > 0) break;
-                                }
-                            }
-
-                            // получили firstWordOfParagraph или firstNumberOfParagraph
-
-                            //сначала ищем цифры? стоящие первыми в строке или с пробелами в начале строки
-                            //нет, сначала ищем ключевое слово, а потом перед ним и после него цифры (перед ним - на сколько отступать?)
-
-                            if (flagWordStarted > 0)
-                            {
-                                //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), strCRLF + "Current firstWordOfParagraph = " + firstWordOfParagraph, CurrentClassName, 3);
-
-
+                                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), strCRLF +
+                                    "Paragraph Number = " + i.ToString() + strCRLF +
+                                    "ChapterName found - " + strCRLF + firstWordOfParagraph, CurrentClassName, 3);
+                                //нашли название главы, теперь как-то найти номер сразу за названием
                             }
                         }
                     }
-                    normalizeEmptyParagraphsFlag = false;
                 }
-                //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), strCRLF + "chapterCount - " + intChapterNumber.ToString(), CurrentClassName, 3);
-
-                
-                firstWordOfParagraph = "";
-                firstNumberOfParagraph = "";
-                flagWordStarted = 0;
-                flagNumberStarted = 0;
+                //firstWordOfParagraph = "";
+                //firstNumberOfParagraph = "";
+                //flagWordStarted = 0;
+                //flagNumberStarted = 0;
             }
             return 0;
+        }
+
+        string FirstWordOfParagraphSearch(string currentParagraph)//поиск первого слова или цифры в строке - с пробелом после него - разделить метод на выделение первого (или любого другого) слова абзаца и его анализ
+        {
+            string firstWordOfParagraph = "";            
+            int flagWordStarted = 0;
+            
+            foreach (char charOfChapterNumber in currentParagraph) //добываем первое слово или цифру из абзаца - до любого спецсимвола, игнорируя все спецсимволы до начала слова
+            {
+                if (Char.IsLetterOrDigit(charOfChapterNumber))//слабое место, что может быть комбинация букв и цифр - протестировать этот вариант
+                {
+                    firstWordOfParagraph = firstWordOfParagraph + charOfChapterNumber;//нашли начало слова (после возможных спецсимволов в начале строки) и собираем слово, пока идут буквы (или цифры)
+                    flagWordStarted++;
+                }
+                else
+                {//слово кончилось (или еще не началось)
+                    if (flagWordStarted > 0)
+                    {//слово точно кончилось
+                        if (charOfChapterNumber == ' ')
+                        {//нашли пробел после него, прибавляем его к слову для совпадения с ключевыми словами
+                            return firstWordOfParagraph + charOfChapterNumber;
+                        }
+                        else
+                        {//после слова непонятно что за символ - что делать, тоже непонятно, возвращаем пока этот символ
+                            return charOfChapterNumber.ToString();
+                        }
+                    }
+                }
+            }
+            return null;//вообще не нашли букв и цифр в абзаце - и так, наверное, бывает
+        }
+        
+        int FirstWordOfParagraphCompare(string firstWordOfParagraph, int desiredTextLanguage)//проверяем первое слово на совпадение с ключевыми
+        {
+            for (int n = 0; n < chapterNamesSamplesCount; n++)
+            {
+                //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), strCRLF + "n = " + n.ToString() + strCRLF +
+                //    "firstWordOfParagraph = " + firstWordOfParagraph.ToString() + strCRLF +
+                //    "chapterNamesSamplesCount = " + chapterNamesSamplesCount.ToString() + strCRLF +
+                //    chapterNamesSamples[desiredTextLanguage, n], CurrentClassName, 3);
+
+                bool currentfirstWordOfParagraph = firstWordOfParagraph.Contains(chapterNamesSamples[desiredTextLanguage, n]);//проверяем, содержатся ли стандартные называния глав в строке - с пробелом после слова
+                if (currentfirstWordOfParagraph)
+                {
+                    //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "n = " + n.ToString() + strCRLF +
+                    //    "firstWordOfParagraph - " + firstWordOfParagraph + strCRLF +
+                    //    "ChapterName found - " + strCRLF + firstWordOfParagraph, CurrentClassName, 3);
+                    //нашли название главы, возвращаем индекс массива ключевых слов
+                    return n;
+                }
+            }
+            return (int)MethodFindResult.NothingFound;
+        }
+
+        public string FindDigitsInChapterName(string paragraphWihtChapterName)
+        {
+            //в цикле проверяем символ на цифру, если да, то записываем в строку и ставим флаг, что цифра
+            //если следующий символ тоже цифра, то поддерживаем флаг и записываем в строку, если нет - ?
+            //string digitsOfChapterNumber = FindDigitsInChapterName(currentParagraph);//получили строку с цифрами в названии главы            
+
+            string digitsOfChapterNumber = "";
+            char[] isStringChapterNumber = paragraphWihtChapterName.ToCharArray();
+            int digitAtChapterNameCount = 0;
+            bool isDigitAtChapterName = false;
+
+            foreach (char charOfChapterNumber in isStringChapterNumber)
+            {
+                isDigitAtChapterName = Char.IsDigit(charOfChapterNumber);
+                if (isDigitAtChapterName)
+                {
+                    digitsOfChapterNumber = digitsOfChapterNumber + charOfChapterNumber.ToString();
+                    digitAtChapterNameCount++;
+                }
+                else
+                {
+                    if (digitAtChapterNameCount != 0) return digitsOfChapterNumber;
+                }
+            }
+            if (digitAtChapterNameCount != 0) return digitsOfChapterNumber;
+            else return null;
+        }
+        
+        int ChapterKeyNamesAnalysis(int desiredTextLanguage)
+        {
+            int maxKeyNameLength = 0;
+            int previousKeyNameLength = 0;
+
+            for (int n = 0; n < chapterNamesSamplesCount; n++)
+            {
+                string currentKeyName = chapterNamesSamples[desiredTextLanguage, n];
+                int currentKeyNameLength = currentKeyName.Length;
+                if (n > 0 && currentKeyNameLength > previousKeyNameLength)
+                {
+                    maxKeyNameLength = currentKeyNameLength;
+                }
+                previousKeyNameLength = currentKeyNameLength;
+            }
+            return maxKeyNameLength;
         }
 
         public int UserSelectedChapterNameAnalysis(int desiredTextLanguage)//метод, когда не получился анализ глав со стандартными названиями, тогда просим подсказки у пользователя
@@ -229,58 +271,6 @@ namespace TextSplit
                 }
             }
             return 0;
-        }
-
-        //string firstWordOfParagraphAnalysis(string paragraphWihtChapterName)
-        //{
-
-        //}
-
-        public string FindDigitsInChapterName(string paragraphWihtChapterName)
-        {
-            //в цикле проверяем символ на цифру, если да, то записываем в строку и ставим флаг, что цифра
-            //если следующий символ тоже цифра, то поддерживаем флаг и записываем в строку, если нет - ?
-            //string digitsOfChapterNumber = FindDigitsInChapterName(currentParagraph);//получили строку с цифрами в названии главы
-            //bool success = Int32.TryParse(digitsOfChapterNumber, out intChapterNumber);
-
-            string digitsOfChapterNumber = "";
-            char[] isStringChapterNumber = paragraphWihtChapterName.ToCharArray();
-            int digitAtChapterNameCount = 0;
-            bool isDigitAtChapterName = false;
-
-            foreach (char charOfChapterNumber in isStringChapterNumber)
-            {                
-                isDigitAtChapterName = Char.IsDigit(charOfChapterNumber);
-                if (isDigitAtChapterName)
-                {
-                    digitsOfChapterNumber = digitsOfChapterNumber + charOfChapterNumber.ToString();
-                    digitAtChapterNameCount++;                    
-                }
-                else
-                {                    
-                    if (digitAtChapterNameCount != 0) return digitsOfChapterNumber;
-                }
-            }
-            if (digitAtChapterNameCount != 0) return digitsOfChapterNumber;
-            else return null;
-        }
-
-        int ChapterKeyNamesAnalysis(int desiredTextLanguage)
-        {
-            int maxKeyNameLength = 0;
-            int previousKeyNameLength = 0;
-
-            for (int n = 0; n < chapterNamesSamplesCount; n++)
-            {
-                string currentKeyName = chapterNamesSamples[desiredTextLanguage, n];
-                int currentKeyNameLength = currentKeyName.Length;
-                if (n > 0 && currentKeyNameLength > previousKeyNameLength)
-                {
-                    maxKeyNameLength = currentKeyNameLength;
-                }
-                previousKeyNameLength = currentKeyNameLength;
-            }
-            return maxKeyNameLength;
         }
 
         public static string CurrentClassName
