@@ -51,7 +51,7 @@ namespace TextSplit
         }
 
         private void _analysis_AnalyseInvokeTheMain(object sender, EventArgs e)//тут просим пользователя выделить название любой главы
-        {   //вызвали только для того, чтобы поменять имя на кноке (самому TextBookAnalysis делать это не положено)
+        {   //вызвали только для того, чтобы поменять имя на кнопке (самому TextBookAnalysis делать это не положено)
             //узнать, с каким языком вызвали - теперь для этого есть int indexToDo = _book.WhatFileNeedToDo(int whatNeedToDo);
             int invokeFrom = _book.WhatFileNeedToDo((int)WhatNeedDoWithFiles.SelectChapterName);//надо придумать, как сюда сообщить, зачем его вызвали - чтобы был универсальным
             if (invokeFrom != (int)MethodFindResult.NothingFound) //нашли - тогда поменять название на кнопке Analyse/Select на Select Chapter Name

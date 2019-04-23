@@ -62,73 +62,6 @@ namespace TextSplit
             return desiredTextLanguage;
         }
 
-        //пусть он работает в обратном порядке (удалите с самого высокого индекса на самый низкий)
-        //List<T>.RemoveAll(Predicate<T>) или LINQ для замены исходного списка новым списком путем фильтрации элементов 
-        //Когда вы вызываете RemoveAt для удаления элемента, остальные элементы в списке перенумеровываются, чтобы заменить удаленный элемент. 
-        //Например, если вы удаляете элемент по индексу 3, элемент в индексе 4 перемещается в позицию 3. Поэтому удаляйте элементы из хвоста массива!
-        //
-        //private int CurrentParagraphsPortioned(int desiredTextLanguage)
-        //{
-        //    int ID_Chapter = -1;// - gimp stick?
-        //    int ID_Paragraph = 0;
-        //    int ID_Sentenses = 0;
-
-        //    int iSentStep = 0;
-
-        //    int previousParagraphLength = -1;//start flag value - before Paragraph exists
-
-        //    foreach (string currentParagraph in currentTextParagraphsPortioned)//place in currentParagraph each Paragraph
-        //    {
-        //        int lengthOfCurrentParagraph = currentParagraph.Length;//count symbols quantity in the current Paragraph - придумать более осмысленый параметр
-        //        string paragraph_name = lengthOfCurrentParagraph.ToString();//(for test only)
-
-        //        #region Chapters 
-        //        //ID_Chapter = -1; on the first pass of the foreach
-        //        //find Chapters and set Chapters ID and name
-        //        bool isPreviousLineBlank = previousParagraphLength == 0;//check if previous line was blank
-        //        if (iSentStep > 0)//if not first step
-        //        {
-        //            ID_Chapter = FindChapterNumber(currentParagraph, desiredTextLanguage, ID_Chapter, isPreviousLineBlank);
-        //        }
-        //        #endregion
-        //        #region Paragraphs & Sentences
-        //        if (ID_Chapter >= 0)//if the first Chapter has not inserted in dB yet, we cannot insert the Paragraph
-        //        {
-        //            Array.Clear(dataBaseTableToDo, 0, dataBaseTableToDo.Length);
-        //            dataBaseTableToDo[(int)TablesNamesNumbers.Paragraphs] = (int)WhatNeedDoWithTables.InsertRecord;// - массив объявлен вне метода и не передан в метод
-        //            //dataBaseTableNames[(int)TablesNamesNumbers.Paragraphs] - искать имя таблицы по индексу dataBaseTableToDo который равен InsertRecord
-        //            int insertResultParagraphs = _data.InsertRecordInTable(dataBaseTableNames, dataBaseTableToDo, ID_Paragraph, desiredTextLanguage, ID_Chapter, lengthOfCurrentParagraph, paragraph_name);//Insert Record in Table Paragraphs
-        //            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " insertResult after Paragraphs ==> ", insertResultParagraphs.ToString(), CurrentClassName, showMessagesLevel);
-        //            string[] currentParagraphSentences = currentParagraph.Split(charsSentenceSeparator);//portioned current paragraph on sentences - съел все точки и прочие окончания предложений!
-        //                                                                                                // - написать свое разделение на предложния с учетом кавычек и всяких p.m. 
-        //                                                                                                // - показать пользователю проблемные места в поле редактора формы - точки без последующих пробелов и т.д. 
-        //                                                                                                // - чтобы пользователь мог написать маски для обработки
-        //            ID_Sentenses = PortionParagraphOnSentences(currentParagraphSentences, desiredTextLanguage, ID_Chapter, ID_Paragraph, ID_Sentenses);
-        //            ID_Paragraph++;
-        //        }
-        //        #endregion
-
-        //        iSentStep++;//count of paragraphs
-        //        previousParagraphLength = currentParagraph.Length;//count symbols quantity in the current Paragraph - will be in previous Paragraph on the next pass
-
-        //        // to print in file
-        //        //int textParagraphesCount = textParagraphs.Count;
-        //        //string[] textParagraphesArray = new string[textParagraphesCount];
-        //        //textParagraphesArray = textParagraphs.ToArray();
-        //        //_manager.WriteToFilePathPlus(textParagraphesArray, filesPath[(int)TableLanguagesContent.English], "001");
-        //    }
-        //    return 0;
-        //}
-
-
-
-
-
-
-
-
-
-
         public static string CurrentClassName
         {
             get { return MethodBase.GetCurrentMethod().DeclaringType.Name; }
@@ -158,4 +91,61 @@ namespace TextSplit
 //            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " insertResult after Chapters ==> ", insertRecordResult.ToString(), CurrentClassName, showMessagesLevel);
 //        }
 //    }
+//
+//пусть он работает в обратном порядке (удалите с самого высокого индекса на самый низкий)
+//List<T>.RemoveAll(Predicate<T>) или LINQ для замены исходного списка новым списком путем фильтрации элементов 
+//Когда вы вызываете RemoveAt для удаления элемента, остальные элементы в списке перенумеровываются, чтобы заменить удаленный элемент. 
+//Например, если вы удаляете элемент по индексу 3, элемент в индексе 4 перемещается в позицию 3. Поэтому удаляйте элементы из хвоста массива!
+//
+//private int CurrentParagraphsPortioned(int desiredTextLanguage)
+//{
+//    int ID_Chapter = -1;// - gimp stick?
+//    int ID_Paragraph = 0;
+//    int ID_Sentenses = 0;
 
+//    int iSentStep = 0;
+
+//    int previousParagraphLength = -1;//start flag value - before Paragraph exists
+
+//    foreach (string currentParagraph in currentTextParagraphsPortioned)//place in currentParagraph each Paragraph
+//    {
+//        int lengthOfCurrentParagraph = currentParagraph.Length;//count symbols quantity in the current Paragraph - придумать более осмысленый параметр
+//        string paragraph_name = lengthOfCurrentParagraph.ToString();//(for test only)
+
+//        #region Chapters 
+//        //ID_Chapter = -1; on the first pass of the foreach
+//        //find Chapters and set Chapters ID and name
+//        bool isPreviousLineBlank = previousParagraphLength == 0;//check if previous line was blank
+//        if (iSentStep > 0)//if not first step
+//        {
+//            ID_Chapter = FindChapterNumber(currentParagraph, desiredTextLanguage, ID_Chapter, isPreviousLineBlank);
+//        }
+//        #endregion
+//        #region Paragraphs & Sentences
+//        if (ID_Chapter >= 0)//if the first Chapter has not inserted in dB yet, we cannot insert the Paragraph
+//        {
+//            Array.Clear(dataBaseTableToDo, 0, dataBaseTableToDo.Length);
+//            dataBaseTableToDo[(int)TablesNamesNumbers.Paragraphs] = (int)WhatNeedDoWithTables.InsertRecord;// - массив объявлен вне метода и не передан в метод
+//            //dataBaseTableNames[(int)TablesNamesNumbers.Paragraphs] - искать имя таблицы по индексу dataBaseTableToDo который равен InsertRecord
+//            int insertResultParagraphs = _data.InsertRecordInTable(dataBaseTableNames, dataBaseTableToDo, ID_Paragraph, desiredTextLanguage, ID_Chapter, lengthOfCurrentParagraph, paragraph_name);//Insert Record in Table Paragraphs
+//            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString() + " insertResult after Paragraphs ==> ", insertResultParagraphs.ToString(), CurrentClassName, showMessagesLevel);
+//            string[] currentParagraphSentences = currentParagraph.Split(charsSentenceSeparator);//portioned current paragraph on sentences - съел все точки и прочие окончания предложений!
+//                                                                                                // - написать свое разделение на предложния с учетом кавычек и всяких p.m. 
+//                                                                                                // - показать пользователю проблемные места в поле редактора формы - точки без последующих пробелов и т.д. 
+//                                                                                                // - чтобы пользователь мог написать маски для обработки
+//            ID_Sentenses = PortionParagraphOnSentences(currentParagraphSentences, desiredTextLanguage, ID_Chapter, ID_Paragraph, ID_Sentenses);
+//            ID_Paragraph++;
+//        }
+//        #endregion
+
+//        iSentStep++;//count of paragraphs
+//        previousParagraphLength = currentParagraph.Length;//count symbols quantity in the current Paragraph - will be in previous Paragraph on the next pass
+
+//        // to print in file
+//        //int textParagraphesCount = textParagraphs.Count;
+//        //string[] textParagraphesArray = new string[textParagraphesCount];
+//        //textParagraphesArray = textParagraphs.ToArray();
+//        //_manager.WriteToFilePathPlus(textParagraphesArray, filesPath[(int)TableLanguagesContent.English], "001");
+//    }
+//    return 0;
+//}

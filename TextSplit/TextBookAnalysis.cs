@@ -57,23 +57,26 @@ namespace TextSplit
         }
 
         public int AnalyseTextBook() // типа Main в логике анализа текста
-        {   
+        {
+            int chapterCount = 0;
             int desiredTextLanguage = _alogic.GetDesiredTextLanguage();//возвращает номер языка, если на нем есть AnalyseText или AnalyseChapterName
             if (desiredTextLanguage == (int)MethodFindResult.NothingFound) return desiredTextLanguage;//типа, нечего анализировать
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), strCRLF + "Start desiredTextLanguage = " + desiredTextLanguage.ToString(), CurrentClassName, 3);
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), strCRLF + "Start desiredTextLanguage = " + desiredTextLanguage.ToString(), CurrentClassName, showMessagesLevel);
 
             if (_book.GetFileToDo(desiredTextLanguage) == (int)WhatNeedDoWithFiles.AnalyseText)
             {   //если первоначальный анализ текста, то делим текст на абзацы, создем служебный массив с нумерацией пустых строк
                 int portionBookTextResult = _plogic.PortionBookTextOnParagraphs(desiredTextLanguage);
                 _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), strCRLF + "portionBookTextResult = " + portionBookTextResult.ToString(), CurrentClassName, 3);
 
-
-                int normalizeEmptyParagraphsResult = _plogic.normalizeEmptyParagraphs(desiredTextLanguage);
+                int normalizeEmptyParagraphsResult = _plogic.normalizeEmptyParagraphs(desiredTextLanguage);//удаляем лишние пустые строки, оставляя только одну, результат - количество удаленных пустых строк
+                
+                //проверить, сколько получилось строк в тексте - что не ноль хотя бы
+                //сначала ищем названия глав без подсказки
+                chapterCount = _clogic.ChapterNameAnalysis(desiredTextLanguage);
+                
 
                 _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Stop here ", CurrentClassName, 3);
 
-
-                
 
                 //следующий блок - в отдельный метод
                 _book.SetFileToDo((int)WhatNeedDoWithFiles.SelectChapterName, desiredTextLanguage);//сообщаем Main, что надо поменять название на кнопке на Select
@@ -85,7 +88,7 @@ namespace TextSplit
             }
             if (_book.GetFileToDo(desiredTextLanguage) == (int)WhatNeedDoWithFiles.AnalyseChapterName) //анализ названия главы с полученной подсказкой от пользователя
             {//если получена подсказка от пользователя - текст названия главы, то изучаем полученный выбранный текст
-                int chapterCount = _clogic.UserSelectedChapterNameAnalysis(desiredTextLanguage);
+                chapterCount = _clogic.UserSelectedChapterNameAnalysis(desiredTextLanguage);
                 _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), strCRLF + "Found Chapters count = " + chapterCount.ToString(), CurrentClassName, 3);
                 return chapterCount;
             }

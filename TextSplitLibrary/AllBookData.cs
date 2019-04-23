@@ -12,11 +12,11 @@ namespace TextSplitLibrary
     {
         int GetFileToDo(int i);
         int SetFileToDo(int fileToDo, int i);
-        int WhatFileNeedToDo(int whatNeedToDo);//возвращает индекс ToDo, в котором найдено значение whatNeedToDo, если не найдено, возвращает -1 (или лучше 0?)
+        int WhatFileNeedToDo(int whatNeedToDo);//возвращает индекс ToDo, в котором найдено значение whatNeedToDo, если не найдено, возвращает -1
 
         int GetFileToSave(int i);        
         int SetFileToSave(int fileToSave, int i);
-        int WhatFileNeedToSave(int whatNeedToSave);//возвращает индекс ToDo, в котором найдено значение whatNeedToDo, если не найдено, возвращает -1 (или лучше 0?)
+        int WhatFileNeedToSave(int whatNeedToSave);//возвращает индекс ToDo, в котором найдено значение whatNeedToDo, если не найдено, возвращает -1
 
         string GetFilePath(int i);
         int SetFilePath(string filePath, int i);

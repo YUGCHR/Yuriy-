@@ -118,13 +118,9 @@ namespace TextSplit
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), strCRLF +
                 "paragraphTextLength = " + paragraphTextLength.ToString() + strCRLF, CurrentClassName, 3);
 
-            bool normalizeEmptyParagraphsFlag = false;//строка не пустая
+            bool normalizeEmptyParagraphsFlag = false;//флаг пустой текущей строки, true - если пустая
             int emplyParagraphCount = 0;
-            int normalizeEmptyParagraphsResult = 0;
-            int normalizeEmptyParagraphsCycleCount = 0;
-
-            string[] paragraphTextLog = new string[100];
-            string[] paragraphNumberLog = new string[100];
+            int normalizeEmptyParagraphsResult = 0;            
 
             for (int n = 0; n < paragraphTextLength; n++)//запускаем раз за разом нормализацию (удаление двух подряд пустых строк)
             {
@@ -164,15 +160,9 @@ namespace TextSplit
                             "длина текстового массива стала = " + paragraphTextLength.ToString() + strCRLF, CurrentClassName, showMessagesLevel);
 
                 if (normalizeEmptyParagraphsResult == 0) break;
-            }
+            }            
 
-            for (int i = 0; i < 50; i++)
-            {
-                paragraphTextLog[i] = _book.GetParagraphText(i, desiredTextLanguage);
-            }
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), paragraphTextLog, CurrentClassName, 3);
-
-            return normalizeEmptyParagraphsCycleCount;
+            return normalizeEmptyParagraphsResult;
         }
 
         public static string CurrentClassName
