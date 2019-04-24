@@ -25,14 +25,15 @@ namespace TextSplit
         readonly private int filesQuantity;
         readonly private int textFieldsQuantity;
         readonly private int showMessagesLevel;
-        readonly private string strCRLF;        
+        readonly private string strCRLF;
+        readonly private string[,] chapterNamesSamples;
+        readonly private char[] charsParagraphSeparator;
+        readonly private char[] charsSentenceSeparator;
+        readonly private int chapterNamesSamplesCount;
 
-        private string[,] chapterNamesSamples;
-        private readonly char[] charsParagraphSeparator;
-        private readonly char[] charsSentenceSeparator;
-        private readonly int chapterNamesSamplesCount;
+        private string[] foundWordsOfParagraph;
+        private char[] foundCharsSeparator;
         //private readonly int [] maxKeyNameLength;
-
         //public event EventHandler AnalyseInvokeTheMain;
 
         public AnalysisLogicChapter(IAllBookData book, IMessageService service)
@@ -49,6 +50,9 @@ namespace TextSplit
             charsParagraphSeparator = new char[] { '\r', '\n' };
             charsSentenceSeparator = new char[] { '.', '!', '?' };
 
+            foundWordsOfParagraph = new string[10];//временное хранение найденных первых десяти слов абзаца
+            foundCharsSeparator = new char[10];//временное хранение найденных вариантов разделителей
+
             //проверить типовые названия глав (для разных языков свои) - сделать метод универсальным и для частей тоже?
             chapterNamesSamples = new string[,]
             { { "Chapter ", "Paragraph ", "Section ", "Subhead ", "Part " },
@@ -58,7 +62,9 @@ namespace TextSplit
 
         public int ChapterNameAnalysis(int desiredTextLanguage)//ищем все названия глав, складываем их по массивам, узнаем их количество и возвращаем его
         {
+            int findWordsCount = foundWordsOfParagraph.Length;
             string firstWordOfParagraph = "";
+            int foundWordsOfParagraphCount = 0;
             int firstNumberOfParagraph = 0;
             int keyWordChapterName = 0;            
             //bool normalizeEmptyParagraphsFlag = false;//флаг пустой текущей строки, true - если пустая
@@ -78,24 +84,34 @@ namespace TextSplit
 
                     if (String.IsNullOrWhiteSpace(previousParagraph))
                     {//начало анализа строки (абзаца)
-                        firstWordOfParagraph = FirstWordOfParagraphSearch(currentParagraph);//находим первое слово или цифры в текущем параграфе
-                        bool successSearchNumber = Int32.TryParse(firstWordOfParagraph, out firstNumberOfParagraph);
-                        if (successSearchNumber)
-                        {//первое слово - цифра, тогда проверяем остальной текст на номера глав без ключевых слов - искать просто по возрастанию - ждать следующего попадания сюда
-                            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), strCRLF +
-                                "firstWordOfParagraph - " + firstWordOfParagraph + strCRLF +
-                                "successSearchNumber - " + successSearchNumber.ToString() + strCRLF +
-                                "firstNumberOfParagraph = " + firstNumberOfParagraph.ToString() + strCRLF, CurrentClassName, 3);
-                        }
-                        else
+                        foundWordsOfParagraphCount = WordsOfParagraphSearch(currentParagraph, foundWordsOfParagraph);//выделяем в текущем параграфе первые 10 групп символов (слова, числа или группы спецсимволов)
+                        
+                        for (int j = 1; j <= foundWordsOfParagraphCount; j++)//перебираем все полученные слова из начала абзаца - ищем числа и ключевые слова
                         {
-                            keyWordChapterName = FirstWordOfParagraphCompare(firstWordOfParagraph, desiredTextLanguage);//проверяем первое слово на совпадение с ключевыми
-                            if (keyWordChapterName >= 0)
-                            {
+                            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(),                                   
+                                    "currentParagraph - " + currentParagraph + strCRLF +
+                                    "foundWordsOfParagraphCount = " + foundWordsOfParagraphCount.ToString() + strCRLF +
+                                    "j = " + j.ToString() + strCRLF +
+                                    "foundWordsOfParagraph[j] - " + foundWordsOfParagraph[j], CurrentClassName, 3);
+
+                            bool successSearchNumber = Int32.TryParse(firstWordOfParagraph, out firstNumberOfParagraph);
+                            if (successSearchNumber)
+                            {//первое слово - цифра, тогда проверяем остальной текст на номера глав без ключевых слов - искать просто по возрастанию - ждать следующего попадания сюда
                                 _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), strCRLF +
-                                    "Paragraph Number = " + i.ToString() + strCRLF +
-                                    "ChapterName found - " + strCRLF + firstWordOfParagraph, CurrentClassName, 3);
-                                //нашли название главы, теперь как-то найти номер сразу за названием
+                                    "firstWordOfParagraph - " + firstWordOfParagraph + strCRLF +
+                                    "successSearchNumber - " + successSearchNumber.ToString() + strCRLF +
+                                    "firstNumberOfParagraph = " + firstNumberOfParagraph.ToString() + strCRLF, CurrentClassName, 3);
+                            }
+                            else
+                            {
+                                keyWordChapterName = FirstWordOfParagraphCompare(firstWordOfParagraph, desiredTextLanguage);//проверяем первое слово на совпадение с ключевыми
+                                if (keyWordChapterName >= 0)
+                                {
+                                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), strCRLF +
+                                        "Paragraph Number = " + i.ToString() + strCRLF +
+                                        "ChapterName found - " + strCRLF + firstWordOfParagraph, CurrentClassName, 3);
+                                    //нашли название главы, теперь как-то найти номер сразу за названием
+                                }
                             }
                         }
                     }
@@ -108,34 +124,64 @@ namespace TextSplit
             return 0;
         }
 
-        string FirstWordOfParagraphSearch(string currentParagraph)//поиск первого слова или цифры в строке - с пробелом после него - разделить метод на выделение первого (или любого другого) слова абзаца и его анализ
+        int WordsOfParagraphSearch(string currentParagraph, string[] foundWordsOfParagraph)//метод выделяет из строки (абзаца текста) первые десять (или больше - по размерности передаваемого массива) слов или чисел (и, возможно, перечисляет все разделители)
         {
-            string firstWordOfParagraph = "";            
+            if(String.IsNullOrWhiteSpace(currentParagraph)) return (int)MethodFindResult.NothingFound;
+            int findWordsCount = foundWordsOfParagraph.Length;
+            Array.Clear(foundWordsOfParagraph, 0, findWordsCount);
+            string wordOfParagraph = "";
+            string symbolsOfParagraph = "";
             int flagWordStarted = 0;
-            
-            foreach (char charOfChapterNumber in currentParagraph) //добываем первое слово или цифру из абзаца - до любого спецсимвола, игнорируя все спецсимволы до начала слова
-            {
-                if (Char.IsLetterOrDigit(charOfChapterNumber))//слабое место, что может быть комбинация букв и цифр - протестировать этот вариант
+            int flagSymbolsStarted = 0;
+            int i = 0;
+            //разделяем абзац на слова или числа и на скопления спецсимволов (если больше одного подряд)
+            foreach (char charOfChapterNumber in currentParagraph)
+            {               
+                if (i < findWordsCount - 1)//если массив еще не заполнен, заполняем (-1 - на всякий случай, чтобы не переполниться)
                 {
-                    firstWordOfParagraph = firstWordOfParagraph + charOfChapterNumber;//нашли начало слова (после возможных спецсимволов в начале строки) и собираем слово, пока идут буквы (или цифры)
-                    flagWordStarted++;
-                }
-                else
-                {//слово кончилось (или еще не началось)
-                    if (flagWordStarted > 0)
-                    {//слово точно кончилось
-                        if (charOfChapterNumber == ' ')
-                        {//нашли пробел после него, прибавляем его к слову для совпадения с ключевыми словами
-                            return firstWordOfParagraph + charOfChapterNumber;
+                    if (Char.IsLetterOrDigit(charOfChapterNumber))//слабое место, что может быть комбинация букв и цифр - протестировать этот вариант
+                    {
+                        if (flagSymbolsStarted > 1)
+                        {//найдена цепочка спецсимволов больше одного подряд
+                            foundWordsOfParagraph[i] = symbolsOfParagraph;                            
+                            symbolsOfParagraph = "";
+                            i++;
                         }
-                        else
-                        {//после слова непонятно что за символ - что делать, тоже непонятно, возвращаем пока этот символ
-                            return charOfChapterNumber.ToString();
+                        flagSymbolsStarted = 0; //цепочка символов прервалась, сбрасываем счетчик                    
+                        wordOfParagraph = wordOfParagraph + charOfChapterNumber;//нашли начало слова (после возможных спецсимволов в начале строки) и собираем слово, пока идут буквы (или цифры)
+                        flagWordStarted++;
+                    }
+                    else
+                    {//слово кончилось (или еще не началось)
+                        if (flagWordStarted > 0)
+                        {
+                            if (charOfChapterNumber == ' ')
+                            {//нашли пробел после него, прибавляем его к слову для совпадения с ключевыми словами                            
+                                foundWordsOfParagraph[i] = wordOfParagraph + charOfChapterNumber;                                
+                                wordOfParagraph = "";
+                                i++;
+                            }
+                            else
+                            {//после слова непонятно что за символ - что делать, тоже непонятно, пока просто печатаем эту ситуацию (конец абзаца сюда не попадает)
+                                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), strCRLF +
+                                    "currentParagraph - " + currentParagraph + strCRLF +
+                                    "Word Number = " + i.ToString() + strCRLF +
+                                    "charOfChapterNumber found - " + charOfChapterNumber.ToString(), CurrentClassName, 3);
+                            }
                         }
+                        flagWordStarted = 0; //цепочка букв или цифр прервалась, сбрасываем счетчик                        
+                        symbolsOfParagraph = symbolsOfParagraph + charOfChapterNumber;
+                        flagSymbolsStarted++;
                     }
                 }
+                else
+                {                    
+                        return i;
+                }
             }
-            return null;//вообще не нашли букв и цифр в абзаце - и так, наверное, бывает
+            if (flagWordStarted > 0) foundWordsOfParagraph[i] = wordOfParagraph;
+            if (flagSymbolsStarted > 1) foundWordsOfParagraph[i] = symbolsOfParagraph;
+            return i;
         }
         
         int FirstWordOfParagraphCompare(string firstWordOfParagraph, int desiredTextLanguage)//проверяем первое слово на совпадение с ключевыми
