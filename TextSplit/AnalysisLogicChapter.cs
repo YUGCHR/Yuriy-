@@ -27,12 +27,17 @@ namespace TextSplit
         readonly private int showMessagesLevel;
         readonly private string strCRLF;
         readonly private string[,] chapterNamesSamples;
+        readonly private string stringMarksChapterNameBegin;
+        readonly private string stringMarksChapterNameEnd;
         readonly private char[] charsParagraphSeparator;
         readonly private char[] charsSentenceSeparator;
         readonly private int chapterNamesSamplesCount;
 
         private string[] foundWordsOfParagraph;
+        private string[] foundSymbolsOfParagraph;
+        //private string[] allTextWithChapterNames;
         private int[] chapterNamesVersionsCount;
+        private int[] chapterSymbolsVersionsCount;
         private char[] foundCharsSeparator;
         //private readonly int [] maxKeyNameLength;
         //public event EventHandler AnalyseInvokeTheMain;
@@ -50,16 +55,22 @@ namespace TextSplit
             //maxKeyNameLength = new int[textFieldsQuantity];
             charsParagraphSeparator = new char[] { '\r', '\n' };
             charsSentenceSeparator = new char[] { '.', '!', '?' };
-
+            stringMarksChapterNameBegin = "\u00A4\u00A4\u00A4\u00A4\u00A4";//¤¤¤¤¤ - метка строки перед началом названия главы
+            stringMarksChapterNameEnd = "\u00A4\u00A4\u00A4";//¤¤¤ - метка строки после названия главы
+            //\u00A7 - § 
+            //\u007E - ~
+            //\u00B6 - ¶
             foundWordsOfParagraph = new string[10];//временное хранение найденных первых десяти слов абзаца
+            foundSymbolsOfParagraph = new string[10];//временное хранение найденных групп спецсимволов перед ключевым словом главы
             foundCharsSeparator = new char[10];//временное хранение найденных вариантов разделителей
-
+            //allTextWithChapterNames = new string[paragraphTextLength];//решить, где объявлять, здесь или ниже
             //проверить типовые названия глав (для разных языков свои) - сделать метод универсальным и для частей тоже?
             chapterNamesSamples = new string[,]
             { { "Chapter ", "Paragraph ", "Section ", "Subhead ", "Part " },
                 { "Глава ", "Параграф " , "Раздел ", "Подраздел ", "Часть " }, };//а номера глав бывают буквами! то мелочи, ключевые слова могуть быть из прописных - добавить после тестов и проверить как заработает
             chapterNamesSamplesCount = chapterNamesSamples.GetLength(1); //при добавлении значений проверить присвоение длины!  
             chapterNamesVersionsCount = new int[chapterNamesSamplesCount];
+            chapterSymbolsVersionsCount = new int[chapterNamesSamplesCount];
         }
 
         public int ChapterNameAnalysis(int desiredTextLanguage)//ищем все названия глав, складываем их по массивам, узнаем их количество и возвращаем его
@@ -72,9 +83,13 @@ namespace TextSplit
             //bool normalizeEmptyParagraphsFlag = false;//флаг пустой текущей строки, true - если пустая
             int paragraphTextLength = _book.GetParagraphTextLength(desiredTextLanguage);
             int[] chapterNameIsDigitsOnly = new int[paragraphTextLength];
+            string[] allTextWithChapterNames = new string[paragraphTextLength];
 
             int maxKeyNameLength = ChapterKeyNamesAnalysis(desiredTextLanguage);//непонятно, зачем это нужно, но пока пусть будет
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "maxKeyNameLength = " + maxKeyNameLength.ToString() + strCRLF +
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(),
+                "Mark of begining Chapter --> " + stringMarksChapterNameBegin + strCRLF +
+                "Mark of the end of Chapter --> " + stringMarksChapterNameEnd + strCRLF +
+                "maxKeyNameLength = " + maxKeyNameLength.ToString() + strCRLF +
                 "chapterNamesSamplesCount = " + chapterNamesSamplesCount, CurrentClassName, 3);
 
             for (int i = 1; i < paragraphTextLength; i++)//перебираем все абзацы текста, начиная с второго - в первом главы быть не должно
@@ -95,18 +110,31 @@ namespace TextSplit
                             if (testWordOfParagraph != null)
                             {
                                 bool successSearchNumber = Int32.TryParse(testWordOfParagraph, out firstNumberOfParagraph);
-                                if (successSearchNumber) //в этот момент надо записать строковое представление номера в служебный массив[i] с названиями глав - потом по нему будем делить текст на главы
+                                if (successSearchNumber) 
                                 {//если слово - цифра, тогда проверяем остальной текст на номера глав без ключевых слов - искать просто по возрастанию - ждать следующего попадания сюда
                                     chapterNameIsDigitsOnly[i] = firstNumberOfParagraph + 1; //потом проверить количество и что номера монотонно возрастают (+1 - чтобы избавиться от нулевой главы, бывают и такие, потом не забыть отнять)                      
                                 }
                                 else
                                 {
-                                    keyWordChapterName = TestWordOfParagraphCompare(testWordOfParagraph, desiredTextLanguage);//проверяем первое слово на совпадение с ключевыми
+                                    keyWordChapterName = TestWordOfParagraphCompare(testWordOfParagraph, desiredTextLanguage);//проверяем первые несколько слово на совпадение с ключевыми
                                     if (keyWordChapterName >= 0)
-                                    {//в этот момент можно записать строковое представление названия в служебный массив[i] с названиями глав (а можно и не записывать)
+                                    {
                                         chapterNamesVersionsCount[keyWordChapterName]++; //сюда прибавляем количество встреченных ключевых слов, чтобы потом выбрать похожее по количеству с номерами (не менее количества номеров, больше можно)                                        
                                         //нашли название главы, теперь как-то найти номер сразу за названием
-                                    }
+                                        if (j > 0) //найденное ключевое слово не первое, перед ним были какие-то символы
+                                        {
+                                            for (int m = 0; m < j; m++)//записываем группы символов до встреченного ключевого слова (текущее j)
+                                            {
+                                                if(foundWordsOfParagraph[m] == foundSymbolsOfParagraph[m]) chapterSymbolsVersionsCount[m]++;//если новое значение равно предыдущему, то увеличиваем счетчик
+                                                foundSymbolsOfParagraph[m] = foundWordsOfParagraph[m];//подумать - если левая группа испортит переменную, что потом будет? по идее через пару правильных групп счет восстановится
+                                                //заносить все равно надо, потому что вдруг уже первая группа будет неправильная - потом она постепенно заменится правильной
+
+                                            //но вообще не очень правильно - надо все же все значения занести в массив и потом анализировать - исключения выкинуть и найти такое же количество групп, как и глав
+
+                                                //здесь надо занести в массив (из 10-ти элементов) номер слова названия главы - по порядку в строке, т.е. есть ли перед названием лишние спецсимволы и другое
+                                            }
+                                        }
+                                    }                                    
                                 }
                             }
                         }
@@ -140,12 +168,21 @@ namespace TextSplit
             }
 
             //вот, 52 раза найдено ключевое слово и найдено 52 номера глав
-            //теперь надо вернуться назад - к полному тексту, разделить его на главы и в каждой разметить начало и конец названия главы
+            //теперь заново анализировать текст и искать уже известные названия глав (и в известном количестве)
+            //перебирать абзацы, записывать их во временный массив и помечать названия глав - проблема вставить дополнительные строки для разметки
 
             for (int i = 0; i < paragraphTextLength; i++)
             {
                 _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "t = " + t.ToString() + strCRLF + "workChapterNameIsDigitsOnly - " + workChapterNameIsDigitsOnly[i].ToString(), CurrentClassName, 3);
+                //тут переписываем массив _book.GetParagraphText(i, desiredTextLanguage) во временный массив allTextWithChapterNames
+                //allTextWithChapterNames[i] = _book.GetParagraphText(i, desiredTextLanguage);
+                
             }
+            //обнулить массив _book.GetParagraphText(i, desiredTextLanguage)
+            //
+
+
+
             return 0;
         }
 
