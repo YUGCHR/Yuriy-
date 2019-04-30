@@ -17,7 +17,7 @@ namespace TextSplit
         //event EventHandler AnalyseInvokeTheMain;
     }
 
-    class AnalysisLogicChapter : IAnalysisLogicChapter
+    public class AnalysisLogicChapter : IAnalysisLogicChapter
     {
         private readonly IAllBookData _book;
         private readonly IMessageService _messageService;
@@ -173,7 +173,7 @@ namespace TextSplit
 
             for (int i = 0; i < paragraphTextLength; i++)
             {
-                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "t = " + t.ToString() + strCRLF + "workChapterNameIsDigitsOnly - " + workChapterNameIsDigitsOnly[i].ToString(), CurrentClassName, 3);
+                //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "t = " + t.ToString() + strCRLF + "workChapterNameIsDigitsOnly - " + workChapterNameIsDigitsOnly[i].ToString(), CurrentClassName, 3);
                 //тут переписываем массив _book.GetParagraphText(i, desiredTextLanguage) во временный массив allTextWithChapterNames
                 //allTextWithChapterNames[i] = _book.GetParagraphText(i, desiredTextLanguage);
                 
@@ -182,8 +182,8 @@ namespace TextSplit
             //
 
 
-
-            return 0;
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "t = " + t.ToString(), CurrentClassName, 3);
+            return t;
         }
 
         int WordsOfParagraphSearch(string currentParagraph, string[] foundWordsOfParagraph)//метод выделяет из строки (абзаца текста) первые десять (или больше - по размерности передаваемого массива) слов или чисел (и, возможно, перечисляет все разделители)

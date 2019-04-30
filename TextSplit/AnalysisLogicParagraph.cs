@@ -19,7 +19,7 @@ namespace TextSplit
         //event EventHandler AnalyseInvokeTheMain;
     }
 
-    class AnalysisLogicParagraph : IAnalysisLogicParagraph
+    public class AnalysisLogicParagraph : IAnalysisLogicParagraph
     {
         private readonly IAllBookData _book;
         private readonly IMessageService _messageService;

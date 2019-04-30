@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TextSplit", "TextSplit\Text
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TextSplitLibrary", "TextSplitLibrary\TextSplitLibrary.csproj", "{0463D800-2467-4AB5-93C8-3A1E06881868}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TextSplit.Tests", "TextSplit.Tests\TextSplit.Tests.csproj", "{737664C9-B27C-4A37-B138-FF84E8F265BA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{0463D800-2467-4AB5-93C8-3A1E06881868}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0463D800-2467-4AB5-93C8-3A1E06881868}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0463D800-2467-4AB5-93C8-3A1E06881868}.Release|Any CPU.Build.0 = Release|Any CPU
+		{737664C9-B27C-4A37-B138-FF84E8F265BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{737664C9-B27C-4A37-B138-FF84E8F265BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{737664C9-B27C-4A37-B138-FF84E8F265BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{737664C9-B27C-4A37-B138-FF84E8F265BA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
