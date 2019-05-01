@@ -188,6 +188,8 @@ namespace TextSplit
                 return (int)MethodFindResult.NothingFound;//пустая строка без слов, вернули -1 для ясности
             }
             //убрать сдвоенные пробелы из строки
+            string currentParagraphWithSingleBlanks = RemoveMoreThenOneBlank(currentParagraph);
+            currentParagraph = currentParagraphWithSingleBlanks;
 
             int findWordsCount = foundWordsOfParagraph.Length;
             Array.Clear(foundWordsOfParagraph, 0, findWordsCount);
@@ -199,7 +201,7 @@ namespace TextSplit
             //разделяем абзац на слова или числа и на скопления спецсимволов (если больше одного подряд)
             foreach (char charOfChapterNumber in currentParagraph)
             {               
-                if (i < findWordsCount - 1)//если массив еще не заполнен, заполняем (-1 - на всякий случай, чтобы не переполниться)
+                if (i < findWordsCount)//если массив еще не заполнен, заполняем (если будет переполняться, вычесть 1)
                 {
                     if (Char.IsLetterOrDigit(charOfChapterNumber))//слабое место, что может быть комбинация букв и цифр - протестировать этот вариант
                     {

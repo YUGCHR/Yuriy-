@@ -26,7 +26,7 @@ namespace TextSplit.Tests
                 "$$$ $$$ Chapter 00 ",                     // 3 слова
                 "$$$  $$$  Chapter  00 Chapter",           // 4 слова - две группы символов обрабатываются как одна - но наверное, так и задумано
                 "$$$ Found Following Chapter 00 ",         // 5 слов - еще понять, обрабатываются ли символы после номера, и что там с пробелом после номера (с ним все плохо)
-            };
+            };//добавить длинный пример - больше 10-ти слов, чтобы выйти за пределы рабочего массива
             test10WordsTextLengh = test10WordsText.Length;
             expectedResult = new int[test10WordsTextLengh];
             foundWordsOfParagraph = new string[10];//временное хранение найденных первых десяти слов абзаца
@@ -36,7 +36,21 @@ namespace TextSplit.Tests
         public void WordsOfParagraphSearch_10WordsArray()
         {//метод выделяет из строки (абзаца текста) первые десять (или больше - по размерности передаваемого массива) слов или чисел (и, возможно, перечисляет все разделители)
             // ARRANGE
-            
+            int actualResult = 0;
+            expectedResult = new int[]
+                {
+                -1,
+                1,
+                1,//должно быть 2 слова!
+                3,
+                3,//должно быть 4 слова!
+                5
+                };
+            int expectedResultAssertLengh = expectedResult.Length;
+            if (expectedResultAssertLengh != test10WordsTextLengh)
+            {
+                Assert.Fail("The test arrays are not equal");
+            }
             //IMessageService msgService = Mock.Of<IMessageService>();// - вывод на печать отключить
 
             IAllBookData book = new AllBookData();
@@ -48,9 +62,9 @@ namespace TextSplit.Tests
             var target = new AnalysisLogicChapter(bookDataMock.Object, msgService);
             for (int i = 0; i < test10WordsTextLengh; i++)
             {
-                int result = target.WordsOfParagraphSearch(test10WordsText[i], foundWordsOfParagraph);
-                if (result == -1) result = 0;//если слов не нашли, то их количество равно 0, а не -1
-                Assert.AreEqual(i, result, "There are must be " + i.ToString() + " words.");
+                actualResult = target.WordsOfParagraphSearch(test10WordsText[i], foundWordsOfParagraph);
+                
+                Assert.AreEqual(expectedResult[i], actualResult, "There are must be " + expectedResult[i].ToString() + " words.");
             }
         }
 
@@ -93,7 +107,7 @@ namespace TextSplit.Tests
                     actualResult = -1;//если были двойные пробелы и строки отличаются
 
                 }
-                Assert.AreEqual(expectedResult[i], actualResult, "There are must be " + i.ToString() + " words.");
+                Assert.AreEqual(expectedResult[i], actualResult, "There are must be " + expectedResult[i].ToString() + " result.");
             }
         }
     }
