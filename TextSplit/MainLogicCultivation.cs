@@ -58,7 +58,7 @@ namespace TextSplit
                 {//если нужный файл существует (потом добавить try/catch на доступность)
                     int setFilesContentResult = _book.SetFileContent(_manager.GetContent(theAffectedElementNumber), theAffectedElementNumber);//загрузили весь текст из файла в массив
                     int setToDoResult = _book.SetFileToDo((int)WhatNeedDoWithFiles.ContinueProcessing, theAffectedElementNumber);//установили флаг, что можно работать дальше
-                    return theAffectedElementNumber;
+                    return theAffectedElementNumber;//рассмотреть замену на desiredTextLanguage
                 }
             }
             _messageService.ShowExclamation("The source file does not exist, please select it!");

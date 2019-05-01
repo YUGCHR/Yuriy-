@@ -52,35 +52,28 @@ namespace TextSplit
             showMessagesLevel = Declaration.ShowMessagesLevel;
             strCRLF = Declaration.StrCRLF;
 
-            //maxKeyNameLength = new int[textFieldsQuantity];
+            //потом перенести все константы в Declaration - разделить там все на разделы по классам
             charsParagraphSeparator = new char[] { '\r', '\n' };
             charsSentenceSeparator = new char[] { '.', '!', '?' };
             stringMarksChapterNameBegin = "\u00A4\u00A4\u00A4\u00A4\u00A4";//¤¤¤¤¤ - метка строки перед началом названия главы
-            stringMarksChapterNameEnd = "\u00A4\u00A4\u00A4";//¤¤¤ - метка строки после названия главы
-            //\u00A7 - § 
-            //\u007E - ~
-            //\u00B6 - ¶
+            stringMarksChapterNameEnd = "\u00A4\u00A4\u00A4";//¤¤¤ - метка строки после названия главы, еще \u00A7 - §, \u007E - ~, \u00B6 - ¶            
+            //проверить типовые названия глав (для разных языков свои) - сделать метод универсальным и для частей тоже? или некоторые методы метода - перенести их тогда в общую логику
+            chapterNamesSamples = new string[,]
+            { { "Chapter ", "Paragraph ", "Section ", "Subhead ", "Part " },
+                { "Глава ", "Параграф " , "Раздел ", "Подраздел ", "Часть " }, };
+            //а номера глав бывают буквами! то мелочи, ключевые слова могуть быть из прописных букв, может быть дефис между словом и номером или другой символ
+            chapterNamesSamplesCount = chapterNamesSamples.GetLength(1); //при добавлении значений проверить присвоение длины!
+
             foundWordsOfParagraph = new string[10];//временное хранение найденных первых десяти слов абзаца
             foundSymbolsOfParagraph = new string[10];//временное хранение найденных групп спецсимволов перед ключевым словом главы
             foundCharsSeparator = new char[10];//временное хранение найденных вариантов разделителей
-            //allTextWithChapterNames = new string[paragraphTextLength];//решить, где объявлять, здесь или ниже
-            //проверить типовые названия глав (для разных языков свои) - сделать метод универсальным и для частей тоже?
-            chapterNamesSamples = new string[,]
-            { { "Chapter ", "Paragraph ", "Section ", "Subhead ", "Part " },
-                { "Глава ", "Параграф " , "Раздел ", "Подраздел ", "Часть " }, };//а номера глав бывают буквами! то мелочи, ключевые слова могуть быть из прописных - добавить после тестов и проверить как заработает
-            chapterNamesSamplesCount = chapterNamesSamples.GetLength(1); //при добавлении значений проверить присвоение длины!  
             chapterNamesVersionsCount = new int[chapterNamesSamplesCount];
             chapterSymbolsVersionsCount = new int[chapterNamesSamplesCount];
         }
 
         public int ChapterNameAnalysis(int desiredTextLanguage)//ищем все названия глав, складываем их по массивам, узнаем их количество и возвращаем его
         {
-            int findWordsCount = foundWordsOfParagraph.Length;
-            string testWordOfParagraph = "";
-            int foundWordsOfParagraphCount = 0;
-            int firstNumberOfParagraph = 0;
-            int keyWordChapterName = 0;
-            //bool normalizeEmptyParagraphsFlag = false;//флаг пустой текущей строки, true - если пустая
+            int findWordsCount = foundWordsOfParagraph.Length;            
             int paragraphTextLength = _book.GetParagraphTextLength(desiredTextLanguage);
             int[] chapterNameIsDigitsOnly = new int[paragraphTextLength];
             string[] allTextWithChapterNames = new string[paragraphTextLength];
@@ -99,47 +92,9 @@ namespace TextSplit
                 if (!String.IsNullOrWhiteSpace(currentParagraph))//если текущая строка не пустая, получаем и смотрим предыдущий абзац
                 {
                     string previousParagraph = _book.GetParagraphText((i - 1), desiredTextLanguage);
-
-                    if (String.IsNullOrWhiteSpace(previousParagraph))
-                    {//начало анализа строки (абзаца)
-                        foundWordsOfParagraphCount = WordsOfParagraphSearch(currentParagraph, foundWordsOfParagraph);//выделяем в текущем параграфе первые 10 групп символов (слова, числа или группы спецсимволов)
-                        
-                        for (int j = 0; j <= foundWordsOfParagraphCount; j++)//перебираем все полученные слова из начала абзаца - ищем числа и ключевые слова
-                        {
-                            testWordOfParagraph = foundWordsOfParagraph[j];
-                            if (testWordOfParagraph != null)
-                            {
-                                bool successSearchNumber = Int32.TryParse(testWordOfParagraph, out firstNumberOfParagraph);
-                                if (successSearchNumber) 
-                                {//если слово - цифра, тогда проверяем остальной текст на номера глав без ключевых слов - искать просто по возрастанию - ждать следующего попадания сюда
-                                    chapterNameIsDigitsOnly[i] = firstNumberOfParagraph + 1; //потом проверить количество и что номера монотонно возрастают (+1 - чтобы избавиться от нулевой главы, бывают и такие, потом не забыть отнять)                      
-                                }
-                                else
-                                {
-                                    keyWordChapterName = TestWordOfParagraphCompare(testWordOfParagraph, desiredTextLanguage);//проверяем первые несколько слово на совпадение с ключевыми
-                                    if (keyWordChapterName >= 0)
-                                    {
-                                        chapterNamesVersionsCount[keyWordChapterName]++; //сюда прибавляем количество встреченных ключевых слов, чтобы потом выбрать похожее по количеству с номерами (не менее количества номеров, больше можно)                                        
-                                        //нашли название главы, теперь как-то найти номер сразу за названием
-                                        if (j > 0) //найденное ключевое слово не первое, перед ним были какие-то символы
-                                        {
-                                            for (int m = 0; m < j; m++)//записываем группы символов до встреченного ключевого слова (текущее j)
-                                            {
-                                                if(foundWordsOfParagraph[m] == foundSymbolsOfParagraph[m]) chapterSymbolsVersionsCount[m]++;//если новое значение равно предыдущему, то увеличиваем счетчик
-                                                foundSymbolsOfParagraph[m] = foundWordsOfParagraph[m];//подумать - если левая группа испортит переменную, что потом будет? по идее через пару правильных групп счет восстановится
-                                                //заносить все равно надо, потому что вдруг уже первая группа будет неправильная - потом она постепенно заменится правильной
-
-                                            //но вообще не очень правильно - надо все же все значения занести в массив и потом анализировать - исключения выкинуть и найти такое же количество групп, как и глав
-
-                                                //здесь надо занести в массив (из 10-ти элементов) номер слова названия главы - по порядку в строке, т.е. есть ли перед названием лишние спецсимволы и другое
-                                            }
-                                        }
-                                    }                                    
-                                }
-                            }
-                        }
-                    }
-                }                
+                    //если предыдущая пустая, то начинаем анализ строки (абзаца), выбираем первые 10 групп символов (по пробелу) и ищем в них название (ключевые слова) и номера глав
+                    if (String.IsNullOrWhiteSpace(previousParagraph)) FirstTenGroupsFound(currentParagraph, chapterNameIsDigitsOnly, i, desiredTextLanguage);
+                }
             }
 
             for (int i = 0; i < chapterNamesSamplesCount; i++)
@@ -147,27 +102,10 @@ namespace TextSplit
                 //проверяем содержимое chapterNameIsDigitsOnly и chapterNamesVersionsCount
                 if(chapterNamesVersionsCount[i] > 0) _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "chapterNamesVersionsCount - " + chapterNamesVersionsCount[i].ToString(), CurrentClassName, 3);
             }
-
-            //выкинуть нули и лишние цифры из номеров глав, проверить, что остальные цифры идут по порядку, посчитать количество номеров глав
-            int[] workChapterNameIsDigitsOnly = new int[paragraphTextLength];
-            int t = 0;
-            int working = -1;
-            for (int i = 0; i < paragraphTextLength; i++)
-            {
-                if (chapterNameIsDigitsOnly[i] != 0)
-                {
-                    workChapterNameIsDigitsOnly[t] = chapterNameIsDigitsOnly[i]-1;
-
-                    if (working == (workChapterNameIsDigitsOnly[t] - 1))
-                    {
-                        working = workChapterNameIsDigitsOnly[t];
-                        t++;
-                        //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "t = " + t.ToString(), CurrentClassName, 3);
-                    }
-                }                
-            }
-
-            //вот, 52 раза найдено ключевое слово и найдено 52 номера глав
+            
+            int increasedChapterNumbers = isChapterNumbersIncreased(chapterNameIsDigitsOnly, desiredTextLanguage);
+            
+            //тут уже 52 раза найдено ключевое слово и найдено 52 номера глав (для контрольного текста)
             //теперь заново анализировать текст и искать уже известные названия глав (и в известном количестве)
             //перебирать абзацы, записывать их во временный массив и помечать названия глав - проблема вставить дополнительные строки для разметки
 
@@ -182,13 +120,73 @@ namespace TextSplit
             //
 
 
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "t = " + t.ToString(), CurrentClassName, 3);
-            return t;
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "increasedChapterNumbers = " + increasedChapterNumbers.ToString(), CurrentClassName, 3);
+            return increasedChapterNumbers;
         }
 
-        int WordsOfParagraphSearch(string currentParagraph, string[] foundWordsOfParagraph)//метод выделяет из строки (абзаца текста) первые десять (или больше - по размерности передаваемого массива) слов или чисел (и, возможно, перечисляет все разделители)
-        {
-            if(String.IsNullOrWhiteSpace(currentParagraph)) return (int)MethodFindResult.NothingFound;
+        int isChapterNumbersIncreased(int[] chapterNameIsDigitsOnly, int desiredTextLanguage)
+        {//выкинуть нули и лишние цифры из номеров глав, проверить, что остальные цифры идут по порядку, посчитать количество номеров глав
+            int paragraphTextLength = _book.GetParagraphTextLength(desiredTextLanguage);
+            int[] workChapterNameIsDigitsOnly = new int[paragraphTextLength];
+            int increasedChapterNumbers = 0;
+            int working = -1;
+            for (int i = 0; i < paragraphTextLength; i++)
+            {
+                if (chapterNameIsDigitsOnly[i] != 0)
+                {
+                    workChapterNameIsDigitsOnly[increasedChapterNumbers] = chapterNameIsDigitsOnly[i] - 1;
+
+                    if (working == (workChapterNameIsDigitsOnly[increasedChapterNumbers] - 1))
+                    {
+                        working = workChapterNameIsDigitsOnly[increasedChapterNumbers];
+                        increasedChapterNumbers++;
+                        //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "t = " + t.ToString(), CurrentClassName, 3);
+                    }
+                }
+            }
+            return increasedChapterNumbers;
+        }
+
+        void FirstTenGroupsFound(string currentParagraph, int[] chapterNameIsDigitsOnly, int i, int desiredTextLanguage)
+        {//начало анализа строки (абзаца)
+            int firstNumberOfParagraph = 0;
+            int keyWordChapterName = 0;
+            //int[] chapterNameIsDigitsOnly = new int[paragraphTextLength];
+            int foundWordsOfParagraphCount = WordsOfParagraphSearch(currentParagraph, foundWordsOfParagraph);//выделяем в текущем параграфе первые 10 групп символов (слова, числа или группы спецсимволов)
+
+            for (int j = 0; j <= foundWordsOfParagraphCount; j++)//перебираем все полученные слова из начала абзаца - ищем числа и ключевые слова
+            {
+                string testWordOfParagraph = foundWordsOfParagraph[j];
+                if (testWordOfParagraph != null)
+                {
+                    bool successSearchNumber = Int32.TryParse(testWordOfParagraph, out firstNumberOfParagraph);
+                    if (successSearchNumber) chapterNameIsDigitsOnly[i] = firstNumberOfParagraph + 1; //потом проверить количество и что номера монотонно возрастают (+1 - чтобы избавиться от нулевой главы, бывают и такие, потом не забыть отнять)                      
+                                                                                                      //если слово - цифра, тогда проверяем остальной текст на номера глав без ключевых слов
+                    else keyWordChapterName = TestWordOfParagraphCompare(testWordOfParagraph, j, desiredTextLanguage);//проверяем первые несколько слово на совпадение с ключевыми                                                                                                   
+                }
+            }            
+        }        
+
+        void SymbolsFoundBeforeKeyWord(int j)//передать и получить все параметры
+        {//найденное ключевое слово не первое, перед ним были какие-то символы - ищем их и складываем количество встретившихся групп в массив chapterSymbolsVersionsCount
+         //потом сравнить с числом найденных глав и, если совпадает, то найден постоянная группа в названии главы - но зачем она?
+            for (int m = 0; m < j; m++)//записываем группы символов до встреченного ключевого слова (текущее j)
+            {
+                if (foundWordsOfParagraph[m] == foundSymbolsOfParagraph[m]) chapterSymbolsVersionsCount[m]++;//если новое значение равно предыдущему, то увеличиваем счетчик
+                foundSymbolsOfParagraph[m] = foundWordsOfParagraph[m];
+            //подумать - если левая группа испортит переменную, что потом будет? по идее через пару правильных групп счет восстановится                                                                      
+            //заносить все равно надо, потому что вдруг уже первая группа будет неправильная - потом она постепенно заменится правильной
+            //но вообще не очень правильно - надо все же все значения занести в массив и потом анализировать - исключения выкинуть и найти такое же количество групп, как и глав
+            //здесь надо занести в массив (из 10-ти элементов) номер слова названия главы - по порядку в строке, т.е. есть ли перед названием лишние спецсимволы и другое
+            }
+        }
+
+        public int WordsOfParagraphSearch(string currentParagraph, string[] foundWordsOfParagraph)
+        {//метод выделяет из строки (абзаца текста) первые десять (или больше - по размерности передаваемого массива) слов или чисел (и, возможно, перечисляет все разделители)
+            if (String.IsNullOrWhiteSpace(currentParagraph))
+            {
+                return (int)MethodFindResult.NothingFound;//пустая строка без слов, вернули -1 для ясности
+            }
             int findWordsCount = foundWordsOfParagraph.Length;
             Array.Clear(foundWordsOfParagraph, 0, findWordsCount);
             string wordOfParagraph = "";
@@ -204,7 +202,7 @@ namespace TextSplit
                     if (Char.IsLetterOrDigit(charOfChapterNumber))//слабое место, что может быть комбинация букв и цифр - протестировать этот вариант
                     {
                         if (flagSymbolsStarted > 1)
-                        {//найдена цепочка спецсимволов больше одного подряд
+                        {//найдена цепочка спецсимволов больше одного подряд (она только что завершилась)
                             foundWordsOfParagraph[i] = symbolsOfParagraph;                            
                             symbolsOfParagraph = "";
                             i++;
@@ -218,7 +216,7 @@ namespace TextSplit
                         if (flagWordStarted > 0)
                         {
                             if (charOfChapterNumber == ' ')
-                            {//нашли пробел после него, прибавляем его к слову для совпадения с ключевыми словами                            
+                            {//нашли пробел после него, прибавляем его к слову для совпадения с ключевыми словами - сомнительное действие, надо предусмотреть дефис и прочие варианты
                                 foundWordsOfParagraph[i] = wordOfParagraph + charOfChapterNumber;                                
                                 wordOfParagraph = "";
                                 i++;
@@ -230,23 +228,28 @@ namespace TextSplit
                     }
                 }
                 else
-                {                    
-                        return i;
+                {
+                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "else i = " + i.ToString(), CurrentClassName, 3);
+                    return i;
                 }
             }
             if (flagWordStarted > 0) foundWordsOfParagraph[i] = wordOfParagraph;
             if (flagSymbolsStarted > 1) foundWordsOfParagraph[i] = symbolsOfParagraph;
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "foreach i = " + i.ToString(), CurrentClassName, 3);
             return i;
         }
         
-        int TestWordOfParagraphCompare(string testWordOfParagraph, int desiredTextLanguage)//проверяем полученное слово на совпадение с ключевыми из массива (его хорошо бы прямо передавать и мерять длину - вдруг потом в другой класс переедем?)
+        int TestWordOfParagraphCompare(string testWordOfParagraph, int j, int desiredTextLanguage)//проверяем полученное слово на совпадение с ключевыми из массива (его хорошо бы прямо передавать и мерять длину - вдруг потом в другой класс переедем?)
         {
             for (int n = 0; n < chapterNamesSamplesCount; n++)
             {
                 bool currentfirstWordOfParagraph = testWordOfParagraph.Contains(chapterNamesSamples[desiredTextLanguage, n]);//проверяем, содержатся ли стандартные называния глав в строке - с пробелом после слова (может заменить на Equals)
                 if (currentfirstWordOfParagraph)
                 {//нашли название главы, возвращаем индекс массива ключевых слов
-                    return n;
+                    chapterNamesVersionsCount[n]++; //сюда прибавляем количество встреченных ключевых слов, чтобы потом выбрать похожее по количеству с номерами (не менее количества номеров, больше можно)                                        
+                    //нашли название главы, теперь как-то найти номер сразу за названием - похоже, номер ищется автоматически - в следующей группе символов за ключевым словом
+                    if (j > 0) SymbolsFoundBeforeKeyWord(j); //найденное ключевое слово не первое в строке, перед ним были какие-то символы, ищем их и сохраняем, чтобы потом было проще искать названия глав
+                    return n;//можно уже возвращать что-то другое (наверное)
                 }
             }
             return (int)MethodFindResult.NothingFound;//не нашли...
@@ -299,7 +302,7 @@ namespace TextSplit
         }
 
         public int UserSelectedChapterNameAnalysis(int desiredTextLanguage)//метод, когда не получился анализ глав со стандартными названиями, тогда просим подсказки у пользователя
-        {
+        {//пока не используется, потом придется переписать 
             string userSelectedText = _book.GetSelectedText(desiredTextLanguage);//получили припрятанный фрагмент, выбранный пользователем - предположительно вид нумерации глав
 
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "In the TextBox " + desiredTextLanguage.ToString() + strCRLF +

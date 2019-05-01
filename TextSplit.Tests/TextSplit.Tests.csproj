@@ -61,7 +61,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="UnitTests\AnalysisLogicChapterTests.cs" />
+    <Compile Include="IntegrationTests\AnalysisLogicChapterIntegrationTest.cs" />
+    <Compile Include="UnitTests\AnalysisLogicChapterUnitTests.cs" />
+    <Compile Include="UnitTests\AnalysisLogicChapterMainTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -78,7 +80,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="testBooks\sampleEndlishTextDoc.txt" />
+    <Content Include="testBooks\testEndlishTexts_03.txt" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

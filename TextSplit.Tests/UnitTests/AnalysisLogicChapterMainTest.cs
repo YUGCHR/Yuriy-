@@ -8,14 +8,13 @@ namespace TextSplit.Tests
 { // from menu Test -> run -> All tests
     // or Test -> Windows -> TestExplorer
     [TestClass]
-    public class AnalysisLogicChapterTests
+    public class AnalysisLogicChapterMainTest
     {
         public string[] testOneChapterText;
         public string[] testThreeChapterText;        
 
-        public AnalysisLogicChapterTests()
+        public AnalysisLogicChapterMainTest()//тест главного метода класса
         {//сделать массив с голыми номерами, с другим ключевым словом, с разными ключевыми словами
-
             testOneChapterText = new string[]//тестовый текст для нахождения одной главы (номера глав совпадают)
             {
                 "",
@@ -54,6 +53,7 @@ namespace TextSplit.Tests
                 "",
                 };            
         }
+
         [TestMethod] // - marks method as a test
         public void ChapterNameAnalysis_NoChapters()
         {
@@ -107,7 +107,7 @@ namespace TextSplit.Tests
             int result = target.ChapterNameAnalysis(0);//0 - Eng, 1 - Rus
 
             // ASSERT
-            Assert.AreEqual(1, result, "There must 1 chapter.");
+            Assert.AreEqual(1, result, "There is must be 1 chapter.");
         }
 
 
