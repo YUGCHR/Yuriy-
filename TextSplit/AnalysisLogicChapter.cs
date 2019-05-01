@@ -182,11 +182,13 @@ namespace TextSplit
         }
 
         public int WordsOfParagraphSearch(string currentParagraph, string[] foundWordsOfParagraph)
-        {//метод выделяет из строки (абзаца текста) первые десять (или больше - по размерности передаваемого массива) слов или чисел (и, возможно, перечисляет все разделители)
+        {//метод выделяет из строки (абзаца текста) первые десять (или больше - по размерности передаваемого массива) слов или чисел (и, возможно, сохраняет лидирующую группу спецсимволов)
             if (String.IsNullOrWhiteSpace(currentParagraph))
             {
                 return (int)MethodFindResult.NothingFound;//пустая строка без слов, вернули -1 для ясности
             }
+            //убрать сдвоенные пробелы из строки
+
             int findWordsCount = foundWordsOfParagraph.Length;
             Array.Clear(foundWordsOfParagraph, 0, findWordsCount);
             string wordOfParagraph = "";
@@ -229,16 +231,57 @@ namespace TextSplit
                 }
                 else
                 {
-                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "else i = " + i.ToString(), CurrentClassName, 3);
+                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "else i = " + i.ToString() + strCRLF +
+                        "foundWordsOfParagraph[0] --> " + foundWordsOfParagraph[0] + strCRLF +
+                        "foundWordsOfParagraph[1] --> " + foundWordsOfParagraph[1] + strCRLF +
+                        "foundWordsOfParagraph[2] --> " + foundWordsOfParagraph[2] + strCRLF +
+                        "foundWordsOfParagraph[3] --> " + foundWordsOfParagraph[3] + strCRLF +
+                        "foundWordsOfParagraph[4] --> " + foundWordsOfParagraph[4] + strCRLF +
+                        "flagWordStarted - " + flagWordStarted.ToString(), CurrentClassName, 3); 
                     return i;
                 }
             }
             if (flagWordStarted > 0) foundWordsOfParagraph[i] = wordOfParagraph;
             if (flagSymbolsStarted > 1) foundWordsOfParagraph[i] = symbolsOfParagraph;
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "foreach i = " + i.ToString(), CurrentClassName, 3);
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "foreach i = " + i.ToString() + strCRLF +
+                        "foundWordsOfParagraph[0] --> " + foundWordsOfParagraph[0] + strCRLF +
+                        "foundWordsOfParagraph[1] --> " + foundWordsOfParagraph[1] + strCRLF +
+                        "foundWordsOfParagraph[2] --> " + foundWordsOfParagraph[2] + strCRLF +
+                        "foundWordsOfParagraph[3] --> " + foundWordsOfParagraph[3] + strCRLF +
+                        "foundWordsOfParagraph[4] --> " + foundWordsOfParagraph[4] + strCRLF +
+                        "flagWordStarted - " + flagWordStarted.ToString(), CurrentClassName, 3);
             return i;
         }
-        
+
+        public string RemoveMoreThenOneBlank(string currentParagraph)
+        {
+            string currentParagraphWithSingleBlanks = "";
+            char previousCharOfCurrentParagraph = '¶';
+            
+            int resultSymbols = 0;
+            int sourceSymbols = 0;
+
+            foreach (char charOfcurrentParagraph in currentParagraph)
+            {
+                if (charOfcurrentParagraph == ' ' && previousCharOfCurrentParagraph == ' ')
+                { }
+                else
+                {
+                    currentParagraphWithSingleBlanks = currentParagraphWithSingleBlanks + charOfcurrentParagraph;
+                    resultSymbols++;
+                }
+                previousCharOfCurrentParagraph = charOfcurrentParagraph;
+                //singleBlankSpaceDetected = true;
+                sourceSymbols++;
+            }
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), 
+                "foreach sourceSymbols = " + sourceSymbols.ToString() + strCRLF +
+                "resultSymbols = " + resultSymbols.ToString() + strCRLF +
+                "Source string --> " + currentParagraph + strCRLF +
+                "Result string --> " + currentParagraphWithSingleBlanks, CurrentClassName, showMessagesLevel);
+            return currentParagraphWithSingleBlanks;
+        }
+
         int TestWordOfParagraphCompare(string testWordOfParagraph, int j, int desiredTextLanguage)//проверяем полученное слово на совпадение с ключевыми из массива (его хорошо бы прямо передавать и мерять длину - вдруг потом в другой класс переедем?)
         {
             for (int n = 0; n < chapterNamesSamplesCount; n++)
