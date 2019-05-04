@@ -228,7 +228,7 @@ namespace TextSplit
                         }
                         flagWordStarted = 0; //цепочка букв или цифр прервалась, сбрасываем счетчик                        
                         symbolsOfParagraph = symbolsOfParagraph + charOfChapterNumber;
-                        flagSymbolsStarted++;
+                        flagSymbolsStarted++;                        
                     }
                 }
                 else
@@ -243,8 +243,16 @@ namespace TextSplit
                     return i;
                 }
             }
-            if (flagWordStarted > 0) foundWordsOfParagraph[i] = wordOfParagraph;
-            if (flagSymbolsStarted > 1) foundWordsOfParagraph[i] = symbolsOfParagraph;
+            if (flagWordStarted > 0)
+            {
+                foundWordsOfParagraph[i] = wordOfParagraph;
+                i++;
+            }
+            if (flagSymbolsStarted > 1)
+            {
+                foundWordsOfParagraph[i] = symbolsOfParagraph;
+                i++;
+            }
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "foreach i = " + i.ToString() + strCRLF +
                         "foundWordsOfParagraph[0] --> " + foundWordsOfParagraph[0] + strCRLF +
                         "foundWordsOfParagraph[1] --> " + foundWordsOfParagraph[1] + strCRLF +
