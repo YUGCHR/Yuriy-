@@ -33,33 +33,34 @@ namespace TextSplit.Tests
             foundWordsOfParagraph = new string[10];//временное хранение найденных первых десяти слов абзаца
         }
 
-        //[TestMethod]
-        //[DataRow("Chapter 00", 2)]
-        //[DataRow("Chapter-00", 2)]
-        //[DataRow("Chapter$00", 2)]
-        //[DataRow("Chapter  00", 2)]
-        //[DataRow("", -1)]
-        //[DataRow("$$$ $$$ Chapter 00 ", 3)]
-        //[DataRow("$$$  $$$  Chapter  00 Chapter", 4)]
-        //[DataRow("$$$ Found Following Chapter 00 ", 5)]
-        //public void DataRowTest(string line, int numberOfWords) {
+        [TestMethod]
+        [DataRow("Chapter 00", 2)]
+        [DataRow("Chapter-00", 2)]
+        [DataRow("Chapter$00", 2)]
+        [DataRow("Chapter  00", 2)]
+        [DataRow("", -1)]
+        [DataRow("$$$ $$$ Chapter 00 ", 3)]
+        [DataRow("$$$  $$$  Chapter  00 Chapter", 4)]
+        [DataRow("$$$ Found Following Chapter 00 ", 5)]
+        public void DataRowTest(string line, int numberOfWords)
+        {
 
-        //    IMessageService msgService = Mock.Of<IMessageService>();// - вывод на печать отключить
+            //IMessageService msgService = Mock.Of<IMessageService>();// - вывод на печать отключить
 
-        //    //IAllBookData book = new AllBookData();
-        //    //IFileManager manager = new FileManager(book);
-        //    //IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)
+            IAllBookData book = new AllBookData();
+            IFileManager manager = new FileManager(book);
+            IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)
 
-        //    Mock<IAllBookData> bookDataMock = new Mock<IAllBookData>();
+            Mock<IAllBookData> bookDataMock = new Mock<IAllBookData>();
 
-        //    Trace.WriteLine("Input: " + line);
+            Trace.WriteLine("Input: " + line);
 
 
-        //    var target = new AnalysisLogicChapter(bookDataMock.Object, msgService);
-        //    var arr = new string[10];
-        //    var words = target.WordsOfParagraphSearch(line, arr);
-        //    Assert.AreEqual(numberOfWords, words);
-        //}
+            var target = new AnalysisLogicChapter(bookDataMock.Object, msgService);
+            var arr = new string[10];
+            var words = target.WordsOfParagraphSearch(line, arr);
+            Assert.AreEqual(numberOfWords, words);
+        }
 
         [TestMethod]
         public void WordsOfParagraphSearch_10WordsArray()

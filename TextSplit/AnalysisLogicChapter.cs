@@ -183,6 +183,7 @@ namespace TextSplit
 
         public int WordsOfParagraphSearch(string currentParagraph, string[] foundWordsOfParagraph)
         {//метод выделяет из строки (абзаца текста) первые десять (или больше - по размерности передаваемого массива) слов или чисел (и, возможно, сохраняет лидирующую группу спецсимволов)
+
             if (String.IsNullOrWhiteSpace(currentParagraph))
             {
                 return (int)MethodFindResult.NothingFound;//пустая строка без слов, вернули -1 для ясности
@@ -191,76 +192,100 @@ namespace TextSplit
             string currentParagraphWithSingleBlanks = RemoveMoreThenOneBlank(currentParagraph);
             currentParagraph = currentParagraphWithSingleBlanks;
 
-            int findWordsCount = foundWordsOfParagraph.Length;
-            Array.Clear(foundWordsOfParagraph, 0, findWordsCount);
-            string wordOfParagraph = "";
-            string symbolsOfParagraph = "";
-            int flagWordStarted = 0;
-            int flagSymbolsStarted = 0;
-            int i = 0;
-            //разделяем абзац на слова или числа и на скопления спецсимволов (если больше одного подряд)
-            foreach (char charOfChapterNumber in currentParagraph)
-            {               
-                if (i < findWordsCount)//если массив еще не заполнен, заполняем (если будет переполняться, вычесть 1)
+            int foundWordsOfParagraphLength = foundWordsOfParagraph.Length;
+            Array.Clear(foundWordsOfParagraph, 0, foundWordsOfParagraphLength);
+            int foundWordsCount = 0;
+            //string symbolsOfParagraph = "";
+            //int flagWordStarted = 0;
+            //int flagSymbolsStarted = 0;
+            ////разделяем абзац на слова или числа и на скопления спецсимволов (если больше одного подряд)
+            char[] charArrayOfChapterNumber = currentParagraph.ToCharArray();
+            int charArrayOfChapterNumberLength = charArrayOfChapterNumber.Length;
+            for (int i = 0; i < charArrayOfChapterNumberLength; i++)
+            {
+                if (Char.IsLetterOrDigit(charArrayOfChapterNumber[i]))
                 {
-                    if (Char.IsLetterOrDigit(charOfChapterNumber))//слабое место, что может быть комбинация букв и цифр - протестировать этот вариант
-                    {
-                        if (flagSymbolsStarted > 1)
-                        {//найдена цепочка спецсимволов больше одного подряд (она только что завершилась)
-                            foundWordsOfParagraph[i] = symbolsOfParagraph;                            
-                            symbolsOfParagraph = "";
-                            i++;
-                        }
-                        flagSymbolsStarted = 0; //цепочка символов прервалась, сбрасываем счетчик                    
-                        wordOfParagraph = wordOfParagraph + charOfChapterNumber;//нашли начало слова (после возможных спецсимволов в начале строки) и собираем слово, пока идут буквы (или цифры)
-                        flagWordStarted++;
-                    }
-                    else
-                    {//слово кончилось (или еще не началось)
-                        if (flagWordStarted > 0)
-                        {
-                            if (charOfChapterNumber == ' ')
-                            {//нашли пробел после него, прибавляем его к слову для совпадения с ключевыми словами - сомнительное действие, надо предусмотреть дефис и прочие варианты
-                                foundWordsOfParagraph[i] = wordOfParagraph + charOfChapterNumber;                                
-                                wordOfParagraph = "";
-                                i++;
-                            }                            
-                        }
-                        flagWordStarted = 0; //цепочка букв или цифр прервалась, сбрасываем счетчик                        
-                        symbolsOfParagraph = symbolsOfParagraph + charOfChapterNumber;
-                        flagSymbolsStarted++;                        
-                    }
+                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Word i = " + i.ToString() + strCRLF +
+                        "charArrayOfChapterNumberLength = " + charArrayOfChapterNumberLength.ToString() + strCRLF +
+                        "foundWordsCount =" + foundWordsCount.ToString(), CurrentClassName, 3);
+                    int j = SymbolGroupSaving(charArrayOfChapterNumber, foundWordsOfParagraph, foundWordsCount, i);
+                    foundWordsCount++;
+                    i = j;
                 }
                 else
                 {
-                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "else i = " + i.ToString() + strCRLF +
-                        "foundWordsOfParagraph[0] --> " + foundWordsOfParagraph[0] + strCRLF +
-                        "foundWordsOfParagraph[1] --> " + foundWordsOfParagraph[1] + strCRLF +
-                        "foundWordsOfParagraph[2] --> " + foundWordsOfParagraph[2] + strCRLF +
-                        "foundWordsOfParagraph[3] --> " + foundWordsOfParagraph[3] + strCRLF +
-                        "foundWordsOfParagraph[4] --> " + foundWordsOfParagraph[4] + strCRLF +
-                        "flagWordStarted - " + flagWordStarted.ToString(), CurrentClassName, 3); 
-                    return i;
+                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Symbol i = " + i.ToString() + strCRLF +
+                        "charArrayOfChapterNumberLength = " + charArrayOfChapterNumberLength.ToString() + strCRLF +
+                        "foundWordsCount =" + foundWordsCount.ToString(), CurrentClassName, 3);
+                    int j = SymbolGroupSaving1(charArrayOfChapterNumber, foundWordsOfParagraph, foundWordsCount, i);
+                    if (j - i > 1)
+                    {
+                        foundWordsCount++;
+                    }                    
+                    i = j;
+                }
+                
+            }
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "foundWordsCount = " + foundWordsCount.ToString() + strCRLF +
+            "currentParagraph --> " + currentParagraph + strCRLF +
+            "foundWordsOfParagraph[0] --> " + foundWordsOfParagraph[0] + strCRLF +
+            "foundWordsOfParagraph[1] --> " + foundWordsOfParagraph[1] + strCRLF +
+            "foundWordsOfParagraph[2] --> " + foundWordsOfParagraph[2] + strCRLF +
+            "foundWordsOfParagraph[3] --> " + foundWordsOfParagraph[3] + strCRLF +
+            "foundWordsOfParagraph[4] --> " + foundWordsOfParagraph[4], CurrentClassName, 3);
+            return foundWordsCount;
+        }
+
+        int SymbolGroupSaving1(char[] charArrayOfChapterNumber, string[] foundWordsOfParagraph, int foundWordsCount, int i)
+        {
+            string wordOfParagraph = "";
+            int currentCharIndex = 0;
+            int charArrayOfChapterNumberLength = charArrayOfChapterNumber.Length;
+
+            for (int j = i; j < charArrayOfChapterNumberLength; j++)
+            {
+                currentCharIndex = j;
+                if (!Char.IsLetterOrDigit(charArrayOfChapterNumber[j]))
+                {
+                    wordOfParagraph = wordOfParagraph + charArrayOfChapterNumber[j];
+                }
+                else
+                {
+                    if (j - i > 1)
+                    {
+                        foundWordsOfParagraph[foundWordsCount] = wordOfParagraph;
+                    }
+                    return currentCharIndex-1;
                 }
             }
-            if (flagWordStarted > 0)
+            return currentCharIndex-1;
+        }
+
+        int SymbolGroupSaving(char[] charArrayOfChapterNumber, string[] foundWordsOfParagraph, int foundWordsCount, int i)
+        {
+            string wordOfParagraph = "";
+            int currentCharIndex = 0;
+            int charArrayOfChapterNumberLength = charArrayOfChapterNumber.Length;
+
+            for (int j = i; j < charArrayOfChapterNumberLength; j++)
             {
-                foundWordsOfParagraph[i] = wordOfParagraph;
-                i++;
+                currentCharIndex = j;
+                if (Char.IsLetterOrDigit(charArrayOfChapterNumber[j]))
+                {
+                    wordOfParagraph = wordOfParagraph + charArrayOfChapterNumber[j];
+                }
+                else
+                {
+                    //foundWordsOfParagraph[foundWordsCount] = wordOfParagraph;
+                    //return currentCharIndex;
+                    break;
+                }                
             }
-            if (flagSymbolsStarted > 1)
+            if (!string.IsNullOrEmpty(wordOfParagraph))
             {
-                foundWordsOfParagraph[i] = symbolsOfParagraph;
-                i++;
+                foundWordsOfParagraph[foundWordsCount] = wordOfParagraph;
             }
-            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "foreach i = " + i.ToString() + strCRLF +
-                        "foundWordsOfParagraph[0] --> " + foundWordsOfParagraph[0] + strCRLF +
-                        "foundWordsOfParagraph[1] --> " + foundWordsOfParagraph[1] + strCRLF +
-                        "foundWordsOfParagraph[2] --> " + foundWordsOfParagraph[2] + strCRLF +
-                        "foundWordsOfParagraph[3] --> " + foundWordsOfParagraph[3] + strCRLF +
-                        "foundWordsOfParagraph[4] --> " + foundWordsOfParagraph[4] + strCRLF +
-                        "flagWordStarted - " + flagWordStarted.ToString(), CurrentClassName, 3);
-            return i;
+            return currentCharIndex;
         }
 
         public string RemoveMoreThenOneBlank(string currentParagraph)
@@ -429,6 +454,68 @@ namespace TextSplit
     }
 
 }
+//foreach (char charOfChapterNumber in currentParagraph)
+//{               
+//    if (i < findWordsCount)//если массив еще не заполнен, заполняем (если будет переполняться, вычесть 1)
+//    {
+//        if (Char.IsLetterOrDigit(charOfChapterNumber))//слабое место, что может быть комбинация букв и цифр - протестировать этот вариант
+//        {
+//            if (flagSymbolsStarted > 1)
+//            {//найдена цепочка спецсимволов больше одного подряд (она только что завершилась)
+//                foundWordsOfParagraph[i] = symbolsOfParagraph;                            
+//                symbolsOfParagraph = "";
+//                i++;
+//            }
+//            flagSymbolsStarted = 0; //цепочка символов прервалась, сбрасываем счетчик                    
+//            wordOfParagraph = wordOfParagraph + charOfChapterNumber;//нашли начало слова (после возможных спецсимволов в начале строки) и собираем слово, пока идут буквы (или цифры)
+//            flagWordStarted++;
+//        }
+//        else
+//        {//слово кончилось (или еще не началось)
+//            if (flagWordStarted > 0)
+//            {
+//                if (charOfChapterNumber == ' ')
+//                {//нашли пробел после него, прибавляем его к слову для совпадения с ключевыми словами - сомнительное действие, надо предусмотреть дефис и прочие варианты
+//                    foundWordsOfParagraph[i] = wordOfParagraph + charOfChapterNumber;                                
+//                    wordOfParagraph = "";
+//                    i++;
+//                }                            
+//            }
+//            flagWordStarted = 0; //цепочка букв или цифр прервалась, сбрасываем счетчик                        
+//            symbolsOfParagraph = symbolsOfParagraph + charOfChapterNumber;
+//            flagSymbolsStarted++;                        
+//        }
+//    }
+//    else
+//    {
+//        _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "else i = " + i.ToString() + strCRLF +
+//            "foundWordsOfParagraph[0] --> " + foundWordsOfParagraph[0] + strCRLF +
+//            "foundWordsOfParagraph[1] --> " + foundWordsOfParagraph[1] + strCRLF +
+//            "foundWordsOfParagraph[2] --> " + foundWordsOfParagraph[2] + strCRLF +
+//            "foundWordsOfParagraph[3] --> " + foundWordsOfParagraph[3] + strCRLF +
+//            "foundWordsOfParagraph[4] --> " + foundWordsOfParagraph[4] + strCRLF +
+//            "flagWordStarted - " + flagWordStarted.ToString(), CurrentClassName, 3); 
+//        return i;
+//    }
+//}
+//if (flagWordStarted > 0)
+//{
+//    foundWordsOfParagraph[i] = wordOfParagraph;
+//    i++;
+//}
+//if (flagSymbolsStarted > 1)
+//{
+//    foundWordsOfParagraph[i] = symbolsOfParagraph;
+//    i++;
+//}
+//_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "foreach i = " + i.ToString() + strCRLF +
+//            "foundWordsOfParagraph[0] --> " + foundWordsOfParagraph[0] + strCRLF +
+//            "foundWordsOfParagraph[1] --> " + foundWordsOfParagraph[1] + strCRLF +
+//            "foundWordsOfParagraph[2] --> " + foundWordsOfParagraph[2] + strCRLF +
+//            "foundWordsOfParagraph[3] --> " + foundWordsOfParagraph[3] + strCRLF +
+//            "foundWordsOfParagraph[4] --> " + foundWordsOfParagraph[4] + strCRLF +
+//            "flagWordStarted - " + flagWordStarted.ToString(), CurrentClassName, 3);
+//
 //пусть он работает в обратном порядке (удалите с самого высокого индекса на самый низкий)
 //List<T>.RemoveAll(Predicate<T>) или LINQ для замены исходного списка новым списком путем фильтрации элементов 
 //Когда вы вызываете RemoveAt для удаления элемента, остальные элементы в списке перенумеровываются, чтобы заменить удаленный элемент. 
