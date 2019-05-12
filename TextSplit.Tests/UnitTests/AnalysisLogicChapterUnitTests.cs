@@ -35,13 +35,16 @@ namespace TextSplit.Tests
 
         [TestMethod]
         [DataRow("Chapter 00", 2)]
-        [DataRow("Chapter-00", 2)]
+        [DataRow("-Chapter-00-", 2)]
         [DataRow("Chapter$00", 2)]
-        [DataRow("Chapter  00", 2)]
+        [DataRow("-!-!-Chapter 1", 3)]
+        [DataRow("[Chapter-2]", 2)]
+        [DataRow("Chapter$3", 2)]
+        [DataRow("---Chapter---0---", 3)]
         [DataRow("", -1)]
-        [DataRow("$$$ $$$ Chapter 00 ", 3)]
-        [DataRow("$$$  $$$  Chapter  00 Chapter", 4)]
-        [DataRow("$$$ Found Following Chapter 00 ", 5)]
+        [DataRow("was going to be at precisely 3 p.m.?", 9)]
+        [DataRow("168     The Master and Margarita", 5)]
+        [DataRow("On Friday afternoon Maximilian Andreyevich walked into the office of the housing committee of No. 302B Sadovaya Street in Moscow.", 10)]
         public void DataRowTest(string line, int numberOfWords)
         {
 

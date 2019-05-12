@@ -22,6 +22,9 @@ namespace TextSplit
         private readonly IAllBookData _book;
         private readonly IMessageService _messageService;
 
+        delegate bool IsOrNotEqual(char x);
+        delegate bool DoElseCircumstance(string x, int i, int j);
+
         readonly private int filesQuantity;
         readonly private int textFieldsQuantity;
         readonly private int showMessagesLevel;
@@ -45,7 +48,7 @@ namespace TextSplit
         public AnalysisLogicChapter(IAllBookData book, IMessageService service)
         {
             _book = book;
-            _messageService = service;
+            _messageService = service;                        
 
             filesQuantity = Declaration.FilesQuantity;
             textFieldsQuantity = Declaration.TextFieldsQuantity;
@@ -182,49 +185,47 @@ namespace TextSplit
         }
 
         public int WordsOfParagraphSearch(string currentParagraph, string[] foundWordsOfParagraph)
-        {//метод выделяет из строки (абзаца текста) первые десять (или больше - по размерности передаваемого массива) слов или чисел (и, возможно, сохраняет лидирующую группу спецсимволов)
-
+        {//метод выделяет из строки (абзаца текста) первые десять (или больше - по размерности передаваемого массива) слов или чисел (и сохраняет лидирующую группу спецсимволов)
             if (String.IsNullOrWhiteSpace(currentParagraph))
             {
                 return (int)MethodFindResult.NothingFound;//пустая строка без слов, вернули -1 для ясности
-            }
-            //убрать сдвоенные пробелы из строки
-            string currentParagraphWithSingleBlanks = RemoveMoreThenOneBlank(currentParagraph);
+            }            
+            string currentParagraphWithSingleBlanks = RemoveMoreThenOneBlank(currentParagraph);//убрать сдвоенные пробелы из строки
             currentParagraph = currentParagraphWithSingleBlanks;
 
             int foundWordsOfParagraphLength = foundWordsOfParagraph.Length;
             Array.Clear(foundWordsOfParagraph, 0, foundWordsOfParagraphLength);
             int foundWordsCount = 0;
-            //string symbolsOfParagraph = "";
-            //int flagWordStarted = 0;
-            //int flagSymbolsStarted = 0;
+
+            IsOrNotEqual isEqual = IsEqual;
+            IsOrNotEqual isNotEqual = IsNotEqual;
+
+            DoElseCircumstance stringIsNotNull = StringIsNotNull;
+            DoElseCircumstance jSubIisAboveOne = JsubIisAboveOne;
+
             ////разделяем абзац на слова или числа и на скопления спецсимволов (если больше одного подряд)
             char[] charArrayOfChapterNumber = currentParagraph.ToCharArray();
             int charArrayOfChapterNumberLength = charArrayOfChapterNumber.Length;
             for (int i = 0; i < charArrayOfChapterNumberLength; i++)
             {
-                if (Char.IsLetterOrDigit(charArrayOfChapterNumber[i]))
+                if (foundWordsCount < foundWordsOfParagraphLength)
                 {
-                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Word i = " + i.ToString() + strCRLF +
-                        "charArrayOfChapterNumberLength = " + charArrayOfChapterNumberLength.ToString() + strCRLF +
-                        "foundWordsCount =" + foundWordsCount.ToString(), CurrentClassName, 3);
-                    int j = SymbolGroupSaving(charArrayOfChapterNumber, foundWordsOfParagraph, foundWordsCount, i);
-                    foundWordsCount++;
-                    i = j;
-                }
-                else
-                {
-                    _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Symbol i = " + i.ToString() + strCRLF +
-                        "charArrayOfChapterNumberLength = " + charArrayOfChapterNumberLength.ToString() + strCRLF +
-                        "foundWordsCount =" + foundWordsCount.ToString(), CurrentClassName, 3);
-                    int j = SymbolGroupSaving1(charArrayOfChapterNumber, foundWordsOfParagraph, foundWordsCount, i);
-                    if (j - i > 1)
+                    if (Char.IsLetterOrDigit(charArrayOfChapterNumber[i]))
                     {
+                        int j = SymbolGroupSaving(charArrayOfChapterNumber, foundWordsOfParagraph, foundWordsCount, i, isEqual, stringIsNotNull, 0);
                         foundWordsCount++;
-                    }                    
-                    i = j;
+                        i = j;
+                    }
+                    else
+                    {
+                        int j = SymbolGroupSaving(charArrayOfChapterNumber, foundWordsOfParagraph, foundWordsCount, i, isNotEqual, jSubIisAboveOne, 1);
+                        if (j - i > 1)
+                        {
+                            foundWordsCount++;
+                        }
+                        i = j;
+                    }
                 }
-                
             }
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "foundWordsCount = " + foundWordsCount.ToString() + strCRLF +
             "currentParagraph --> " + currentParagraph + strCRLF +
@@ -236,7 +237,7 @@ namespace TextSplit
             return foundWordsCount;
         }
 
-        int SymbolGroupSaving1(char[] charArrayOfChapterNumber, string[] foundWordsOfParagraph, int foundWordsCount, int i)
+        int SymbolGroupSaving(char[] charArrayOfChapterNumber, string[] foundWordsOfParagraph, int foundWordsCount, int i, IsOrNotEqual currentIf, DoElseCircumstance currentDoElse, int doMinusOne)
         {
             string wordOfParagraph = "";
             int currentCharIndex = 0;
@@ -245,47 +246,51 @@ namespace TextSplit
             for (int j = i; j < charArrayOfChapterNumberLength; j++)
             {
                 currentCharIndex = j;
-                if (!Char.IsLetterOrDigit(charArrayOfChapterNumber[j]))
+                bool resultIf = currentIf(charArrayOfChapterNumber[j]);                
+                if (resultIf)
                 {
                     wordOfParagraph = wordOfParagraph + charArrayOfChapterNumber[j];
                 }
                 else
                 {
-                    if (j - i > 1)
+                    bool resultElse = currentDoElse(wordOfParagraph, i, j);
+                    if (resultElse)                    
                     {
                         foundWordsOfParagraph[foundWordsCount] = wordOfParagraph;
                     }
-                    return currentCharIndex-1;
+                    return currentCharIndex - doMinusOne;
                 }
-            }
-            return currentCharIndex-1;
-        }
-
-        int SymbolGroupSaving(char[] charArrayOfChapterNumber, string[] foundWordsOfParagraph, int foundWordsCount, int i)
-        {
-            string wordOfParagraph = "";
-            int currentCharIndex = 0;
-            int charArrayOfChapterNumberLength = charArrayOfChapterNumber.Length;
-
-            for (int j = i; j < charArrayOfChapterNumberLength; j++)
-            {
-                currentCharIndex = j;
-                if (Char.IsLetterOrDigit(charArrayOfChapterNumber[j]))
-                {
-                    wordOfParagraph = wordOfParagraph + charArrayOfChapterNumber[j];
-                }
-                else
-                {
-                    //foundWordsOfParagraph[foundWordsCount] = wordOfParagraph;
-                    //return currentCharIndex;
-                    break;
-                }                
             }
             if (!string.IsNullOrEmpty(wordOfParagraph))
             {
                 foundWordsOfParagraph[foundWordsCount] = wordOfParagraph;
             }
             return currentCharIndex;
+        }
+
+       
+        private bool IsEqual(char x)
+        {
+            bool result = Char.IsLetterOrDigit(x);
+            return result;                
+        }
+
+        private bool IsNotEqual(char x)
+        {
+            bool result = !Char.IsLetterOrDigit(x);
+            return result;
+        }
+
+        private bool StringIsNotNull(string wordOfParagraph, int j, int i)
+        {
+            bool result = !string.IsNullOrEmpty(wordOfParagraph);
+            return result;
+        }
+
+        private bool JsubIisAboveOne(string wordOfParagraph, int j, int i)
+        {
+            bool result = (j - i > 1);
+            return result;
         }
 
         public string RemoveMoreThenOneBlank(string currentParagraph)
@@ -454,6 +459,35 @@ namespace TextSplit
     }
 
 }
+//
+//int SymbolGroupSaving1(char[] charArrayOfChapterNumber, string[] foundWordsOfParagraph, int foundWordsCount, int i, IsOrNotEqual currentIf, DoElseCircumstance currentDoElse, int doMinusOne)
+//{
+//    string wordOfParagraph = "";
+//    int currentCharIndex = 0;
+//    int charArrayOfChapterNumberLength = charArrayOfChapterNumber.Length;
+
+//    for (int j = i; j < charArrayOfChapterNumberLength; j++)
+//    {
+//        currentCharIndex = j;
+//        bool result = currentIf(charArrayOfChapterNumber[j]);                
+//        if (result)
+//        {
+//            wordOfParagraph = wordOfParagraph + charArrayOfChapterNumber[j];
+//        }
+//        else
+//        {
+//            bool result1 = currentDoElse(wordOfParagraph, i, j);
+//            if (result1)
+//                //if (j - i > 1)
+//            {
+//                foundWordsOfParagraph[foundWordsCount] = wordOfParagraph;
+//            }
+//            return currentCharIndex - doMinusOne;
+//        }
+//    }
+//    return currentCharIndex;
+//}
+//
 //foreach (char charOfChapterNumber in currentParagraph)
 //{               
 //    if (i < findWordsCount)//если массив еще не заполнен, заполняем (если будет переполняться, вычесть 1)
