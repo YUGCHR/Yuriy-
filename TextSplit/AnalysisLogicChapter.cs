@@ -23,7 +23,7 @@ namespace TextSplit
         private readonly IMessageService _messageService;
 
         delegate bool IsOrNotEqual(char x);
-        delegate bool DoElseCircumstance(string x, int i, int j);
+        delegate bool DoElseConditions(string x, int i, int j);
 
         readonly private int filesQuantity;
         readonly private int textFieldsQuantity;
@@ -74,19 +74,18 @@ namespace TextSplit
             chapterSymbolsVersionsCount = new int[chapterNamesSamplesCount];
         }
 
-        public int ChapterNameAnalysis(int desiredTextLanguage)//ищем все названия глав, складываем их по массивам, узнаем их количество и возвращаем его
-        {
-            int findWordsCount = foundWordsOfParagraph.Length;            
+        public int ChapterNameAnalysis(int desiredTextLanguage)//Main здесь - ищем все названия глав, складываем их по массивам, узнаем их количество и возвращаем его
+        {            
             int paragraphTextLength = _book.GetParagraphTextLength(desiredTextLanguage);
             int[] chapterNameIsDigitsOnly = new int[paragraphTextLength];
             string[] allTextWithChapterNames = new string[paragraphTextLength];
 
-            int maxKeyNameLength = ChapterKeyNamesAnalysis(desiredTextLanguage);//непонятно, зачем это нужно, но пока пусть будет
+            int maxKeyNameLength = ChapterKeyNamesAnalysis(desiredTextLanguage);//ищем слово с макс.символов из ключевых (непонятно, зачем это нужно, но пока пусть будет)
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(),
                 "Mark of begining Chapter --> " + stringMarksChapterNameBegin + strCRLF +
                 "Mark of the end of Chapter --> " + stringMarksChapterNameEnd + strCRLF +
                 "maxKeyNameLength = " + maxKeyNameLength.ToString() + strCRLF +
-                "chapterNamesSamplesCount = " + chapterNamesSamplesCount, CurrentClassName, 3);
+                "chapterNamesSamplesCount = " + chapterNamesSamplesCount, CurrentClassName, 3);//тестовая печать будущей маркировки глав, абзацев и прочего - просто проверка символов
 
             for (int i = 1; i < paragraphTextLength; i++)//перебираем все абзацы текста, начиная с второго - в первом главы быть не должно
             {
@@ -96,7 +95,7 @@ namespace TextSplit
                 {
                     string previousParagraph = _book.GetParagraphText((i - 1), desiredTextLanguage);
                     //если предыдущая пустая, то начинаем анализ строки (абзаца), выбираем первые 10 групп символов (по пробелу) и ищем в них название (ключевые слова) и номера глав
-                    if (String.IsNullOrWhiteSpace(previousParagraph)) FirstTenGroupsFound(currentParagraph, chapterNameIsDigitsOnly, i, desiredTextLanguage);
+                    if (String.IsNullOrWhiteSpace(previousParagraph)) FirstTenGroupsFound(currentParagraph, chapterNameIsDigitsOnly, i, desiredTextLanguage);//преобразовать массив chapterNameIsDigitsOnly в метод доступа к массиву
                 }
             }
 
@@ -154,12 +153,12 @@ namespace TextSplit
         {//начало анализа строки (абзаца)
             int firstNumberOfParagraph = 0;
             int keyWordChapterName = 0;
-            //int[] chapterNameIsDigitsOnly = new int[paragraphTextLength];
-            int foundWordsOfParagraphCount = WordsOfParagraphSearch(currentParagraph, foundWordsOfParagraph);//выделяем в текущем параграфе первые 10 групп символов (слова, числа или группы спецсимволов)
+            
+            int foundWordsOfParagraphCount = WordsOfParagraphSearch(currentParagraph);//выделяем в текущем параграфе первые 10 групп символов (слова, числа или группы спецсимволов)
 
-            for (int j = 0; j <= foundWordsOfParagraphCount; j++)//перебираем все полученные слова из начала абзаца - ищем числа и ключевые слова
+            for (int j = 0; j < foundWordsOfParagraphCount; j++)//перебираем все полученные слова из начала абзаца - ищем числа и ключевые слова
             {
-                string testWordOfParagraph = foundWordsOfParagraph[j];
+                string testWordOfParagraph = GetFoundWordsOfParagraph(j);
                 if (testWordOfParagraph != null)
                 {
                     bool successSearchNumber = Int32.TryParse(testWordOfParagraph, out firstNumberOfParagraph);
@@ -175,8 +174,8 @@ namespace TextSplit
          //потом сравнить с числом найденных глав и, если совпадает, то найден постоянная группа в названии главы - но зачем она?
             for (int m = 0; m < j; m++)//записываем группы символов до встреченного ключевого слова (текущее j)
             {
-                if (foundWordsOfParagraph[m] == foundSymbolsOfParagraph[m]) chapterSymbolsVersionsCount[m]++;//если новое значение равно предыдущему, то увеличиваем счетчик
-                foundSymbolsOfParagraph[m] = foundWordsOfParagraph[m];
+                if (GetFoundWordsOfParagraph(m) == foundSymbolsOfParagraph[m]) chapterSymbolsVersionsCount[m]++;//если новое значение равно предыдущему, то увеличиваем счетчик
+                foundSymbolsOfParagraph[m] = GetFoundWordsOfParagraph(m);
             //подумать - если левая группа испортит переменную, что потом будет? по идее через пару правильных групп счет восстановится                                                                      
             //заносить все равно надо, потому что вдруг уже первая группа будет неправильная - потом она постепенно заменится правильной
             //но вообще не очень правильно - надо все же все значения занести в массив и потом анализировать - исключения выкинуть и найти такое же количество групп, как и глав
@@ -184,7 +183,7 @@ namespace TextSplit
             }
         }
 
-        public int WordsOfParagraphSearch(string currentParagraph, string[] foundWordsOfParagraph)
+        public int WordsOfParagraphSearch(string currentParagraph)
         {//метод выделяет из строки (абзаца текста) первые десять (или больше - по размерности передаваемого массива) слов или чисел (и сохраняет лидирующую группу спецсимволов)
             if (String.IsNullOrWhiteSpace(currentParagraph))
             {
@@ -193,35 +192,34 @@ namespace TextSplit
             string currentParagraphWithSingleBlanks = RemoveMoreThenOneBlank(currentParagraph);//убрать сдвоенные пробелы из строки
             currentParagraph = currentParagraphWithSingleBlanks;
 
-            int foundWordsOfParagraphLength = foundWordsOfParagraph.Length;
-            Array.Clear(foundWordsOfParagraph, 0, foundWordsOfParagraphLength);
+            ClearFoundWordsOfParagraph();//можно передать контрольное число, подтверждающее, что массив можно очистить
             int foundWordsCount = 0;
 
-            IsOrNotEqual isEqual = IsEqual;
-            IsOrNotEqual isNotEqual = IsNotEqual;
+            IsOrNotEqual isEqual = IsEqual;//check condition is current charArrayOfChapterNumber[] LetterOrDigit
+            IsOrNotEqual isNotEqual = IsNotEqual;//check condition is NOT LetterOrDigit
 
-            DoElseCircumstance stringIsNotNull = StringIsNotNull;
-            DoElseCircumstance jSubIisAboveOne = JsubIisAboveOne;
+            DoElseConditions stringIsNotNull = StringIsNotNull;//check condition is current word not null
+            DoElseConditions jSubIisAboveOne = JsubIisAboveOne;//check condition is j-i > 1
 
             ////разделяем абзац на слова или числа и на скопления спецсимволов (если больше одного подряд)
             char[] charArrayOfChapterNumber = currentParagraph.ToCharArray();
             int charArrayOfChapterNumberLength = charArrayOfChapterNumber.Length;
             for (int i = 0; i < charArrayOfChapterNumberLength; i++)
             {
-                if (foundWordsCount < foundWordsOfParagraphLength)
+                if (foundWordsCount < FoundWordsOfParagraphLength())
                 {
                     if (Char.IsLetterOrDigit(charArrayOfChapterNumber[i]))
-                    {
-                        int j = SymbolGroupSaving(charArrayOfChapterNumber, foundWordsOfParagraph, foundWordsCount, i, isEqual, stringIsNotNull, 0);
+                    {//проверка, есть ли цепочка букв-цифр
+                        int j = SymbolGroupSaving(charArrayOfChapterNumber, foundWordsCount, i, isEqual, stringIsNotNull, 0);//0 - не надо вычитать единицу
                         foundWordsCount++;
                         i = j;
                     }
                     else
-                    {
-                        int j = SymbolGroupSaving(charArrayOfChapterNumber, foundWordsOfParagraph, foundWordsCount, i, isNotEqual, jSubIisAboveOne, 1);
+                    {//проверка, есть ли цепочка спецсимволов
+                        int j = SymbolGroupSaving(charArrayOfChapterNumber, foundWordsCount, i, isNotEqual, jSubIisAboveOne, 1);//1 - надо вычитать единицу в одном месте
                         if (j - i > 1)
                         {
-                            foundWordsCount++;
+                            foundWordsCount++;//кстати - в методе тоже такое же сравнение, можно ли совместить?
                         }
                         i = j;
                     }
@@ -229,16 +227,16 @@ namespace TextSplit
             }
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "foundWordsCount = " + foundWordsCount.ToString() + strCRLF +
             "currentParagraph --> " + currentParagraph + strCRLF +
-            "foundWordsOfParagraph[0] --> " + foundWordsOfParagraph[0] + strCRLF +
-            "foundWordsOfParagraph[1] --> " + foundWordsOfParagraph[1] + strCRLF +
-            "foundWordsOfParagraph[2] --> " + foundWordsOfParagraph[2] + strCRLF +
-            "foundWordsOfParagraph[3] --> " + foundWordsOfParagraph[3] + strCRLF +
-            "foundWordsOfParagraph[4] --> " + foundWordsOfParagraph[4], CurrentClassName, 3);
+            "foundWordsOfParagraph[0] --> " + GetFoundWordsOfParagraph(0) + strCRLF +
+            "foundWordsOfParagraph[1] --> " + GetFoundWordsOfParagraph(1) + strCRLF +
+            "foundWordsOfParagraph[2] --> " + GetFoundWordsOfParagraph(2) + strCRLF +
+            "foundWordsOfParagraph[3] --> " + GetFoundWordsOfParagraph(3) + strCRLF +
+            "foundWordsOfParagraph[4] --> " + GetFoundWordsOfParagraph(4), CurrentClassName, showMessagesLevel);
             return foundWordsCount;
         }
 
-        int SymbolGroupSaving(char[] charArrayOfChapterNumber, string[] foundWordsOfParagraph, int foundWordsCount, int i, IsOrNotEqual currentIf, DoElseCircumstance currentDoElse, int doMinusOne)
-        {
+        int SymbolGroupSaving(char[] charArrayOfChapterNumber, int foundWordsCount, int i, IsOrNotEqual currentIf, DoElseConditions currentDoElse, int doMinusOne)//убрать все массивы из параметров всех методов
+        {//метод вызывается для проверки, есть ли цепочка букв-цифр или спецсимволов (используется для WordsOfParagraphSearch, тестируется вместе с ним)
             string wordOfParagraph = "";
             int currentCharIndex = 0;
             int charArrayOfChapterNumberLength = charArrayOfChapterNumber.Length;
@@ -246,24 +244,25 @@ namespace TextSplit
             for (int j = i; j < charArrayOfChapterNumberLength; j++)
             {
                 currentCharIndex = j;
-                bool resultIf = currentIf(charArrayOfChapterNumber[j]);                
+                bool resultIf = currentIf(charArrayOfChapterNumber[j]);//выбираем сравнение - символ буква-цифра и НЕ буква-цифра
                 if (resultIf)
                 {
                     wordOfParagraph = wordOfParagraph + charArrayOfChapterNumber[j];
                 }
                 else
                 {
-                    bool resultElse = currentDoElse(wordOfParagraph, i, j);
+                    bool resultElse = currentDoElse(wordOfParagraph, i, j);//выбираем сравнение - непустое слово или j-i>1 - это означает, что найдена лидирующая группа спецсимволов, которую надо сохранить, как слово
                     if (resultElse)                    
                     {
-                        foundWordsOfParagraph[foundWordsCount] = wordOfParagraph;
+                        SetFoundWordsOfParagraph(wordOfParagraph, foundWordsCount);
                     }
-                    return currentCharIndex - doMinusOne;
+                    return currentCharIndex - doMinusOne;//вычитаем 1 или нет - по ситуации (вычитать надо когда?)
                 }
             }
-            if (!string.IsNullOrEmpty(wordOfParagraph))
+            bool resultIsNullOrEmpty = StringIsNotNull(wordOfParagraph, 0, 0);//в методе используется только первый аргумент, два других для совпадения вызова в делегате - ой, криво!
+            if(resultIsNullOrEmpty)            
             {
-                foundWordsOfParagraph[foundWordsCount] = wordOfParagraph;
+                SetFoundWordsOfParagraph(wordOfParagraph, foundWordsCount);
             }
             return currentCharIndex;
         }
@@ -291,6 +290,39 @@ namespace TextSplit
         {
             bool result = (j - i > 1);
             return result;
+        }
+
+        private int SetFoundWordsOfParagraph(string wordOfParagraph, int i)
+        {            
+            if (i < FoundWordsOfParagraphLength())
+            {
+                foundWordsOfParagraph[i] = wordOfParagraph;
+                return 0;
+            }
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Warning! Attempt to write detected with the index besides the array , I = " + i.ToString(), CurrentClassName, 3);
+            return (int)MethodFindResult.NothingFound;
+        }
+
+        private string GetFoundWordsOfParagraph(int i)
+        {            
+            if (i < FoundWordsOfParagraphLength())
+            {                
+                return foundWordsOfParagraph[i];
+            }
+            _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Warning! Attempt to read detected with the index besides the array , I = " + i.ToString(), CurrentClassName, 3);
+            return null;
+        }
+
+        private int ClearFoundWordsOfParagraph()
+        {            
+            Array.Clear(foundWordsOfParagraph, 0, FoundWordsOfParagraphLength());//как проверить, что массив очистился?
+            return 0;
+        }
+
+        private int FoundWordsOfParagraphLength()
+        {
+            int foundWordsOfParagraphLength = foundWordsOfParagraph.Length;
+            return foundWordsOfParagraphLength;
         }
 
         public string RemoveMoreThenOneBlank(string currentParagraph)

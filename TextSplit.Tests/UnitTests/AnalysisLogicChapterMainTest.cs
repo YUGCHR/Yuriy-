@@ -11,7 +11,8 @@ namespace TextSplit.Tests
     public class AnalysisLogicChapterMainTest
     {
         public string[] testOneChapterText;
-        public string[] testThreeChapterText;        
+        public string[] testThreeChapterText;
+        private int[] expectedResult;
 
         public AnalysisLogicChapterMainTest()//тест главного метода класса
         {//сделать массив с голыми номерами, с другим ключевым словом, с разными ключевыми словами
