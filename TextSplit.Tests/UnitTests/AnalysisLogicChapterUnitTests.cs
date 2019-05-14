@@ -1,6 +1,4 @@
-﻿using System;
-using TextSplit;
-using TextSplitLibrary;
+﻿using TextSplitLibrary;
 using Moq;
 using Microsoft.VisualStudio.TestTools.UnitTesting; // using for tests
 using System.Diagnostics;
@@ -13,7 +11,7 @@ namespace TextSplit.Tests
         public AnalysisLogicChapterUnitTests()//тесты всех методов класса
         { }
 
-        [TestMethod] 
+        [TestMethod]
         [DataRow("Chapter 00", 2)]
         [DataRow("-Chapter-00-", 2)]
         [DataRow("Chapter$00", 2)]
@@ -25,7 +23,7 @@ namespace TextSplit.Tests
         [DataRow("was going to be at precisely 3 p.m.?", 9)]
         [DataRow("168     The Master and Margarita", 5)]
         [DataRow("On Friday afternoon Maximilian Andreyevich walked into the office of the housing committee of No. 302B Sadovaya Street in Moscow.", 10)]
-        public void Test_WordsOfParagraphSearch(string line, int numberOfWords)
+        public void Test_WordsOfParagraphSearch(string currentParagraph, int numberOfWords)
         {
             IAllBookData book = new AllBookData();
             IFileManager manager = new FileManager(book);
@@ -35,21 +33,93 @@ namespace TextSplit.Tests
 
             Mock<IAllBookData> bookDataMock = new Mock<IAllBookData>();
             AnalysisLogicChapterDataArrays adata = new AnalysisLogicChapterDataArrays(book, message);
-            Trace.WriteLine("Input: " + line);
+            Trace.WriteLine("Input: " + currentParagraph);
 
             var target = new AnalysisLogicChapter(bookDataMock.Object, message, adata);
-            var arr = new string[10];
-            var words = target.WordsOfParagraphSearch(line);
+            var words = target.WordsOfParagraphSearch(currentParagraph);
             Assert.AreEqual(numberOfWords, words);
+        }
+
+        [TestMethod]
+        [DataRow("Chapter 00", 0, 1)]
+        [DataRow("-Chapter-11-", 0, 12)]
+        [DataRow("", -1, 0)]
+        [DataRow("was going to Part be at precisely 3 p.m.?", 4, 4)]
+        [DataRow("168  Paragraph   The Master and Margarita", 1, 169)]
+        [DataRow("On Friday Chapter walked into housing committee No. 302B Sadovaya Street in Moscow.", 0, 0)]
+        public void Test_FirstTenGroupsChecked(string currentParagraph, int countNumber, int wordNumber)
+        {
+            IAllBookData bookData = new AllBookData();
+            IFileManager manager = new FileManager(bookData);
+
+            //IMessageService msgService = Mock.Of<IMessageService>();// - вывод на печать отключить
+            IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)
+
+            IAnalysisLogicChapterDataArrays _arrayChapter = new AnalysisLogicChapterDataArrays(bookData, msgService);
+            Mock<IAllBookData> bookDataMock = new Mock<IAllBookData>();
+
+            var target = new AnalysisLogicChapter(bookDataMock.Object, msgService, _arrayChapter);
+            int iParagraphNumber = 0;//номер проверяемого абзаца
+            int desiredTextLanguage = 0;//english language
+            int[] chapterNameIsDigitsOnly = new int[10];
+
+            Trace.WriteLine("Input: " + currentParagraph + "   countNumber = " + countNumber.ToString() + "   wordNumber = " + wordNumber.ToString());
+
+            target.FirstTenGroupsChecked(currentParagraph, chapterNameIsDigitsOnly, iParagraphNumber, desiredTextLanguage);
+            int resultWordCount = -1;
+            int resultNumber = chapterNameIsDigitsOnly[iParagraphNumber];
+
+            Assert.AreEqual(wordNumber, resultNumber, "wordNumber is not Equal");
+
+            for (int n = 0; n < _arrayChapter.GetChapterNamesSamplesLength(desiredTextLanguage); n++)
+            {
+                if (_arrayChapter.GetChapterNamesVersionsCount(n) > 0)
+                {
+                    resultWordCount = n;
+                }
+            }
+            Assert.AreEqual(countNumber, resultWordCount, "countNumber is not Equal");
+        }
+
+        [TestMethod]
+        [DataRow("", -1)]
+        [DataRow("Chapter ", 0)]
+        [DataRow("CHAPTER ", -1)]
+        [DataRow("Paragraph ", 1)]
+        [DataRow("PARAGRAPH ", -1)]
+        [DataRow("Section ", 2)]
+        [DataRow("SECTION ", -1)]
+        [DataRow("Subhead ", 3)]
+        [DataRow("SUBHEAD ", -1)]
+        [DataRow("Part ", 4)]
+        [DataRow("PART ", -1)]
+        [DataRow("Word", -1)]
+        public void Test_CheckWordOfParagraphCompare(string currentParagraph, int numberOfWords)
+        {
+            IAllBookData book = new AllBookData();
+            IFileManager manager = new FileManager(book);
+
+            //IMessageService msgService = Mock.Of<IMessageService>();// - вывод на печать отключить
+            IMessageService message = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)
+
+            Mock<IAllBookData> bookDataMock = new Mock<IAllBookData>();
+            AnalysisLogicChapterDataArrays adata = new AnalysisLogicChapterDataArrays(book, message);
+            Trace.WriteLine("Input: " + currentParagraph);
+
+            var target = new AnalysisLogicChapter(bookDataMock.Object, message, adata);
+            int desiredTextLanguage = 0;//english language
+            int result = target.CheckWordOfParagraphCompare(currentParagraph, 0, desiredTextLanguage);
+
+            Assert.AreEqual(numberOfWords, result);
         }
 
         [TestMethod]
         [DataRow("Chapter   00", "Chapter 00")]
         [DataRow("-Chapter-00  -", "-Chapter-00 -")]
         [DataRow("Chapter$00  ", "Chapter$00 ")]
-        [DataRow("- !  - ! -Chapter 1 ", "- ! - ! -Chapter 1 ")]        
-        public void Test_RemoveMoreThenOneBlank(string line, string lineResult)
-        {         
+        [DataRow("- !  - ! -Chapter 1 ", "- ! - ! -Chapter 1 ")]
+        public void Test_RemoveMoreThenOneBlank(string currentParagraph, string lineResult)
+        {
             //IMessageService msgService = Mock.Of<IMessageService>();// - вывод на печать отключить
 
             IAllBookData book = new AllBookData();
@@ -58,11 +128,38 @@ namespace TextSplit.Tests
 
             Mock<IAllBookData> bookDataMock = new Mock<IAllBookData>();
             AnalysisLogicChapterDataArrays adata = new AnalysisLogicChapterDataArrays(book, message);
-            Trace.WriteLine("Input: " + line);
+            Trace.WriteLine("Input: " + currentParagraph);
 
             var target = new AnalysisLogicChapter(bookDataMock.Object, message, adata);
-            var words = target.RemoveMoreThenOneBlank(line);
+            var words = target.RemoveMoreThenOneBlank(currentParagraph);
             Assert.AreEqual(lineResult, words);
+        }
+
+        [TestMethod]
+        [DataRow(22, new int[] {1, 2, 3, 808, 4, 5, 6, 34, 7, 8, 9, 10, 11, 112, 12, 75, 13, 14, 15, 16, 17, 18, 19, 33, 4, 5, 6, 20, 21, 22})]
+        public void Test_IsChapterNumbersIncreased(int countNumber, int[] chapterNameIsDigitsOnly)
+        {
+            int paragraphTextLength = chapterNameIsDigitsOnly.Length;
+            IAllBookData bookData = new AllBookData();
+            IFileManager manager = new FileManager(bookData);
+
+            //IMessageService msgService = Mock.Of<IMessageService>();// - вывод на печать отключить
+            IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)
+
+            IAnalysisLogicChapterDataArrays _arrayChapter = new AnalysisLogicChapterDataArrays(bookData, msgService);
+            Mock<IAllBookData> bookDataMock = new Mock<IAllBookData>();
+            bookDataMock.Setup(x => x.GetParagraphTextLength(It.IsAny<int>())).Returns(paragraphTextLength);
+
+            Trace.WriteLine("paragraphTextLength = " + paragraphTextLength.ToString());
+            int desiredTextLanguage = 0;//english language            
+
+            var target = new AnalysisLogicChapter(bookDataMock.Object, msgService, _arrayChapter);
+
+            //Trace.WriteLine("Input: " + currentParagraph + "   countNumber = " + countNumber.ToString() + "   wordNumber = " + wordNumber.ToString());
+
+            int resultCountNumber = target.IsChapterNumbersIncreased(chapterNameIsDigitsOnly, desiredTextLanguage);                        
+
+            Assert.AreEqual(countNumber, resultCountNumber, "countNumber is not Equal");            
         }
     }
 }

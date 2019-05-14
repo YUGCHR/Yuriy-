@@ -1,6 +1,4 @@
-﻿using System;
-using System.IO;
-using TextSplit;
+﻿using System.IO;
 using TextSplitLibrary;
 using Moq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -24,21 +22,21 @@ namespace TextSplit.Tests
             Assert.IsTrue(truePath, "test file not found");
 
             var book = new AllBookData();
-            IFileManager manager = new FileManager(book);            
+            IFileManager manager = new FileManager(book);
 
-            IMessageService message = Mock.Of<IMessageService>();// - вывод на печать отключить
-            //IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)
+            //IMessageService msgService = Mock.Of<IMessageService>();// - вывод на печать отключить
+            IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)
 
-            AnalysisLogicChapterDataArrays adata = new AnalysisLogicChapterDataArrays(book, message);
-            AnalysisLogicParagraph paragraphAnalyser = new AnalysisLogicParagraph(book, message);
-            AnalysisLogicChapter chapterAnalyser = new AnalysisLogicChapter(book, message, adata);
+            AnalysisLogicChapterDataArrays adata = new AnalysisLogicChapterDataArrays(book, msgService);
+            AnalysisLogicParagraph paragraphAnalyser = new AnalysisLogicParagraph(book, msgService);
+            AnalysisLogicChapter chapterAnalyser = new AnalysisLogicChapter(book, msgService, adata);
 
             book.SetFilePath(_filePath, desiredTextLanguage);
             string fileContent = manager.GetContent(desiredTextLanguage);
 
             string pasHash = GetMd5Hash(fileContent);
             Trace.WriteLine("Hash = " + pasHash);
-            bool trueHash = pasHash == "65a2b604d31cdd86715b836663623c00";
+            bool trueHash = pasHash == "23da3a362c368bef950974b44fccca4d";
             Assert.IsTrue(trueHash, "test file has been changed");
             
             book.SetFileContent(fileContent, desiredTextLanguage);

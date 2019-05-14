@@ -10,52 +10,36 @@ namespace TextSplit
 {
     public interface IAnalysisLogicCultivation
     {
-        int GetDesiredTextLanguage();//alogic      
-
+        int GetDesiredTextLanguage();
         //event EventHandler AnalyseInvokeTheMain;
     }
 
     class AnalysisLogicCultivation : IAnalysisLogicCultivation
     {
-        private readonly IAllBookData _book;
-        private readonly IMessageService _messageService;
+        private readonly IAllBookData _bookData;
+        private readonly IMessageService _msgService;
 
         readonly private int filesQuantity;
         readonly private int showMessagesLevel;
         readonly private string strCRLF;
 
-        private string[,] chapterNamesSamples;
-        private readonly char[] charsParagraphSeparator;
-        private readonly char[] charsSentenceSeparator;
-
-        //public event EventHandler AnalyseInvokeTheMain;
-
-        public AnalysisLogicCultivation(IAllBookData book, IMessageService service)
+        public AnalysisLogicCultivation(IAllBookData bookData, IMessageService msgService)
         {
-            _book = book;
-            _messageService = service;
+            _bookData = bookData;
+            _msgService = msgService;
 
             filesQuantity = Declaration.FilesQuantity;
             showMessagesLevel = Declaration.ShowMessagesLevel;
-            strCRLF = Declaration.StrCRLF;
-
-            charsParagraphSeparator = new char[] { '\r', '\n' };
-            charsSentenceSeparator = new char[] { '.', '!', '?' };
-
-            //проверить типовые названия глав (для разных языков свои) - сделать метод универсальным и для частей тоже?
-            chapterNamesSamples = new string[,]
-            { { "Chapter ", "Paragraph ", "Section ", "Subhead ", "Part " },
-                { "Глава ", "Параграф " , "Раздел ", "Подраздел ", "Часть " }, };//а номера глав бывают буквами!
+            strCRLF = Declaration.StrCRLF;            
         }
-
-       
+        
         public int GetDesiredTextLanguage()
         {
             int desiredTextLanguage = (int)MethodFindResult.NothingFound;
 
             for (int i = 0; i < filesQuantity; i++)//пока остается цикл - все же один вместо двух, если вызывать специальный метод 2 раза
             {
-                int iDesiredTextLanguage = _book.GetFileToDo(i);
+                int iDesiredTextLanguage = _bookData.GetFileToDo(i);
                 if (iDesiredTextLanguage == (int)WhatNeedDoWithFiles.AnalyseText) desiredTextLanguage = i;
                 if (iDesiredTextLanguage == (int)WhatNeedDoWithFiles.AnalyseChapterName) desiredTextLanguage = i;
             }

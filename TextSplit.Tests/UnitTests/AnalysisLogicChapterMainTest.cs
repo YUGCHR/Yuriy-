@@ -1,6 +1,4 @@
-﻿using System;
-using TextSplit;
-using TextSplitLibrary;
+﻿using TextSplitLibrary;
 using Moq;
 using Microsoft.VisualStudio.TestTools.UnitTesting; // using for tests
 
@@ -64,7 +62,7 @@ namespace TextSplit.Tests
             Mock<IAllBookData> bookDataMock = new Mock<IAllBookData>();
             AnalysisLogicChapterDataArrays adata = new AnalysisLogicChapterDataArrays(book, message);
             bookDataMock.Setup(x => x.GetChapterNameLength(It.IsAny<int>())).Returns(5 /* - you can setup what evere data */);
-            bookDataMock.Setup(x => x.GetParagraphTextLength(It.IsAny<int>())).Returns(1);//переделать на внешний массив из разных строк без ключевых слов
+            bookDataMock.Setup(x => x.GetParagraphTextLength(It.IsAny<int>())).Returns(1);
             bookDataMock.Setup(x => x.GetParagraphText(It.IsAny<int>(), It.IsAny<int>()))
                 .Returns("use this if there is no need to setup return values for a method of interface.");
 
