@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Reflection;
 using TextSplitLibrary;
 
@@ -22,10 +18,7 @@ namespace TextSplit
         private readonly IAnalysisLogicChapterDataArrays _adata;
 
         delegate bool IsOrNotEqual(char x);
-        delegate bool DoElseConditions(string x, int i, int j);        
-
-        //readonly private int filesQuantity;
-        //readonly private int textFieldsQuantity;
+        delegate bool DoElseConditions(string x, int i, int j);
 
         readonly private int showMessagesLevel;
         readonly private string strCRLF;        
@@ -36,11 +29,8 @@ namespace TextSplit
             _messageService = service;
             _adata = adata;
 
-            //filesQuantity = Declaration.FilesQuantity;
-            //textFieldsQuantity = Declaration.TextFieldsQuantity;
             showMessagesLevel = Declaration.ShowMessagesLevel;
-            strCRLF = Declaration.StrCRLF;
-            
+            strCRLF = Declaration.StrCRLF;            
         }
 
         public int ChapterNameAnalysis(int desiredTextLanguage)//Main здесь - ищем все названия глав, складываем их по массивам, узнаем их количество и возвращаем его
@@ -74,7 +64,7 @@ namespace TextSplit
                 if(_adata.GetChapterNamesVersionsCount(i) > 0) _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "chapterNamesVersionsCount - " + _adata.GetChapterNamesVersionsCount(i).ToString(), CurrentClassName, 3);
             }
             
-            int increasedChapterNumbers = isChapterNumbersIncreased(chapterNameIsDigitsOnly, desiredTextLanguage);
+            int increasedChapterNumbers = IsChapterNumbersIncreased(chapterNameIsDigitsOnly, desiredTextLanguage);
             
             //тут уже 52 раза найдено ключевое слово и найдено 52 номера глав (для контрольного текста)
             //теперь заново анализировать текст и искать уже известные названия глав (и в известном количестве)
@@ -95,7 +85,7 @@ namespace TextSplit
             return increasedChapterNumbers;
         }
 
-        int isChapterNumbersIncreased(int[] chapterNameIsDigitsOnly, int desiredTextLanguage)
+        public int IsChapterNumbersIncreased(int[] chapterNameIsDigitsOnly, int desiredTextLanguage)
         {//выкинуть нули и лишние цифры из номеров глав, проверить, что остальные цифры идут по порядку, посчитать количество номеров глав
             int paragraphTextLength = _book.GetParagraphTextLength(desiredTextLanguage);
             int[] workChapterNameIsDigitsOnly = new int[paragraphTextLength];
@@ -118,7 +108,7 @@ namespace TextSplit
             return increasedChapterNumbers;
         }
 
-        void FirstTenGroupsFound(string currentParagraph, int[] chapterNameIsDigitsOnly, int i, int desiredTextLanguage)
+        public void FirstTenGroupsFound(string currentParagraph, int[] chapterNameIsDigitsOnly, int i, int desiredTextLanguage)
         {//начало анализа строки (абзаца)
             int firstNumberOfParagraph = 0;
             int keyWordChapterName = 0;
@@ -143,7 +133,7 @@ namespace TextSplit
             }            
         }
 
-        int TestWordOfParagraphCompare(string testWordOfParagraph, int j, int desiredTextLanguage)//проверяем полученное слово на совпадение с ключевыми из массива (его хорошо бы прямо передавать и мерять длину - вдруг потом в другой класс переедем?)
+        public int TestWordOfParagraphCompare(string testWordOfParagraph, int j, int desiredTextLanguage)//проверяем полученное слово на совпадение с ключевыми из массива (его хорошо бы прямо передавать и мерять длину - вдруг потом в другой класс переедем?)
         {
             for (int n = 0; n < _adata.GetChapterNamesSamplesLength(desiredTextLanguage); n++)
             {
@@ -159,7 +149,7 @@ namespace TextSplit
             return (int)MethodFindResult.NothingFound;//не нашли...
         }
 
-        void SymbolsFoundBeforeKeyWord(int j)//передать и получить все параметры
+        public void SymbolsFoundBeforeKeyWord(int j)//передать и получить все параметры
         {//найденное ключевое слово не первое, перед ним были какие-то символы - ищем их и складываем количество встретившихся групп в массив chapterSymbolsVersionsCount
          //потом сравнить с числом найденных глав и, если совпадает, то найден постоянная группа в названии главы - но зачем она?
             for (int m = 0; m < j; m++)//записываем группы символов до встреченного ключевого слова (текущее j)
@@ -228,7 +218,7 @@ namespace TextSplit
             return foundWordsCount;
         }
 
-        int SymbolGroupSaving(char[] charArrayOfChapterNumber, int foundWordsCount, int i, IsOrNotEqual currentIf, DoElseConditions currentDoElse, int doMinusOne)//убрать все массивы из параметров всех методов
+        private int SymbolGroupSaving(char[] charArrayOfChapterNumber, int foundWordsCount, int i, IsOrNotEqual currentIf, DoElseConditions currentDoElse, int doMinusOne)//убрать все массивы из параметров всех методов
         {//метод вызывается для проверки, есть ли цепочка букв-цифр или спецсимволов (используется для WordsOfParagraphSearch, тестируется вместе с ним)
             string wordOfParagraph = "";
             int currentCharIndex = 0;
@@ -342,7 +332,7 @@ namespace TextSplit
             else return null;
         }
         
-        int ChapterKeyNamesAnalysis(int desiredTextLanguage)
+        public int ChapterKeyNamesAnalysis(int desiredTextLanguage)
         {
             int maxKeyNameLength = 0;
             int previousKeyNameLength = 0;
@@ -435,197 +425,6 @@ namespace TextSplit
     }
 
 }
-
-public interface IAnalysisLogicChapterDataArrays
-{
-    int SetFoundWordsOfParagraph(string wordOfParagraph, int i);
-    string GetFoundWordsOfParagraph(int i);
-    int ClearFoundWordsOfParagraph();
-    int GetFoundWordsOfParagraphLength();
-    int SetFoundSymbolsOfParagraph(string symbolsOfParagraph, int i);
-    string GetFoundSymbolsOfParagraph(int i);
-    int ClearFoundSymbolsOfParagraph();
-    int GetFoundSymbolsOfParagraphLength();
-    
-    string GetStringMarksChapterName(string markChapterName);
-    int GetChapterNamesSamplesLength(int desiredTextLanguage);
-    string GetChapterNamesSamples(int desiredTextLanguage, int i);
-
-    int GetChapterNamesVersionsCount(int i);
-    int SetChapterNamesVersionsCount(int i, int countValue);
-    int GetChapterSymbolsVersionsCount(int i);
-    int SetChapterSymbolsVersionsCount(int i, int countValue);
-    int IncrementOfChapterNamesVersionsCount(int i);
-    int IncrementOfChapterSymbolsVersionsCount(int i);
-}
-
-public class AnalysisLogicChapterDataArrays : IAnalysisLogicChapterDataArrays
-{
-    private readonly IAllBookData _book;
-    private readonly IMessageService _messageService;
-
-    private string[] foundWordsOfParagraph;
-    readonly private string[,] chapterNamesSamples;
-    readonly private string stringMarksChapterNameBegin;
-    readonly private string stringMarksChapterNameEnd;
-    readonly private char[] charsParagraphSeparator;
-    readonly private char[] charsSentenceSeparator;    
-
-    private string[] foundSymbolsOfParagraph;
-    private int[] chapterNamesVersionsCount;
-    private int[] chapterSymbolsVersionsCount;
-    private char[] foundCharsSeparator;
-
-
-    public AnalysisLogicChapterDataArrays(IAllBookData book, IMessageService service)
-    {
-        _book = book;
-        _messageService = service;
-
-        foundWordsOfParagraph = new string[10];//временное хранение найденных первых десяти слов абзаца
-
-        charsParagraphSeparator = new char[] { '\r', '\n' };
-        charsSentenceSeparator = new char[] { '.', '!', '?' };
-        stringMarksChapterNameBegin = "\u00A4\u00A4\u00A4\u00A4\u00A4";//¤¤¤¤¤ - метка строки перед началом названия главы
-        stringMarksChapterNameEnd = "\u00A4\u00A4\u00A4";//¤¤¤ - метка строки после названия главы, еще \u00A7 - §, \u007E - ~, \u00B6 - ¶            
-                                                         //проверить типовые названия глав (для разных языков свои) - сделать метод универсальным и для частей тоже? или некоторые методы метода - перенести их тогда в общую логику
-        chapterNamesSamples = new string[,]
-        { { "Chapter ", "Paragraph ", "Section ", "Subhead ", "Part " },
-                { "Глава ", "Параграф " , "Раздел ", "Подраздел ", "Часть " }, };
-        //а номера глав бывают буквами! то мелочи, ключевые слова могуть быть из прописных букв, может быть дефис между словом и номером или другой символ        
-
-        foundSymbolsOfParagraph = new string[10];//временное хранение найденных групп спецсимволов перед ключевым словом главы
-        foundCharsSeparator = new char[10];//временное хранение найденных вариантов разделителей
-        chapterNamesVersionsCount = new int[GetChapterNamesSamplesLength(0)];
-        chapterSymbolsVersionsCount = new int[GetChapterNamesSamplesLength(0)];
-    }
-
-
-    public int SetFoundWordsOfParagraph(string wordOfParagraph, int i)
-    {
-        if (i < GetFoundWordsOfParagraphLength())
-        {
-            foundWordsOfParagraph[i] = wordOfParagraph;
-            return 0;
-        }
-        //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Warning! Attempt to write detected with the index besides the array , I = " + i.ToString(), CurrentClassName, 3);
-        return (int)MethodFindResult.NothingFound;
-    }
-
-    public string GetFoundWordsOfParagraph(int i)
-    {
-        if (i < GetFoundWordsOfParagraphLength())
-        {
-            return foundWordsOfParagraph[i];
-        }
-        //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Warning! Attempt to read detected with the index besides the array , I = " + i.ToString(), CurrentClassName, 3);
-        return null;
-    }
-
-    public int ClearFoundWordsOfParagraph()
-    {
-        Array.Clear(foundWordsOfParagraph, 0, GetFoundWordsOfParagraphLength());//как проверить, что массив очистился?
-        return 0;
-    }
-
-    public int GetFoundWordsOfParagraphLength()
-    {
-        int foundWordsOfParagraphLength = foundWordsOfParagraph.Length;
-        return foundWordsOfParagraphLength;
-    }
-
-    public int SetFoundSymbolsOfParagraph(string symbolsOfParagraph, int i)
-    {
-        if (i < GetFoundSymbolsOfParagraphLength())
-        {
-            foundSymbolsOfParagraph[i] = symbolsOfParagraph;
-            return 0;
-        }
-        //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Warning! Attempt to write detected with the index besides the array , I = " + i.ToString(), CurrentClassName, 3);
-        return (int)MethodFindResult.NothingFound;
-    }
-
-    public string GetFoundSymbolsOfParagraph(int i)
-    {
-        if (i < GetFoundSymbolsOfParagraphLength())
-        {
-            return foundSymbolsOfParagraph[i];
-        }
-        //_messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Warning! Attempt to read detected with the index besides the array , I = " + i.ToString(), CurrentClassName, 3);
-        return null;
-    }
-
-    public int ClearFoundSymbolsOfParagraph()
-    {
-        Array.Clear(foundSymbolsOfParagraph, 0, GetFoundSymbolsOfParagraphLength());//как проверить, что массив очистился?
-        return 0;
-    }
-
-    public int GetFoundSymbolsOfParagraphLength()
-    {
-        int foundSymbolsOfParagraphLength = foundSymbolsOfParagraph.Length;
-        return foundSymbolsOfParagraphLength;
-    }
-
-    public string GetStringMarksChapterName(string markChapterName)
-    {
-        switch (markChapterName)
-        {
-            case
-            "Begin":
-                return stringMarksChapterNameBegin;
-            case
-            "End":
-                return stringMarksChapterNameEnd;
-        }
-
-        return null;
-    }
-
-    public int GetChapterNamesSamplesLength(int desiredTextLanguage)
-    {//в дальнейшем массив можно сделать динамическим и с разным количеством ключевых слов для разных языков, тогда получать язык при запросе
-        return chapterNamesSamples.GetLength(1);
-    }
-
-    public string GetChapterNamesSamples(int desiredTextLanguage, int i)
-    {//потом сделать динамический массив
-        return chapterNamesSamples[desiredTextLanguage, i];
-    }    
-
-    public int GetChapterNamesVersionsCount(int i)
-    {
-        return chapterNamesVersionsCount[i];
-    }
-
-    public int SetChapterNamesVersionsCount(int i, int countValue)
-    {
-        chapterNamesVersionsCount[i] = countValue;
-        return 0;
-    }    
-
-    public int GetChapterSymbolsVersionsCount(int i)
-    {
-        return chapterSymbolsVersionsCount[i];
-    }
-
-    public int SetChapterSymbolsVersionsCount(int i, int countValue)
-    {
-        chapterSymbolsVersionsCount[i] = countValue;
-        return 0;
-    }
-
-    public int IncrementOfChapterNamesVersionsCount(int i)
-    {
-        return chapterNamesVersionsCount[i]++;
-    }
-
-    public int IncrementOfChapterSymbolsVersionsCount(int i)
-    {
-        return chapterSymbolsVersionsCount[i]++;
-    }    
-}
-    
-
 //
 //int SymbolGroupSaving1(char[] charArrayOfChapterNumber, string[] foundWordsOfParagraph, int foundWordsCount, int i, IsOrNotEqual currentIf, DoElseCircumstance currentDoElse, int doMinusOne)
 //{

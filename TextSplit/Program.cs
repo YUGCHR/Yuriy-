@@ -14,32 +14,32 @@ namespace TextSplit
         /// </summary>
         [STAThread]
         static void Main()
-        {            
+        {
             //MessageBox.Show("static void Main started", "Program", MessageBoxButtons.OK, MessageBoxIcon.Information);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            AllBookData book = new AllBookData();            
-            FileManager manager = new FileManager(book);
-            LogFileMessages logs = new LogFileMessages();
-            MessageService message = new MessageService(manager);            
-            DataBaseAccessor data = new DataBaseAccessor(message);
-            TextSplitForm view = new TextSplitForm(message, logs);
-            TextSplitOpenForm open = new TextSplitOpenForm(book, message);            
-            AnalysisLogicCultivation alogic = new AnalysisLogicCultivation(book, message);
-            AnalysisLogicChapterDataArrays adata = new AnalysisLogicChapterDataArrays(book, message);
-            AnalysisLogicChapter clogic = new AnalysisLogicChapter(book, message, adata);            
-            AnalysisLogicParagraph plogic = new AnalysisLogicParagraph(book, message);
-            AnalysisLogicSentences slogic = new AnalysisLogicSentences(book, message);
-            TextBookAnalysis analysis = new TextBookAnalysis(book, message, alogic, clogic, plogic, slogic);
-            LoadTextToDataBase load = new LoadTextToDataBase(book, data, message);
-            MainLogicCultivation logic = new MainLogicCultivation(book, message, manager);            
-            MainPresentor presentor = new MainPresentor(view, open, message, analysis, load, book, logic);
+            AllBookData bookData = new AllBookData();
+            FileManager fileManager = new FileManager(bookData);
+            LogFileMessages logFile = new LogFileMessages();
+            MessageService msgService = new MessageService(fileManager);
+            DataBaseAccessor dataAccess = new DataBaseAccessor(msgService);
+            TextSplitForm viewForm = new TextSplitForm(msgService, logFile);
+            TextSplitOpenForm openForm = new TextSplitOpenForm(bookData, msgService);
+            AnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService);
+            AnalysisLogicChapterDataArrays arrayChapter = new AnalysisLogicChapterDataArrays(bookData, msgService);
+            AnalysisLogicChapter chapterLogic = new AnalysisLogicChapter(bookData, msgService, arrayChapter);
+            AnalysisLogicParagraph paragraphLogic = new AnalysisLogicParagraph(bookData, msgService);
+            AnalysisLogicSentences sentenceLogic = new AnalysisLogicSentences(bookData, msgService);
+            TextBookAnalysis analysisBook = new TextBookAnalysis(bookData, msgService, analysisLogic, chapterLogic, paragraphLogic, sentenceLogic);
+            LoadTextToDataBase loadDataBase = new LoadTextToDataBase(bookData, dataAccess, msgService);
+            MainLogicCultivation logicMain = new MainLogicCultivation(bookData, msgService, fileManager);
+            MainPresentor presentorMain = new MainPresentor(viewForm, openForm, msgService, analysisBook, loadDataBase, bookData, logicMain);
             
             //MessageBox.Show("All Modules Declared", "Program", MessageBoxButtons.OK, MessageBoxIcon.Information);
             //MessageBox.Show("Main Called", "Program", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-            Application.Run(view);            
+            Application.Run(viewForm);            
         }
     }
 }
