@@ -19,21 +19,22 @@ namespace TextSplit
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            AllBookData book = new AllBookData();
+            AllBookData book = new AllBookData();            
             FileManager manager = new FileManager(book);
             LogFileMessages logs = new LogFileMessages();
-            MessageService service = new MessageService(manager);
-            DataBaseAccessor data = new DataBaseAccessor(service);
-            TextSplitForm view = new TextSplitForm(service, logs);
-            TextSplitOpenForm open = new TextSplitOpenForm(book, service);            
-            AnalysisLogicCultivation alogic = new AnalysisLogicCultivation(book, service);
-            AnalysisLogicChapter clogic = new AnalysisLogicChapter(book, service);
-            AnalysisLogicParagraph plogic = new AnalysisLogicParagraph(book, service);
-            AnalysisLogicSentences slogic = new AnalysisLogicSentences(book, service);
-            TextBookAnalysis analysis = new TextBookAnalysis(book, service, alogic, clogic, plogic, slogic);
-            LoadTextToDataBase load = new LoadTextToDataBase(book, data, service);
-            MainLogicCultivation logic = new MainLogicCultivation(book, service, manager);            
-            MainPresentor presentor = new MainPresentor(view, open, service, analysis, load, book, logic);
+            MessageService message = new MessageService(manager);            
+            DataBaseAccessor data = new DataBaseAccessor(message);
+            TextSplitForm view = new TextSplitForm(message, logs);
+            TextSplitOpenForm open = new TextSplitOpenForm(book, message);            
+            AnalysisLogicCultivation alogic = new AnalysisLogicCultivation(book, message);
+            AnalysisLogicChapterDataArrays adata = new AnalysisLogicChapterDataArrays(book, message);
+            AnalysisLogicChapter clogic = new AnalysisLogicChapter(book, message, adata);            
+            AnalysisLogicParagraph plogic = new AnalysisLogicParagraph(book, message);
+            AnalysisLogicSentences slogic = new AnalysisLogicSentences(book, message);
+            TextBookAnalysis analysis = new TextBookAnalysis(book, message, alogic, clogic, plogic, slogic);
+            LoadTextToDataBase load = new LoadTextToDataBase(book, data, message);
+            MainLogicCultivation logic = new MainLogicCultivation(book, message, manager);            
+            MainPresentor presentor = new MainPresentor(view, open, message, analysis, load, book, logic);
             
             //MessageBox.Show("All Modules Declared", "Program", MessageBoxButtons.OK, MessageBoxIcon.Information);
             //MessageBox.Show("Main Called", "Program", MessageBoxButtons.OK, MessageBoxIcon.Information);

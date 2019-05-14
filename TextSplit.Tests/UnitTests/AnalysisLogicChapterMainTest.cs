@@ -59,16 +59,17 @@ namespace TextSplit.Tests
         public void ChapterNameAnalysis_NoChapters()
         {
             // ARRANGE
-            IMessageService msgService = Mock.Of<IMessageService>(); // - use this if there is no need to setup return values for a method of interface.
+            IAllBookData book = new AllBookData();
+            IMessageService message = Mock.Of<IMessageService>(); // - use this if there is no need to setup return values for a method of interface.
             Mock<IAllBookData> bookDataMock = new Mock<IAllBookData>();
-
+            AnalysisLogicChapterDataArrays adata = new AnalysisLogicChapterDataArrays(book, message);
             bookDataMock.Setup(x => x.GetChapterNameLength(It.IsAny<int>())).Returns(5 /* - you can setup what evere data */);
             bookDataMock.Setup(x => x.GetParagraphTextLength(It.IsAny<int>())).Returns(1);//переделать на внешний массив из разных строк без ключевых слов
             bookDataMock.Setup(x => x.GetParagraphText(It.IsAny<int>(), It.IsAny<int>()))
                 .Returns("use this if there is no need to setup return values for a method of interface.");
 
             // create instance of a class we want to test
-            var target = new AnalysisLogicChapter(bookDataMock.Object, msgService);
+            var target = new AnalysisLogicChapter(bookDataMock.Object, message, adata);
 
             // ACT
             int result = target.ChapterNameAnalysis(0);//0 - Eng, 1 - Rus
@@ -84,7 +85,9 @@ namespace TextSplit.Tests
         public void ChapterNameAnalysis_ShouldFindChapters(string chapterString)
         {
             // ARRANGE
-            IMessageService msgService = Mock.Of<IMessageService>(); // - use this if there is no need to setup return values for a method of interface.
+            IAllBookData book = new AllBookData();
+            IMessageService message = Mock.Of<IMessageService>(); // - use this if there is no need to setup return values for a method of interface.
+            AnalysisLogicChapterDataArrays adata = new AnalysisLogicChapterDataArrays(book, message);
             Mock<IAllBookData> bookDataMock = new Mock<IAllBookData>();
 
             var addedText = new string[] {
@@ -102,7 +105,7 @@ namespace TextSplit.Tests
                 bookDataMock.Setup(x => x.GetParagraphText(i, It.IsAny<int>())).Returns(addedText[i]);
             }
             // create instance of a class we want to test
-            var target = new AnalysisLogicChapter(bookDataMock.Object, msgService);
+            var target = new AnalysisLogicChapter(bookDataMock.Object, message, adata);
 
             // ACT
             int result = target.ChapterNameAnalysis(0);//0 - Eng, 1 - Rus
@@ -132,7 +135,9 @@ namespace TextSplit.Tests
 
         public int assumptionData(string[] testText)
         {   // ARRANGE
-            IMessageService msgService = Mock.Of<IMessageService>(); // - use this if there is no need to setup return values for a method of interface.
+            IAllBookData book = new AllBookData();
+            IMessageService message = Mock.Of<IMessageService>(); // - use this if there is no need to setup return values for a method of interface.
+            AnalysisLogicChapterDataArrays adata = new AnalysisLogicChapterDataArrays(book, message);
             Mock<IAllBookData> bookDataMock = new Mock<IAllBookData>();
             int testTextLength = testText.Length;
             bookDataMock.Setup(x => x.GetChapterNameLength(It.IsAny<int>())).Returns(5 /* - you can setup what evere data */);
@@ -143,7 +148,7 @@ namespace TextSplit.Tests
                 bookDataMock.Setup(x => x.GetParagraphText(i, It.IsAny<int>())).Returns(testText[i]);
             }
             // create instance of a class we want to test
-            var target = new AnalysisLogicChapter(bookDataMock.Object, msgService);
+            var target = new AnalysisLogicChapter(bookDataMock.Object, message, adata);
             // ACT
             int result = target.ChapterNameAnalysis(0);//0 - Eng, 1 - Rus
             return result;

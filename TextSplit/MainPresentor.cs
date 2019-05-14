@@ -26,11 +26,11 @@ namespace TextSplit
         readonly private int buttonNamesCountInLanguageGroup;
         readonly private int showMessagesLevel;
 
-        public MainPresentor(ITextSplitForm view, ITextSplitOpenForm open, IMessageService service, ITextBookAnalysis analysis, ILoadTextToDataBase load, IAllBookData book, IMainLogicCultivation logic)
+        public MainPresentor(ITextSplitForm view, ITextSplitOpenForm open, IMessageService message, ITextBookAnalysis analysis, ILoadTextToDataBase load, IAllBookData book, IMainLogicCultivation logic)
         {
             _book = book;
             _view = view;            
-            _messageService = service;
+            _messageService = message;
             _analysis = analysis;
             _load = load;
             _logic = logic;

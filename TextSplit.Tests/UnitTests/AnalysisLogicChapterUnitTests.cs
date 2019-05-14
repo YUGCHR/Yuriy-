@@ -31,13 +31,13 @@ namespace TextSplit.Tests
             IFileManager manager = new FileManager(book);
 
             //IMessageService msgService = Mock.Of<IMessageService>();// - вывод на печать отключить
-            IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)
+            IMessageService message = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)
 
             Mock<IAllBookData> bookDataMock = new Mock<IAllBookData>();
-
+            AnalysisLogicChapterDataArrays adata = new AnalysisLogicChapterDataArrays(book, message);
             Trace.WriteLine("Input: " + line);
 
-            var target = new AnalysisLogicChapter(bookDataMock.Object, msgService);
+            var target = new AnalysisLogicChapter(bookDataMock.Object, message, adata);
             var arr = new string[10];
             var words = target.WordsOfParagraphSearch(line);
             Assert.AreEqual(numberOfWords, words);
@@ -54,13 +54,13 @@ namespace TextSplit.Tests
 
             IAllBookData book = new AllBookData();
             IFileManager manager = new FileManager(book);
-            IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)
+            IMessageService message = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)
 
             Mock<IAllBookData> bookDataMock = new Mock<IAllBookData>();
-
+            AnalysisLogicChapterDataArrays adata = new AnalysisLogicChapterDataArrays(book, message);
             Trace.WriteLine("Input: " + line);
 
-            var target = new AnalysisLogicChapter(bookDataMock.Object, msgService);
+            var target = new AnalysisLogicChapter(bookDataMock.Object, message, adata);
             var words = target.RemoveMoreThenOneBlank(line);
             Assert.AreEqual(lineResult, words);
         }
