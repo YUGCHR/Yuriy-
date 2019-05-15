@@ -57,7 +57,7 @@ namespace TextSplit.Tests
         public void ChapterNameAnalysis_NoChapters()
         {
             // ARRANGE
-            IAllBookData book = new AllBookData();
+            IAllBookData book = new AllBookDataArrays();
             IMessageService message = Mock.Of<IMessageService>(); // - use this if there is no need to setup return values for a method of interface.
             Mock<IAllBookData> bookDataMock = new Mock<IAllBookData>();
             AnalysisLogicChapterDataArrays adata = new AnalysisLogicChapterDataArrays(book, message);
@@ -83,7 +83,7 @@ namespace TextSplit.Tests
         public void ChapterNameAnalysis_ShouldFindChapters(string chapterString)
         {
             // ARRANGE
-            IAllBookData book = new AllBookData();
+            IAllBookData book = new AllBookDataArrays();
             IMessageService message = Mock.Of<IMessageService>(); // - use this if there is no need to setup return values for a method of interface.
             AnalysisLogicChapterDataArrays adata = new AnalysisLogicChapterDataArrays(book, message);
             Mock<IAllBookData> bookDataMock = new Mock<IAllBookData>();
@@ -133,7 +133,7 @@ namespace TextSplit.Tests
 
         public int assumptionData(string[] testText)
         {   // ARRANGE
-            IAllBookData book = new AllBookData();
+            IAllBookData book = new AllBookDataArrays();
             IMessageService message = Mock.Of<IMessageService>(); // - use this if there is no need to setup return values for a method of interface.
             AnalysisLogicChapterDataArrays adata = new AnalysisLogicChapterDataArrays(book, message);
             Mock<IAllBookData> bookDataMock = new Mock<IAllBookData>();

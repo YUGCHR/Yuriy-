@@ -21,15 +21,15 @@ namespace TextSplit.Tests
             bool truePath = File.Exists(_filePath);
             Assert.IsTrue(truePath, "test file not found");
 
-            var book = new AllBookData();
+            var book = new AllBookDataArrays();
             IFileManager manager = new FileManager(book);
 
             //IMessageService msgService = Mock.Of<IMessageService>();// - вывод на печать отключить
             IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)
 
-            AnalysisLogicChapterDataArrays adata = new AnalysisLogicChapterDataArrays(book, msgService);
+            AnalysisLogicChapterDataArrays arrayChapter = new AnalysisLogicChapterDataArrays(book, msgService);
             AnalysisLogicParagraph paragraphAnalyser = new AnalysisLogicParagraph(book, msgService);
-            AnalysisLogicChapter chapterAnalyser = new AnalysisLogicChapter(book, msgService, adata);
+            AnalysisLogicChapter chapterAnalyser = new AnalysisLogicChapter(book, msgService, arrayChapter);
 
             book.SetFilePath(_filePath, desiredTextLanguage);
             string fileContent = manager.GetContent(desiredTextLanguage);
@@ -40,7 +40,8 @@ namespace TextSplit.Tests
             Assert.IsTrue(trueHash, "test file has been changed");
             
             book.SetFileContent(fileContent, desiredTextLanguage);
-            paragraphAnalyser.PortionBookTextOnParagraphs(desiredTextLanguage);
+            int portionBookTextResult = paragraphAnalyser.PortionBookTextOnParagraphs(desiredTextLanguage);
+            int normalizeEmptyParagraphsResult = paragraphAnalyser.normalizeEmptyParagraphs(desiredTextLanguage);
 
             var result = chapterAnalyser.ChapterNameAnalysis(desiredTextLanguage);
             Assert.AreEqual(52, result);
@@ -56,6 +57,42 @@ namespace TextSplit.Tests
                 sBuilder.Append(data[i].ToString("x2"));//указывает, что нужно преобразовать элемент в шестнадцатиричную строку длиной в два символа
             }
             return sBuilder.ToString();
+        }
+
+        [TestMethod] // - marks method as a test
+        public void TestUnit_TextBookDivideOnChapter()
+        {
+            bool truePath = File.Exists(_filePath);
+            Assert.IsTrue(truePath, "test file not found");
+
+            var book = new AllBookDataArrays();
+            IFileManager manager = new FileManager(book);
+
+            //IMessageService msgService = Mock.Of<IMessageService>();// - вывод на печать отключить
+            IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)
+
+            AnalysisLogicChapterDataArrays arrayChapter = new AnalysisLogicChapterDataArrays(book, msgService);
+            AnalysisLogicParagraph paragraphAnalyser = new AnalysisLogicParagraph(book, msgService);
+            AnalysisLogicChapter chapterAnalyser = new AnalysisLogicChapter(book, msgService, arrayChapter);
+
+            book.SetFilePath(_filePath, desiredTextLanguage);
+            string fileContent = manager.GetContent(desiredTextLanguage);
+
+            string pasHash = GetMd5Hash(fileContent);
+            Trace.WriteLine("Hash = " + pasHash);
+            bool trueHash = pasHash == "23da3a362c368bef950974b44fccca4d"; //в отдельный метод
+            Assert.IsTrue(trueHash, "test file has been changed");
+
+            int expectedChapterNumberCount = 52; //вынести в DataRow?
+            int increasedChapterNumbers = 52;
+            string keyWordFound = "Chapter";
+
+            book.SetFileContent(fileContent, desiredTextLanguage);
+            int portionBookTextResult = paragraphAnalyser.PortionBookTextOnParagraphs(desiredTextLanguage);
+            int normalizeEmptyParagraphsResult = paragraphAnalyser.normalizeEmptyParagraphs(desiredTextLanguage);
+
+            var result = chapterAnalyser.TextBookDivideOnChapter(increasedChapterNumbers, keyWordFound, desiredTextLanguage);
+            Assert.AreEqual(expectedChapterNumberCount, result);
         }
     }
 }

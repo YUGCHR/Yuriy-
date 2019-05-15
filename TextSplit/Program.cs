@@ -19,7 +19,7 @@ namespace TextSplit
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            AllBookData bookData = new AllBookData();
+            AllBookDataArrays bookData = new AllBookDataArrays();
             FileManager fileManager = new FileManager(bookData);
             LogFileMessages logFile = new LogFileMessages();
             MessageService msgService = new MessageService(fileManager);

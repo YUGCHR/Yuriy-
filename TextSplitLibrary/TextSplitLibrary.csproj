@@ -42,7 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AllBookData.cs" />
+    <Compile Include="AllBookDataArrays.cs" />
     <Compile Include="AnalysisLogicChapterDataArrays.cs" />
     <Compile Include="Declaration.cs" />
     <Compile Include="FileManager.cs" />

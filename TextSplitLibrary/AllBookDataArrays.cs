@@ -44,7 +44,7 @@ namespace TextSplitLibrary
         int SetSymbolsCount(int symbolsCount, int i);
     }
 
-    public class AllBookData : IAllBookData
+    public class AllBookDataArrays : IAllBookData
     {
         //private readonly IMessageService _messageService;
 
@@ -62,7 +62,7 @@ namespace TextSplitLibrary
         private List<List<string>> chaptersNamesWithNumbers = new List<List<string>>(); //массив полных названий глав
         private List<List<int>> chaptersNamesNumbersOnly = new List<List<int>>(); //только цифры из названий глав (надо ли?)        
 
-        public AllBookData()//IMessageService service
+        public AllBookDataArrays()//IMessageService service
         {
             //_messageService = service;
 
@@ -134,7 +134,7 @@ namespace TextSplitLibrary
             filesPath[i] = filePath;
             return (int)MethodFindResult.AllRight;
         }
-        //группа массива Slection
+        //группа массива Selection
         public string GetSelectedText(int i)
         {
             return selectedTexts[i];
@@ -191,7 +191,7 @@ namespace TextSplitLibrary
         //группа массива Главы имя
         public string GetChapterName(int chapterCount, int langauageIndex)
         {
-            if (chaptersNamesWithNumbers[langauageIndex][chapterCount] != null) return paragraphsTexts[langauageIndex][chapterCount];
+            if (chaptersNamesWithNumbers[langauageIndex][chapterCount] != null) return chaptersNamesWithNumbers[langauageIndex][chapterCount];
             return null;
         }
 

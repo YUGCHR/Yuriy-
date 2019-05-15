@@ -72,24 +72,20 @@ namespace TextSplit
 
         public int PortionBookTextOnParagraphs(int desiredTextLanguage)//делит текст на абзацы по EOL, сохраняет в List в AllBookData
         {
-            string textToAnalyse = _book.GetFileContent(desiredTextLanguage);
-            //можно заранее определить размерность массива, если отказаться от динамических - 
-            //int cnt = 0;
-            //foreach (char c in test) { if (c == '&') cnt++; }
+            string textToAnalyse = _book.GetFileContent(desiredTextLanguage);            
 
-            string[] TextOnParagraphsPortioned = textToAnalyse.Split(charsParagraphSeparator);//portioned all book content in the ParagraphsArray via EOL            
-                                                                                              //потом тут можно написать свой метод деления на абзацы (но это не точно)
-            int textOnParagraphsPortionedLength = TextOnParagraphsPortioned.Length;//узнали количество абзацев после Split
-
+            string[] TextOnParagraphsPortioned = textToAnalyse.Split(charsParagraphSeparator);//portioned all book content in the ParagraphsArray via EOL
+            //потом тут можно написать свой метод деления на абзацы (или этот пусть делит по одному сепаратору - но сначала тест)
+            int textOnParagraphsPortionedLength = TextOnParagraphsPortioned.Length;
             int addParagraphTextCount = 0;
-            //int addParagraphNumberEmptyTextCount = 0; - нет нужды, все равно не возвратить в return
+            
             for (int i = 0; i < textOnParagraphsPortionedLength; i++)//загружаем получившиеся абзацы в динамический массив, потом сравниваем длину массивов
             {
-                addParagraphTextCount = _book.AddParagraphText(TextOnParagraphsPortioned[i], desiredTextLanguage);//также возвращает количество уже существующих элементов
-                //if (String.IsNullOrWhiteSpace(TextOnParagraphsPortioned[i]))
-                //{   //если текущий абзац - пустая строка, записываем номер абзаца в служебный массив
-                //    int addParagraphNumberEmptyTextCount = _book.AddParagraphNumberEmptyText(i, desiredTextLanguage);
-                //}
+                addParagraphTextCount = _book.AddParagraphText(TextOnParagraphsPortioned[i], desiredTextLanguage);//также возвращает количество уже существующих элементов                
+
+                _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Current Paragraph --> " + TextOnParagraphsPortioned[i] + strCRLF +
+                    "with i = " + i.ToString() + strCRLF +
+                    "addParagraphTextCount = " + addParagraphTextCount.ToString(), CurrentClassName, showMessagesLevel);
             }
 
             if (addParagraphTextCount == textOnParagraphsPortionedLength)
@@ -97,7 +93,7 @@ namespace TextSplit
                 return textOnParagraphsPortionedLength;
             }
             else
-            {//длина массивов не совпала, показываем диагностику, потом добавить еще постонное сообщение (не Trace) на тему
+            {//длина массивов не совпала, показываем диагностику, потом добавить еще постоянное сообщение (не Trace) на тему
                 _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), strCRLF +
                     "Paragraphs count after Split" + strCRLF +
                     "and" + strCRLF +
