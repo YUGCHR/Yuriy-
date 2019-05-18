@@ -66,6 +66,8 @@ namespace TextSplit.Tests
             Trace.WriteLine("Input: " + currentParagraph + "   countNumber = " + countNumber.ToString() + "   wordNumber = " + wordNumber.ToString());
 
             target.FirstTenGroupsChecked(currentParagraph, chapterNameIsDigitsOnly, iParagraphNumber, desiredTextLanguage);
+
+            int baseKeyWordForms = _arrayChapter.GetBaseKeyWordForms();
             int resultWordCount = -1;
             int resultNumber = chapterNameIsDigitsOnly[iParagraphNumber];
 
@@ -73,9 +75,12 @@ namespace TextSplit.Tests
 
             for (int n = 0; n < _arrayChapter.GetChapterNamesSamplesLength(desiredTextLanguage); n++)//тут неправильная логика поиска индекса ключевого слова, она годится только для теста из одной строки
             {
-                if (_arrayChapter.GetChapterNamesVersionsCount(n) > 0)
+                for (int m = 0; m < baseKeyWordForms; m++)
                 {
-                    resultWordCount = n;
+                    if (_arrayChapter.GetChapterNamesVersionsCount(m, n) > 0)
+                    {
+                        resultWordCount = n;
+                    }
                 }
             }
             Assert.AreEqual(countNumber, resultWordCount, "countNumber is not Equal");
@@ -136,7 +141,7 @@ namespace TextSplit.Tests
         }
 
         [TestMethod]
-        [DataRow(22, new int[] {1, 2, 3, 808, 4, 5, 6, 34, 7, 8, 9, 10, 11, 112, 12, 75, 13, 14, 15, 16, 17, 18, 19, 33, 4, 5, 6, 20, 21, 22})]
+        [DataRow(22, new int[] { 1, 2, 3, 808, 4, 5, 6, 34, 7, 8, 9, 10, 11, 112, 12, 75, 13, 14, 15, 16, 17, 18, 19, 33, 4, 5, 6, 20, 21, 22 })]
         public void Test05_IsChapterNumbersIncreased(int countNumber, int[] chapterNameIsDigitsOnly)
         {
             int paragraphTextLength = chapterNameIsDigitsOnly.Length;
@@ -157,19 +162,21 @@ namespace TextSplit.Tests
 
             //Trace.WriteLine("Input: " + currentParagraph + "   countNumber = " + countNumber.ToString() + "   wordNumber = " + wordNumber.ToString());
 
-            int resultCountNumber = target.IsChapterNumbersIncreased(chapterNameIsDigitsOnly, desiredTextLanguage);                        
+            int resultCountNumber = target.IsChapterNumbersIncreased(chapterNameIsDigitsOnly, desiredTextLanguage);
 
-            Assert.AreEqual(countNumber, resultCountNumber, "countNumber is not Equal");            
+            Assert.AreEqual(countNumber, resultCountNumber, "countNumber is not Equal");
         }
 
         [TestMethod]
-        [DataRow(0, new int[] { 52, 12, 0, 0, 2 })]
-        [DataRow(3, new int[] { 1, 12, 3, 52, 22 })]
-        [DataRow(1, new int[] { 0, 52, 3, 12, 0 })]
-        [DataRow(4, new int[] { 51, 1, 0, 7, 52 })]
-        public void Test06_KeyWordIndexFound(int countNumber, int[] chapterNamesVersionsCount)//метод должен выбрать самое большое значение и вернуть его индекс (а не само значение)
+        [DataRow("Chapter", new int[] { 52, 12, 0, 10, 2 }, new int[] { 11, 12, 3, 10, 2}, new int[] { 8, 12, 10, 0, 2})]//{ "Chapter", "Paragraph", "Section", "Subhead", "Part" }, {all UPPER}, {all LOWER}
+        [DataRow("Subhead", new int[] { 1, 12, 3, 52, 22 }, new int[] { 11, 12, 3, 10, 2}, new int[] { 8, 12, 10, 0, 2})]
+        [DataRow("PARAGRAPH", new int[] { 0, 32, 3, 12, 10 }, new int[] { 11, 52, 3, 10, 2}, new int[] { 8, 12, 10, 0, 2})]
+        [DataRow("Part", new int[] { 51, 1, 10, 7, 52 }, new int[] { 11, 12, 3, 10, 2}, new int[] { 8, 12, 10, 0, 2})]
+        public void Test06_KeyWordIndexFound(string expectedChapterName, int[] chapterNamesVersionsCount0, int[] chapterNamesVersionsCount1, int[] chapterNamesVersionsCount2)//метод выбирает наибольшое значение и возвращает ключевое слово в нужной форме
         {
-            int chapterNamesVersionsCountTextLength = chapterNamesVersionsCount.Length;
+            int chapterNamesVersionsCountTextLength = chapterNamesVersionsCount0.Length;
+            int formCount = 3;
+            int[,] chapterNamesVersionsCount = new int [formCount, chapterNamesVersionsCountTextLength];
             IAllBookData bookData = new AllBookDataArrays();
             IFileManager manager = new FileManager(bookData);
             //IMessageService msgService = Mock.Of<IMessageService>();// - вывод на печать отключить
@@ -177,29 +184,38 @@ namespace TextSplit.Tests
             IAnalysisLogicChapterDataArrays _arrayChapter = new AnalysisLogicChapterDataArrays(bookData, msgService);
             Mock<IAllBookData> bookDataMock = new Mock<IAllBookData>();
             
-            for(int t = 0; t < chapterNamesVersionsCountTextLength; t++)
+            for(int i = 0; i < chapterNamesVersionsCountTextLength; i++)
             {
-                int b = _arrayChapter.SetChapterNamesVersionsCount(t, chapterNamesVersionsCount[t]);
+                chapterNamesVersionsCount[0, i] = chapterNamesVersionsCount0[i];
+                chapterNamesVersionsCount[1, i] = chapterNamesVersionsCount1[i];
+                chapterNamesVersionsCount[2, i] = chapterNamesVersionsCount2[i];
+                for (int m = 0; m < formCount; m++)
+                {                    
+                    int b = _arrayChapter.SetChapterNamesVersionsCount(m, i, chapterNamesVersionsCount[m, i]);
+                }
             }            
-            int possibleKeyWordIndex = _arrayChapter.GetChapterNamesVersionsCount(2);
+            int possibleKeyWordIndex = _arrayChapter.GetChapterNamesVersionsCount(0,0);
             Trace.WriteLine("possibleKeyWordIndex = " + possibleKeyWordIndex.ToString());//проверка заполнения удаленного массива данными из DataRow
             int desiredTextLanguage = 0;//english language            
 
             var target = new AnalysisLogicChapter(bookDataMock.Object, msgService, _arrayChapter);
 
-            int resultCountNumber = target.KeyWordIndexFound(desiredTextLanguage);
+            string resultChapterName = target.KeyWordFormFound(desiredTextLanguage);
 
-            Assert.AreEqual(countNumber, resultCountNumber, "countNumber is not Equal");
+            Assert.AreEqual(expectedChapterName, resultChapterName, "ChapterName is not Equal");
         }
 
         [TestMethod]
-        [DataRow(0, new int[] { 52, 12, 0, 0, 2 })]
-        [DataRow(3, new int[] { 1, 12, 3, 52, 22 })]
-        [DataRow(1, new int[] { 0, 52, 3, 12, 0 })]
-        [DataRow(4, new int[] { 51, 1, 0, 7, 52 })]
-        public void Test06Mock_KeyWordIndexFound(int countNumber, int[] chapterNamesVersionsCount)//такой же тест, но через Mock
+        [DataRow("Chapter", new int[] { 52, 12, 0, 10, 33 }, new int[] { 11, 12, 3, 10, 34}, new int[] { 8, 12, 10, 0, 35 })]//{ "Chapter", "Paragraph", "Section", "Subhead", "Part" }, {all UPPER}, {all LOWER}
+        [DataRow("Subhead", new int[] { 1, 12, 3, 52, 23}, new int[] { 11, 12, 3, 10, 24}, new int[] { 8, 12, 10, 0, 25})]
+        [DataRow("PARAGRAPH", new int[] { 0, 32, 3, 12, 43}, new int[] { 11, 52, 3, 10, 44}, new int[] { 8, 12, 10, 0, 45})]
+        [DataRow("Part", new int[] { 51, 1, 10, 7, 52}, new int[] { 11, 12, 3, 10, 37}, new int[] { 8, 12, 10, 0, 47})]        
+        public void Test06Mock_KeyWordIndexFound(string expectedChapterName, int[] chapterNamesVersionsCount0, int[] chapterNamesVersionsCount1, int[] chapterNamesVersionsCount2)//такой же тест, но через Mock
         {
-            int chapterNamesVersionsCountTextLength = chapterNamesVersionsCount.Length;
+            int chapterNamesVersionsCountTextLength = chapterNamesVersionsCount0.Length;
+            int formCount = 3;            
+            int[,] chapterNamesVersionsCount = new int[formCount, chapterNamesVersionsCountTextLength];
+
             IAllBookData bookData = new AllBookDataArrays();
             IFileManager manager = new FileManager(bookData);
             //IMessageService msgService = Mock.Of<IMessageService>();// - вывод на печать отключить
@@ -208,20 +224,27 @@ namespace TextSplit.Tests
             Mock<IAllBookData> bookDataMock = new Mock<IAllBookData>();
             Mock<IAnalysisLogicChapterDataArrays> arrayChapterMock = new Mock<IAnalysisLogicChapterDataArrays>();
             arrayChapterMock.Setup(x => x.GetChapterNamesSamplesLength(It.IsAny<int>())).Returns(chapterNamesVersionsCountTextLength);
+            arrayChapterMock.Setup(x => x.GetBaseKeyWordForms()).Returns(formCount);
 
-            for (int t = 0; t < chapterNamesVersionsCountTextLength; t++)
+            for (int i = 0; i < chapterNamesVersionsCountTextLength; i++)
             {
-                arrayChapterMock.Setup(x => x.GetChapterNamesVersionsCount(t)).Returns(chapterNamesVersionsCount[t]);//похоже, массив так не заполнить, какждый раз просто переопределяется переменная                
+                chapterNamesVersionsCount[0, i] = chapterNamesVersionsCount0[i];
+                chapterNamesVersionsCount[1, i] = chapterNamesVersionsCount1[i];
+                chapterNamesVersionsCount[2, i] = chapterNamesVersionsCount2[i];
+                for (int m = 0; m < formCount; m++)
+                {
+                    arrayChapterMock.Setup(x => x.GetChapterNamesVersionsCount(m, i)).Returns(chapterNamesVersionsCount[m, i]);//похоже, массив так не заполнить, какждый раз просто переопределяется переменная
+                }
             }
-            int possibleKeyWordIndex = arrayChapterMock.Object.GetChapterNamesVersionsCount(0);
+            int possibleKeyWordIndex = arrayChapterMock.Object.GetChapterNamesVersionsCount(2, 4);
             Trace.WriteLine("possibleKeyWordIndex = " + possibleKeyWordIndex.ToString());//проверка заполнения удаленного массива данными из DataRow
             int desiredTextLanguage = 0;//english language            
 
             var target = new AnalysisLogicChapter(bookDataMock.Object, msgService, arrayChapterMock.Object);
-            
-            int resultCountNumber = target.KeyWordIndexFound(desiredTextLanguage);
 
-            Assert.AreEqual(countNumber, resultCountNumber, "countNumber is not Equal");
+            string resultChapterName = target.KeyWordFormFound(desiredTextLanguage);
+
+            Assert.AreEqual(expectedChapterName, resultChapterName, "countNumber is not Equal");
         }
     }
 }

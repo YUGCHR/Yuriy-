@@ -15,7 +15,7 @@ namespace TextSplit
         event EventHandler AnalyseInvokeTheMain;
     }
 
-    class TextBookAnalysis : ITextBookAnalysis
+    class AllBookAnalysis : ITextBookAnalysis
     {
         private readonly IAllBookData _bookData;
         private readonly IMessageService _msgService;
@@ -32,7 +32,7 @@ namespace TextSplit
 
         public event EventHandler AnalyseInvokeTheMain;
 
-        public TextBookAnalysis(IAllBookData bookData, IMessageService msgService, IAnalysisLogicCultivation analysisLogic, IAnalysisLogicChapter chapterLogic, IAnalysisLogicParagraph paragraphLogic, IAnalysisLogicSentences sentenceLogic)
+        public AllBookAnalysis(IAllBookData bookData, IMessageService msgService, IAnalysisLogicCultivation analysisLogic, IAnalysisLogicChapter chapterLogic, IAnalysisLogicParagraph paragraphLogic, IAnalysisLogicSentences sentenceLogic)
         {
             _bookData = bookData;
             _msgService = msgService;

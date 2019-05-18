@@ -31,7 +31,7 @@ namespace TextSplit
             AnalysisLogicChapter chapterLogic = new AnalysisLogicChapter(bookData, msgService, arrayChapter);
             AnalysisLogicParagraph paragraphLogic = new AnalysisLogicParagraph(bookData, msgService);
             AnalysisLogicSentences sentenceLogic = new AnalysisLogicSentences(bookData, msgService);
-            TextBookAnalysis analysisBook = new TextBookAnalysis(bookData, msgService, analysisLogic, chapterLogic, paragraphLogic, sentenceLogic);
+            AllBookAnalysis analysisBook = new AllBookAnalysis(bookData, msgService, analysisLogic, chapterLogic, paragraphLogic, sentenceLogic);
             LoadTextToDataBase loadDataBase = new LoadTextToDataBase(bookData, dataAccess, msgService);
             MainLogicCultivation logicMain = new MainLogicCultivation(bookData, msgService, fileManager);
             MainPresentor presentorMain = new MainPresentor(viewForm, openForm, msgService, analysisBook, loadDataBase, bookData, logicMain);

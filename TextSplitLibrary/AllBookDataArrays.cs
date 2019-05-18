@@ -27,18 +27,20 @@ namespace TextSplitLibrary
         string GetFileContent(int i);
         int SetFileContent(string fileContent, int i);
 
-        string GetParagraphText(int paragraphCount, int langauageIndex);//возвращает строку из двумерного списка List
-        int GetParagraphTextLength(int langauageIndex);
-        int AddParagraphText(string paragraphText, int langauageIndex);//тоже возвращает количество элементов
-        int RemoveAtParagraphText(int paragraphCount, int langauageIndex);//удаляет элемент списка с индексом paragraphCount
+        string GetParagraphText(int paragraphCount, int desiredTextLanguage);//возвращает строку из двумерного списка List
+        int GetParagraphTextLength(int desiredTextLanguage);
+        int SetParagraphText(string paragraphText, int paragraphCount, int desiredTextLanguage);
+        int AddParagraphText(string paragraphText, int desiredTextLanguage);//тоже возвращает количество элементов
+        int RemoveAtParagraphText(int paragraphCount, int desiredTextLanguage);//удаляет элемент списка с индексом paragraphCount
 
-        string GetChapterName(int chapterCount, int langauageIndex);
-        int GetChapterNameLength(int langauageIndex);
-        int AddChapterName(string chapterNameWithNumber, int langauageIndex);
+        string GetChapterName(int chapterCount, int desiredTextLanguage);
+        int GetChapterNameLength(int desiredTextLanguage);
+        int SetChapterName(string chapterNameWithNumber, int chapterCount, int desiredTextLanguage);
+        int AddChapterName(string chapterNameWithNumber, int desiredTextLanguage);
 
-        int GetChapterNumber(int chapterCount, int langauageIndex);
-        int GetChapterNumberLength(int langauageIndex);
-        int AddChapterNumber(int chapterNumberOnly, int langauageIndex);
+        int GetChapterNumber(int chapterCount, int desiredTextLanguage);
+        int GetChapterNumberLength(int desiredTextLanguage);
+        int AddChapterNumber(int chapterNumberOnly, int desiredTextLanguage);
 
         string GetSymbolsCount(int i);
         int SetSymbolsCount(int symbolsCount, int i);
@@ -83,7 +85,7 @@ namespace TextSplitLibrary
             chaptersNamesNumbersOnly.Add(new List<int>());
             chaptersNamesNumbersOnly.Add(new List<int>());
         }
-        //группа массива ToDo
+        //группа массива filesToDo
         public int GetFileToDo(int i)
         {
             return filesToDo[i];
@@ -103,7 +105,7 @@ namespace TextSplitLibrary
             }
             return (int)MethodFindResult.NothingFound;
         }
-        //группа массива ToSave
+        //группа массива filesToSave
         public int GetFileToSave(int i)
         {
             return filesToSave[i];
@@ -123,7 +125,7 @@ namespace TextSplitLibrary
             }
             return (int)MethodFindResult.NothingFound;
         }
-        //группа массива Path
+        //группа массива filesPath
         public string GetFilePath(int i)
         {
             return filesPath[i];
@@ -134,7 +136,7 @@ namespace TextSplitLibrary
             filesPath[i] = filePath;
             return (int)MethodFindResult.AllRight;
         }
-        //группа массива Selection
+        //группа массива selectedTexts
         public string GetSelectedText(int i)
         {
             return selectedTexts[i];
@@ -145,7 +147,7 @@ namespace TextSplitLibrary
             selectedTexts[i] = selectedText;
             return (int)MethodFindResult.AllRight;
         }
-        //группа массива Content
+        //группа массива filesContents
         public string GetFileContent(int i)
         {
             return filesContents[i];
@@ -156,28 +158,34 @@ namespace TextSplitLibrary
             filesContents[i] = fileContent;
             return (int)MethodFindResult.AllRight;
         }
-        //группа массива Абзац текста
-        public string GetParagraphText(int paragraphCount, int langauageIndex)
+        //группа массива Абзац текста - paragraphsTexts
+        public string GetParagraphText(int paragraphCount, int desiredTextLanguage)
         {
-            return paragraphsTexts[langauageIndex][paragraphCount];            
+            return paragraphsTexts[desiredTextLanguage][paragraphCount];            
         }
 
-        public int GetParagraphTextLength(int langauageIndex)
+        public int GetParagraphTextLength(int desiredTextLanguage)
         {
-            return paragraphsTexts[langauageIndex].Count;
+            return paragraphsTexts[desiredTextLanguage].Count;
         }
 
-        public int AddParagraphText(string paragraphText, int langauageIndex)
+        public int SetParagraphText(string paragraphText, int paragraphCount, int desiredTextLanguage)
         {
-            paragraphsTexts[langauageIndex].Add(paragraphText);//добавление нового элемента в строку
-            return paragraphsTexts[langauageIndex].Count;
+            paragraphsTexts[desiredTextLanguage][paragraphCount] = paragraphText;
+            return 0;
         }
 
-        public int RemoveAtParagraphText(int paragraphCount, int langauageIndex)
+        public int AddParagraphText(string paragraphText, int desiredTextLanguage)
         {
-            if (paragraphCount >= paragraphsTexts[langauageIndex].Count)//сделать такие проверки во всех методах, придумать что-то с печатью (тревожное окно)
+            paragraphsTexts[desiredTextLanguage].Add(paragraphText);//добавление нового элемента в строку
+            return paragraphsTexts[desiredTextLanguage].Count;
+        }
+
+        public int RemoveAtParagraphText(int paragraphCount, int desiredTextLanguage)
+        {
+            if (paragraphCount >= paragraphsTexts[desiredTextLanguage].Count)//сделать такие проверки во всех методах, придумать что-то с печатью (тревожное окно)
             {
-                MessageBox.Show("запрошенный индекс = " + paragraphCount.ToString() + "\r\n" + "максимальный индекс = " + paragraphsTexts[langauageIndex].Count.ToString(), "AllBookData", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("запрошенный индекс = " + paragraphCount.ToString() + "\r\n" + "максимальный индекс = " + paragraphsTexts[desiredTextLanguage].Count.ToString(), "AllBookData", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
 
             if (paragraphCount < 0)
@@ -185,42 +193,48 @@ namespace TextSplitLibrary
                 MessageBox.Show("запрошенный индекс = " + paragraphCount.ToString(), "AllBookData", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
 
-            paragraphsTexts[langauageIndex].RemoveAt(paragraphCount);//удаление элемента по индексу
-            return paragraphsTexts[langauageIndex].Count;//получение и возврат новой длины списка
+            paragraphsTexts[desiredTextLanguage].RemoveAt(paragraphCount);//удаление элемента по индексу
+            return paragraphsTexts[desiredTextLanguage].Count;//получение и возврат новой длины списка
         }
-        //группа массива Главы имя
-        public string GetChapterName(int chapterCount, int langauageIndex)
+        //группа массива Главы имя - chaptersNamesWithNumbers
+        public string GetChapterName(int chapterCount, int desiredTextLanguage)
         {
-            if (chaptersNamesWithNumbers[langauageIndex][chapterCount] != null) return chaptersNamesWithNumbers[langauageIndex][chapterCount];
+            if (chaptersNamesWithNumbers[desiredTextLanguage][chapterCount] != null) return chaptersNamesWithNumbers[desiredTextLanguage][chapterCount];
             return null;
         }
 
-        public int GetChapterNameLength(int langauageIndex)
+        public int GetChapterNameLength(int desiredTextLanguage)
         {
-            return chaptersNamesWithNumbers[langauageIndex].Count;
+            return chaptersNamesWithNumbers[desiredTextLanguage].Count;
         }
 
-        public int AddChapterName(string chapterNameWithNumber, int langauageIndex)
+        public int SetChapterName(string chapterNameWithNumber, int chapterCount, int desiredTextLanguage)
         {
-            chaptersNamesWithNumbers[langauageIndex].Add(chapterNameWithNumber);//добавление нового элемента в строку
-            return chaptersNamesWithNumbers[langauageIndex].Count;
+            chaptersNamesWithNumbers[desiredTextLanguage][chapterCount] = chapterNameWithNumber;
+            return 0;
         }
-        //группа массива Главы Номер
-        public int GetChapterNumber(int chapterCount, int langauageIndex)
+
+        public int AddChapterName(string chapterNameWithNumber, int desiredTextLanguage)
         {
-            if (chaptersNamesNumbersOnly[langauageIndex][chapterCount] !=  0) return chaptersNamesNumbersOnly[langauageIndex][chapterCount];
+            chaptersNamesWithNumbers[desiredTextLanguage].Add(chapterNameWithNumber);//добавление нового элемента в строку
+            return chaptersNamesWithNumbers[desiredTextLanguage].Count;
+        }
+        //группа массива Главы Номер - chaptersNamesNumbersOnly
+        public int GetChapterNumber(int chapterCount, int desiredTextLanguage)
+        {
+            if (chaptersNamesNumbersOnly[desiredTextLanguage][chapterCount] !=  0) return chaptersNamesNumbersOnly[desiredTextLanguage][chapterCount];
             return (int)MethodFindResult.NothingFound;
         }
 
-        public int GetChapterNumberLength(int langauageIndex)
+        public int GetChapterNumberLength(int desiredTextLanguage)
         {
-            return chaptersNamesNumbersOnly[langauageIndex].Count;
+            return chaptersNamesNumbersOnly[desiredTextLanguage].Count;
         }
 
-        public int AddChapterNumber(int chapterNumberOnly, int langauageIndex)
+        public int AddChapterNumber(int chapterNumberOnly, int desiredTextLanguage)
         {
-            chaptersNamesNumbersOnly[langauageIndex].Add(chapterNumberOnly);//добавление нового элемента в строку
-            return chaptersNamesNumbersOnly[langauageIndex].Count;
+            chaptersNamesNumbersOnly[desiredTextLanguage].Add(chapterNumberOnly);//добавление нового элемента в строку
+            return chaptersNamesNumbersOnly[desiredTextLanguage].Count;
         }
         //группа массива подсчета символов
         public string GetSymbolsCount(int i)

@@ -19,12 +19,11 @@ namespace TextSplitLibrary
         int GetChapterNamesSamplesLength(int desiredTextLanguage);
         string GetChapterNamesSamples(int desiredTextLanguage, int i);
 
-        int GetChapterNamesVersionsCount(int i);
-        int SetChapterNamesVersionsCount(int i, int countValue);
+        int GetBaseKeyWordForms();
+        int GetChapterNamesVersionsCount(int m, int i);
+        int SetChapterNamesVersionsCount(int m, int i, int countValue);
         int GetChapterSymbolsVersionsCount(int i);
-        int SetChapterSymbolsVersionsCount(int i, int countValue);
-        int IncrementOfChapterNamesVersionsCount(int i);
-        int IncrementOfChapterSymbolsVersionsCount(int i);
+        int SetChapterSymbolsVersionsCount(int i, int countValue);        
     }
 
     public class AnalysisLogicChapterDataArrays : IAnalysisLogicChapterDataArrays
@@ -43,9 +42,10 @@ namespace TextSplitLibrary
         readonly private char[] charsSentenceSeparator;
 
         private string[] foundSymbolsOfParagraph;
-        private int[] chapterNamesVersionsCount;
+        private int[,] chapterNamesVersionsCount;
         private int[] chapterSymbolsVersionsCount;
         private char[] foundCharsSeparator;
+        private readonly int baseKeyWordForms;
 
         public AnalysisLogicChapterDataArrays(IAllBookData bookData, IMessageService msgService)
         {
@@ -54,21 +54,26 @@ namespace TextSplitLibrary
 
             showMessagesLevel = Declaration.ShowMessagesLevel;
             strCRLF = Declaration.StrCRLF;
-
+            baseKeyWordForms = 3;
             charsParagraphSeparator = new char[] { '\r', '\n' };
             charsSentenceSeparator = new char[] { '.', '!', '?' };
             stringMarksChapterNameBegin = "\u00A4\u00A4\u00A4\u00A4\u00A4";//¤¤¤¤¤ - метка строки перед началом названия главы
             stringMarksChapterNameEnd = "\u00A4\u00A4\u00A4";//¤¤¤ - метка строки после названия главы, еще \u00A7 - §, \u007E - ~, \u00B6 - ¶            
                                                              
             chapterNamesSamples = new string[,]//а номера глав бывают буквами! то мелочи, ключевые слова могуть быть из прописных букв, может быть дефис между словом и номером или другой символ
-            { { "Chapter ", "Paragraph ", "Section ", "Subhead ", "Part " },
+            { { "chapter", "paragraph", "section", "subhead", "part" },
                 { "Глава ", "Параграф " , "Раздел ", "Подраздел ", "Часть " }, };
                     
             foundWordsOfParagraph = new string[10];//временное хранение найденных первых десяти слов абзаца
             foundSymbolsOfParagraph = new string[10];//временное хранение найденных групп спецсимволов перед ключевым словом главы
             foundCharsSeparator = new char[10];//временное хранение найденных вариантов разделителей
-            chapterNamesVersionsCount = new int[GetChapterNamesSamplesLength(0)];
+            chapterNamesVersionsCount = new int[3,GetChapterNamesSamplesLength(0)];
             chapterSymbolsVersionsCount = new int[GetChapterNamesSamplesLength(0)];
+        }
+
+        public int GetBaseKeyWordForms()
+        {
+            return baseKeyWordForms;
         }
 
         public int SetFoundWordsOfParagraph(string wordOfParagraph, int i)
@@ -162,21 +167,16 @@ namespace TextSplitLibrary
             return chapterNamesSamples[desiredTextLanguage, i];
         }
 
-        public int GetChapterNamesVersionsCount(int i)
+        public int GetChapterNamesVersionsCount(int m, int i) //m - варианты форм, i - варианты ключевых слов
         {
-            return chapterNamesVersionsCount[i];
+            return chapterNamesVersionsCount[m, i];
         }
 
-        public int SetChapterNamesVersionsCount(int i, int countValue)
+        public int SetChapterNamesVersionsCount(int m, int i, int countValue)
         {
-            chapterNamesVersionsCount[i] = countValue;
+            chapterNamesVersionsCount[m, i] = countValue;
             return 0;
-        }
-
-        public int IncrementOfChapterNamesVersionsCount(int i)
-        {
-            return chapterNamesVersionsCount[i]++;
-        }
+        }        
 
         public int GetChapterSymbolsVersionsCount(int i)
         {
@@ -187,11 +187,6 @@ namespace TextSplitLibrary
         {
             chapterSymbolsVersionsCount[i] = countValue;
             return 0;
-        }        
-
-        public int IncrementOfChapterSymbolsVersionsCount(int i)
-        {
-            return chapterSymbolsVersionsCount[i]++;
         }
 
         public static string CurrentClassName

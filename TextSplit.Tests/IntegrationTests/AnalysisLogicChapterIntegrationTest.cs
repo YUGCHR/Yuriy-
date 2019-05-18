@@ -60,8 +60,9 @@ namespace TextSplit.Tests
         }
 
         [TestMethod] // - marks method as a test
-        public void TestUnit_TextBookDivideOnChapter()
-        {
+        [DataRow(52)]
+        public void TestUnit_TextBookDivideOnChapter(int expectedChapterNumberCount)
+        {            
             bool truePath = File.Exists(_filePath);
             Assert.IsTrue(truePath, "test file not found");
 
@@ -79,19 +80,28 @@ namespace TextSplit.Tests
             string fileContent = manager.GetContent(desiredTextLanguage);
 
             string pasHash = GetMd5Hash(fileContent);
-            Trace.WriteLine("Hash = " + pasHash);
+            //Trace.WriteLine("Hash = " + pasHash);
             bool trueHash = pasHash == "23da3a362c368bef950974b44fccca4d"; //в отдельный метод
-            Assert.IsTrue(trueHash, "test file has been changed");
-
-            int expectedChapterNumberCount = 52; //вынести в DataRow?
-            int increasedChapterNumbers = 52;
-            string keyWordFound = "Chapter";
+            Assert.IsTrue(trueHash, "test file has been changed");            
 
             book.SetFileContent(fileContent, desiredTextLanguage);
             int portionBookTextResult = paragraphAnalyser.PortionBookTextOnParagraphs(desiredTextLanguage);
             int normalizeEmptyParagraphsResult = paragraphAnalyser.normalizeEmptyParagraphs(desiredTextLanguage);
+            int paragraphTextLength = book.GetParagraphTextLength(desiredTextLanguage);
+            Trace.WriteLine("paragraphTextLength = " + paragraphTextLength.ToString());
+            int[] chapterNameIsDigitsOnly = new int[paragraphTextLength];
 
-            var result = chapterAnalyser.TextBookDivideOnChapter(increasedChapterNumbers, keyWordFound, desiredTextLanguage);
+            for (int i = 0; i < paragraphTextLength; i++)
+            {
+                string currentParagraph = book.GetParagraphText(i, desiredTextLanguage);                
+                chapterAnalyser.FirstTenGroupsChecked(currentParagraph, chapterNameIsDigitsOnly, i, desiredTextLanguage);
+            }
+            //int increasedChapterNumbers = expectedChapterNumberCount;
+            int increasedChapterNumbers = chapterAnalyser.IsChapterNumbersIncreased(chapterNameIsDigitsOnly, desiredTextLanguage);
+            //string keyWordFounfForm = "Chapter";
+            string keyWordFounfForm = chapterAnalyser.KeyWordFormFound(desiredTextLanguage);
+
+            var result = chapterAnalyser.TextBookDivideOnChapter(chapterNameIsDigitsOnly, increasedChapterNumbers, keyWordFounfForm, desiredTextLanguage);
             Assert.AreEqual(expectedChapterNumberCount, result);
         }
     }
