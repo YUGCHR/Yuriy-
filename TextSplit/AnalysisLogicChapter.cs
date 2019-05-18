@@ -8,7 +8,7 @@ namespace TextSplit
 {
     public interface IAnalysisLogicChapter
     {
-        int ChapterNameAnalysis(int desiredTextLanguage);
+        string ChapterNameAnalysis(int desiredTextLanguage);
         int UserSelectedChapterNameAnalysis(int desiredTextLanguage);       
         string FindDigitsInChapterName(string paragraphWihtChapterName);
     }
@@ -22,7 +22,6 @@ namespace TextSplit
         delegate bool IsOrNotEqual(char x);
         delegate bool DoElseConditions(string x, int i, int j);
         delegate string TransduceWord(string baseKeyWord);
-        private readonly TransduceWord[] TransduceKeyWord;
 
         int GetParagraphTextLength(int desiredTextLanguage) => _bookData.GetParagraphTextLength(desiredTextLanguage);
         string GetParagraphText(int paragraphCount, int desiredTextLanguage) => _bookData.GetParagraphText(paragraphCount, desiredTextLanguage);
@@ -45,15 +44,13 @@ namespace TextSplit
         //int ClearFoundSymbolsOfParagraph();
         int GetFoundSymbolsOfParagraphLength() => _arrayChapter.GetFoundSymbolsOfParagraphLength();
         string GetStringMarksChapterName(string str) => _arrayChapter.GetStringMarksChapterName(str);
-        int GetBaseKeyWordForms() => _arrayChapter.GetBaseKeyWordForms();
+        int GetBaseKeyWordFormsQuantity() => _arrayChapter.GetBaseKeyWordFormsQuantity();
         int GetChapterNamesSamplesLength(int desiredTextLanguage) => _arrayChapter.GetChapterNamesSamplesLength(desiredTextLanguage);
         string GetChapterNamesSamples(int desiredTextLanguage, int i) => _arrayChapter.GetChapterNamesSamples(desiredTextLanguage, i);
         int GetChapterNamesVersionsCount(int m, int i) => _arrayChapter.GetChapterNamesVersionsCount(m, i);
         int SetChapterNamesVersionsCount(int m, int i, int countValue) => _arrayChapter.SetChapterNamesVersionsCount(m, i, countValue);
         int GetChapterSymbolsVersionsCount(int i) => _arrayChapter.GetChapterSymbolsVersionsCount(i);
         int SetChapterSymbolsVersionsCount(int i, int countValue) => _arrayChapter.SetChapterSymbolsVersionsCount(i, countValue);
-
-        //int IncrementOfChapterSymbolsVersionsCount(int i);
 
         private readonly int showMessagesLevel;
         private readonly string strCRLF;
@@ -68,39 +65,29 @@ namespace TextSplit
             strCRLF = Declaration.StrCRLF;            
         }
 
-        public int ChapterNameAnalysis(int desiredTextLanguage)//Main здесь - ищем все названия глав, складываем их по массивам, узнаем их количество и возвращаем его
-        {//можно сделать сильно проще - все найденные предполагаемые абзацы с номерами глав складывать в отдельный массив для номеров глав (List - есть готовый), а потом анализировать его и выкинуть все лишнее
-            int paragraphTextLength = GetParagraphTextLength(desiredTextLanguage); // _bookData.GetParagraphTextLength(desiredTextLanguage);
+        public string ChapterNameAnalysis(int desiredTextLanguage)//Main здесь - ищем все названия и номера глав, создаем метку в фиксированном формате и записываем ее обратно в массив перед оригинальным называнием главы
+        {
+            int paragraphTextLength = GetParagraphTextLength(desiredTextLanguage); // это вместо _bookData.GetParagraphTextLength(desiredTextLanguage);
             int[] chapterNameIsDigitsOnly = new int[paragraphTextLength];
             string[] allTextWithChapterNames = new string[paragraphTextLength];
 
             int maxKeyNameLength = ChapterKeyNamesAnalysis(desiredTextLanguage);//ищем слово с макс.символов из ключевых (непонятно, зачем это нужно, но пока пусть будет)
+
             _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(),
                 "Mark of begining Chapter --> " + GetStringMarksChapterName("Begin") + strCRLF +
                 "Mark of the end of Chapter --> " + GetStringMarksChapterName("End") + strCRLF +
                 "maxKeyNameLength = " + maxKeyNameLength.ToString() + strCRLF +
-                "chapterNamesSamplesCount = " + GetChapterNamesSamplesLength(desiredTextLanguage), CurrentClassName, 3);//тестовая печать будущей маркировки глав, абзацев и прочего - просто проверка символов
+                "chapterNamesSamplesCount = " + GetChapterNamesSamplesLength(desiredTextLanguage), CurrentClassName, showMessagesLevel);//тестовая печать будущей маркировки глав, абзацев и прочего - просто проверка символов
 
             for (int i = 0; i < paragraphTextLength; i++)//перебираем все абзацы текста, начиная с второго - в первом главы быть не должно
             {
                 string currentParagraph = GetParagraphText(i, desiredTextLanguage);//_bookData.GetParagraphText(i, desiredTextLanguage);
-                //_msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "BEFORE IF currentParagraph = " + currentParagraph + "   i = " + i.ToString(), CurrentClassName, 3);
-                //if (!String.IsNullOrWhiteSpace(currentParagraph))//если текущая строка не пустая, получаем и смотрим предыдущий абзац
-                //{
-                //    string previousParagraph = GetParagraphText((i - 1), desiredTextLanguage);
-                //    //если предыдущая пустая, то начинаем анализ строки (абзаца), выбираем первые 10 групп символов (по пробелу) и ищем в них название (ключевые слова) и номера глав
-                //    if (String.IsNullOrWhiteSpace(previousParagraph))//метод вызывается не на каждый абзац, а в нем массив для каждого абзаца!
-                //    {
-                //        //_msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "IN IF currentParagraph = " + currentParagraph + "   i = " + i.ToString(), CurrentClassName, 3);
-                        FirstTenGroupsChecked(currentParagraph, chapterNameIsDigitsOnly, i, desiredTextLanguage);//преобразовать массив chapterNameIsDigitsOnly тоже в метод доступа к массиву?
-                //    }
-                //}
+                FirstTenGroupsChecked(currentParagraph, chapterNameIsDigitsOnly, i, desiredTextLanguage);//преобразовать массив chapterNameIsDigitsOnly тоже в метод доступа к массиву?                
             }
 
-            int baseKeyWordForms = GetBaseKeyWordForms();
-            
+            int baseKeyWordFormsQuantity = GetBaseKeyWordFormsQuantity();            
 
-            for (int m = 0; m < baseKeyWordForms; m++)
+            for (int m = 0; m < baseKeyWordFormsQuantity; m++)
             {
                 //в этом массиве значения показывают, сколько раз какое ключевое слово встретилось в тексте
                 _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Must be found 52 the same chapters name" + strCRLF +            
@@ -108,52 +95,35 @@ namespace TextSplit
                     "ChapterNamesVersionsCount[1] --> " + GetChapterNamesVersionsCount(m, 1) + strCRLF +            
                     "ChapterNamesVersionsCount[2] --> " + GetChapterNamesVersionsCount(m, 2) + strCRLF +            
                     "ChapterNamesVersionsCount[3] --> " + GetChapterNamesVersionsCount(m, 3) + strCRLF +            
-                    "ChapterNamesVersionsCount[4] --> " + GetChapterNamesVersionsCount(m, 4), CurrentClassName, 3);
+                    "ChapterNamesVersionsCount[4] --> " + GetChapterNamesVersionsCount(m, 4), CurrentClassName, showMessagesLevel);
             }            
 
             int increasedChapterNumbers = IsChapterNumbersIncreased(chapterNameIsDigitsOnly, desiredTextLanguage);//выделяем монотонно возрастающие номера глав и считаем количество
             
-            string keyWordFounfForm = KeyWordFormFound(desiredTextLanguage);
-            
-            //тут уже 52 раза найдено ключевое слово и найдено 52 номера глав (для контрольного текста)                                                                                            
-            //добыть номер первой главы и передать в анализ текста название и первый номер главы                                                                                            
-            //теперь заново анализировать текст и искать уже известные названия глав (и в известном количестве)                                                                                            
-            //перебирать абзацы, записывать их во временный массив и помечать названия глав - проблема вставить дополнительные строки для разметки
-            //_msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "increasedChapterNumbers = " + increasedChapterNumbers.ToString() + " / keyWordFound - " + keyWordFound, CurrentClassName, 3);
+            string keyWordFounfForm = KeyWordFormFound(desiredTextLanguage);//возвращаем готовую форму найденного ключевого слова из массива образцов GetChapterNamesSamples и сохраненной статистики поиска
 
-            int foundChapterNames = TextBookDivideOnChapter(chapterNameIsDigitsOnly, increasedChapterNumbers, keyWordFounfForm, desiredTextLanguage);//делим текст на главы, ставим метки и нумеруем главы и абзацы
+            string lastFoundChapterNumberInMarkFormat = TextBookDivideOnChapter(chapterNameIsDigitsOnly, increasedChapterNumbers, keyWordFounfForm, desiredTextLanguage);//делим текст на главы, ставим метки с собственными номерами глав (совпадающими по значению с исходными)
 
-            for (int i = 0; i < paragraphTextLength; i++)
+            for (int i = 0; i < paragraphTextLength; i++)//просто проверка, что получилось
             {
                 string currentParagraph = GetParagraphText(i, desiredTextLanguage);
-                _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "CurrentParagraph with i = " + i.ToString() + "  -- > " + currentParagraph, CurrentClassName, showMessagesLevel);                
+                _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "CurrentParagraph with i = " + i.ToString() + "  -- > " + currentParagraph, CurrentClassName, showMessagesLevel);
             }
-
-
-
-
-
-            return increasedChapterNumbers;
+            return lastFoundChapterNumberInMarkFormat;
         }
 
-
-        public int TextBookDivideOnChapter(int[] chapterNameIsDigitsOnly, int increasedChapterNumbers, string keyWordFounfForm, int desiredTextLanguage)
-        {
-            int paragraphTextLength = GetParagraphTextLength(desiredTextLanguage);
-            //int foundNumberLength = GetChapterNumberLength(desiredTextLanguage);            
-
-            //получить строку ключевого слова и первый номер главы
-            int previousChapterNameIsDigitsOnly = 0;
-            //создать поисковое выражение для поиска главы
-            //string currentChapterNameToFind = keyWordFound + " " + startChapterNumber;//надо в предыдущих действиях найти и сохранить группу символов между словом-названием главы и ее номером (а также лидирующая группа где-то сохраняется)
-            //создать временный массив (какой длины? - может, тоже динамический?), сохранить в него заголовок "предысловие" (или "заглавие") в первую ячейку
-            List<string> workParagraphText = new List<string>();
+        public string TextBookDivideOnChapter(int[] chapterNameIsDigitsOnly, int increasedChapterNumbers, string keyWordFounfForm, int desiredTextLanguage)
+        {//разделили текст на главы - перед каждой главой поставили специальную метку вида ¤¤¤¤¤KeyWord-NNN-¤¤¤, где KeyWord - в той же форме, в какой в тексте, а NNN - три цифры номера главы с лидирующими нулями
+            string lastFoundChapterNumberInMarkFormat = ""; //вернем маркировку последней главы
+            int paragraphTextLength = GetParagraphTextLength(desiredTextLanguage);            
+            int previousChapterNameIsDigitsOnly = chapterNameIsDigitsOnly[0] - 1;//получить первый (предположительно? - проверить на разных текстах) первый номер главы и отнять 1 для запуска цикла            
+            //List<string> workParagraphText = new List<string>();
             for (int i = 1; i < paragraphTextLength; i++)
-            {//из массива всего текста доставать абзац, проверять на название главы, если названия нет, присвоить метку и номер абзаца, положить в следующую ячейку временного
-                
+            {//из массива всего текста доставать абзац, проверять на название главы, если названия нет, присвоить метку и номер абзаца - но лучше в отдельный метод
+
                 string currentParagraph = GetParagraphText(i, desiredTextLanguage);
                 int chapterNumberLength = GetChapterNumberLength(desiredTextLanguage);
-                
+
                 _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "CurrentParagraph with i = " + i.ToString() + "  -- > " + currentParagraph + strCRLF +
                     "paragraphTextLength = " + paragraphTextLength.ToString() + strCRLF +
                     "chapterNumberLength = " + chapterNumberLength.ToString(), CurrentClassName, showMessagesLevel);
@@ -166,55 +136,31 @@ namespace TextSplit
                         int correctedChapterNameIsDigitsOnly = chapterNameIsDigitsOnly[i] - 1;
                         string currentChapterNumberToFind = correctedChapterNameIsDigitsOnly.ToString();
                         _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "CurrentParagraph with i = " + i.ToString() + "  -- > " + currentParagraph + strCRLF +
-                                "correctedChapterNameIsDigitsOnly = " + correctedChapterNameIsDigitsOnly.ToString()+ strCRLF + 
+                                "correctedChapterNameIsDigitsOnly = " + correctedChapterNameIsDigitsOnly.ToString() + strCRLF +
                                 " == previousChapterNameIsDigitsOnly = " + previousChapterNameIsDigitsOnly.ToString() + strCRLF +
                                 " (" + currentChapterNumberToFind + ")" + strCRLF +
                                 "foundNumberInParagraph [" + i.ToString() + "] --> " + foundNumberInParagraph.ToString(), CurrentClassName, showMessagesLevel);
-
                         if (currentParagraph.Contains(currentChapterNumberToFind))
                         {
                             bool isChapterNumbersIncreased = (previousChapterNameIsDigitsOnly + 1) == correctedChapterNameIsDigitsOnly;
                             if (isChapterNumbersIncreased)
                             {//нашли строку с названием и номером главы
-                                string currentChapterNumberToFind000 = Add000ToChapterNumber(currentChapterNumberToFind);                                                                                 
-                                string paragraphTextMarks = GetStringMarksChapterName("Begin") + keyWordFounfForm + "-" + currentChapterNumberToFind000 + GetStringMarksChapterName("End");
-                                SetParagraphText(paragraphTextMarks, i-1, desiredTextLanguage);
+                                string currentChapterNumberToFind000 = Add000ToChapterNumber(currentChapterNumberToFind);
+                                string paragraphTextMarks = GetStringMarksChapterName("Begin") + keyWordFounfForm + "-" + currentChapterNumberToFind000 + "-" + GetStringMarksChapterName("End");
+                                SetParagraphText(paragraphTextMarks, i - 1, desiredTextLanguage);//проверить, что i больше 0, иначе некуда заносить
+                                string currentMarkParagraph = GetParagraphText(i - 1, desiredTextLanguage);//после тестов убрать вместе с печатью
                                 _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "CurrentParagraph with i = " + i.ToString() + "  -- > " + currentParagraph + strCRLF +
                                 "paragraphTextMarks " + paragraphTextMarks + strCRLF +
+                                "currentMarkParagraph" + currentMarkParagraph + strCRLF +
                                 "foundNumberInParagraph [" + i.ToString() + "] --> " + foundNumberInParagraph.ToString(), CurrentClassName, showMessagesLevel);
+                                lastFoundChapterNumberInMarkFormat = paragraphTextMarks;
                                 previousChapterNameIsDigitsOnly = correctedChapterNameIsDigitsOnly;
-                            }                            
+                            }
                         }
                     }
                 }
-                //тут проверить номер по сохраненному массиву номеров азацев с названиями глав
-                //bool inCurrentParagraphChapterNameFound = GetChapterNumber(i, desiredTextLanguage) > 0;
-
-                int n = 0;
-                //n = _bookData.GetChapterNumber(i, desiredTextLanguage);
-
-                
-
-                //"Suppose chapters NAME [" + i.ToString() + "] --> " + GetChapterName(i, desiredTextLanguage) + strCRLF +
-                //"Suppose chapters NUMBER [" + i.ToString() + "] --> " + chapterNameIsDigitsOnly[i].ToString()
-
-            //
-                //if (inCurrentParagraphChapterNameFound)
-                //{
-                //    //записать в List строку - маркер + номер главы по порядку + маркер, потом собственно строку с названием главы, начать нумерацию абзацев
-
-                //}
-                //else
-                //{
-
-
-                //}
-                //параллельно надо создавать массив из целых глав? или потом или вообще по мере надобности - для отображения в окне формы
-                //найдено название главы - присвоить метку и номер, положить в следующую ячейку временного, увеличить счетчик глав или сложить название во временный массив
             }
-            //обнулить массив _book.GetParagraphText(i, desiredTextLanguage)
-
-            return increasedChapterNumbers;//вернуть уточненное количество глав?
+            return lastFoundChapterNumberInMarkFormat;//вернуть уточненное количество глав
         }
 
         public string Add000ToChapterNumber(string currentChapterNumberToFind)
@@ -233,8 +179,8 @@ namespace TextSplit
 
         public string KeyWordFormFound(int desiredTextLanguage)//возвращаем готовую форму найденного ключевого слова из массива образцов GetChapterNamesSamples и сохраненной статистики поиска
         {
-            int baseKeyWordForms = GetBaseKeyWordForms();
-            TransduceWord[] TransduceKeyWord = new TransduceWord[baseKeyWordForms];
+            int baseKeyWordFormsQuantity = GetBaseKeyWordFormsQuantity();
+            TransduceWord[] TransduceKeyWord = new TransduceWord[baseKeyWordFormsQuantity];
             TransduceKeyWord[0] = TransduceKeyWordToTitleCase;
             TransduceKeyWord[1] = TransduceKeyWordToUpper;
             TransduceKeyWord[2] = TransduceKeyWordToLower;
@@ -246,7 +192,7 @@ namespace TextSplit
             _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "keyWordCount = " + keyWordCount.ToString(), CurrentClassName, showMessagesLevel);
             for (int i = 1; i < getChapterNamesSamplesLength; i++)
             {
-                for (int m = 0; m < baseKeyWordForms; m++)
+                for (int m = 0; m < baseKeyWordFormsQuantity; m++)
                 {
                     int currentChapterNamesVersionsCount = GetChapterNamesVersionsCount(m, i);
                     _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "keyWordCount = " + keyWordCount.ToString() + strCRLF +
@@ -264,10 +210,12 @@ namespace TextSplit
                             "keyWordForm = " + keyWordForm.ToString(), CurrentClassName, showMessagesLevel);
                     }
                 }
-            }
+            }            
             string keyWordBaseForm = GetChapterNamesSamples(desiredTextLanguage, keyWordIndex);//получаем базовое ключевое слово - строчное
+            _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "keyWordIndex = " + keyWordIndex.ToString() + strCRLF +
+                "keyWordForm = " + keyWordForm.ToString() + strCRLF +
+                "keyWordBaseForm = " + keyWordBaseForm, CurrentClassName, showMessagesLevel);
             string keyWordFoundForm = TransduceKeyWord[keyWordForm](keyWordBaseForm);
-
             return keyWordFoundForm;
         }
 
@@ -336,23 +284,23 @@ namespace TextSplit
 
         public int CheckWordOfParagraphCompare(string currentWordOfParagraph, int jWordNumber, int desiredTextLanguage)//проверяем полученное слово на совпадение с ключевыми из массива
         {
-            int baseKeyWordForms = GetBaseKeyWordForms();
-            TransduceWord[] TransduceKeyWord = new TransduceWord[baseKeyWordForms];
+            int baseKeyWordFormsQuantity = GetBaseKeyWordFormsQuantity();
+            TransduceWord[] TransduceKeyWord = new TransduceWord[baseKeyWordFormsQuantity];
             TransduceKeyWord[0] = TransduceKeyWordToTitleCase;
             TransduceKeyWord[1] = TransduceKeyWordToUpper;
             TransduceKeyWord[2] = TransduceKeyWordToLower;
-            //int incrementMultiplierFactor = 0;
+            
             int chapterNamesSamplesLength = GetChapterNamesSamplesLength(desiredTextLanguage);
-            int[,] tempArrChapterNamesSamples = new int[baseKeyWordForms, chapterNamesSamplesLength];//перебрать 3 возможные формы заглавия глав - все строчные, все прописные, первая прописная - такое же количество методов у делегата TransduceKeyWord
+            int[,] tempArrChapterNamesSamples = new int[baseKeyWordFormsQuantity, chapterNamesSamplesLength];//перебрать 3 возможные формы заглавия глав - все строчные, все прописные, первая прописная - такое же количество методов у делегата TransduceKeyWord
 
             for (int n = 0; n < chapterNamesSamplesLength; n++)//тут перебираем базовые формы ключевых слов
             {
-                for (int m = 0; m < baseKeyWordForms; m++)//тут перебираем варианты написания ключевых слов
+                for (int m = 0; m < baseKeyWordFormsQuantity; m++)//тут перебираем варианты написания ключевых слов
                 {
                     string baseKeyWord = GetChapterNamesSamples(desiredTextLanguage, n);
                     string currentKeyWordForm = TransduceKeyWord[m](baseKeyWord);
                     
-                    bool currentWordOfParagraphCheck = currentWordOfParagraph.Contains(currentKeyWordForm);//проверяем, содержатся ли стандартные называния глав в строке - с пробелом после слова (может заменить на Equals)
+                    bool currentWordOfParagraphCheck = currentWordOfParagraph.Contains(currentKeyWordForm);//проверяем, содержатся ли стандартные называния глав в строке - если в другое слово входит ключевое, то тоже находит - исправить
                     if (currentWordOfParagraphCheck)
                     {//надо еще проверять вариант, когда все буквы прописные (или часть?) - проще всего текущее слово перевести в строчные и ключевые сделать все из строчных
                         
@@ -376,6 +324,7 @@ namespace TextSplit
 
         private string TransduceKeyWordToTitleCase(string baseKeyWord)
         {
+            //проверять baseKeyWord чтобы не null и останавливать с диагностикой
             TextInfo ti = CultureInfo.CurrentCulture.TextInfo;
             string transduceWord = ti.ToTitleCase(baseKeyWord);
             return transduceWord;
@@ -672,6 +621,15 @@ namespace TextSplit
     }
 
 }
+//
+//_msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "BEFORE IF currentParagraph = " + currentParagraph + "   i = " + i.ToString(), CurrentClassName, 3);
+//if (!String.IsNullOrWhiteSpace(currentParagraph))//если текущая строка не пустая, получаем и смотрим предыдущий абзац
+//{
+//    string previousParagraph = GetParagraphText((i - 1), desiredTextLanguage);
+//    //если предыдущая пустая, то начинаем анализ строки (абзаца), выбираем первые 10 групп символов (по пробелу) и ищем в них название (ключевые слова) и номера глав
+//    if (String.IsNullOrWhiteSpace(previousParagraph))//метод вызывается не на каждый абзац, а в нем массив для каждого абзаца!
+//    {
+//        //_msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "IN IF currentParagraph = " + currentParagraph + "   i = " + i.ToString(), CurrentClassName, 3);
 //
 //int SymbolGroupSaving1(char[] charArrayOfChapterNumber, string[] foundWordsOfParagraph, int foundWordsCount, int i, IsOrNotEqual currentIf, DoElseCircumstance currentDoElse, int doMinusOne)
 //{

@@ -16,7 +16,8 @@ namespace TextSplit.Tests
         private const string _filePath = ".//testBooks//testEndlishTexts_03.txt";
 
         [TestMethod] // - marks method as a test
-        public void TestMain_AnalysisLogicChapter()
+        [DataRow("¤¤¤¤¤Chapter-051-¤¤¤")]
+        public void TestMain_AnalysisLogicChapter(string lastFoundChapterNumberInMarkFormat)
         {
             bool truePath = File.Exists(_filePath);
             Assert.IsTrue(truePath, "test file not found");
@@ -36,7 +37,7 @@ namespace TextSplit.Tests
 
             string pasHash = GetMd5Hash(fileContent);
             Trace.WriteLine("Hash = " + pasHash);
-            bool trueHash = pasHash == "23da3a362c368bef950974b44fccca4d";
+            bool trueHash = pasHash == "e97f0953ea502433e5bc53607a89f6e8";
             Assert.IsTrue(trueHash, "test file has been changed");
             
             book.SetFileContent(fileContent, desiredTextLanguage);
@@ -44,7 +45,7 @@ namespace TextSplit.Tests
             int normalizeEmptyParagraphsResult = paragraphAnalyser.normalizeEmptyParagraphs(desiredTextLanguage);
 
             var result = chapterAnalyser.ChapterNameAnalysis(desiredTextLanguage);
-            Assert.AreEqual(52, result);
+            Assert.AreEqual(lastFoundChapterNumberInMarkFormat, result);
         }
 
         public static string GetMd5Hash(string fileContent)
@@ -60,8 +61,8 @@ namespace TextSplit.Tests
         }
 
         [TestMethod] // - marks method as a test
-        [DataRow(52)]
-        public void TestUnit_TextBookDivideOnChapter(int expectedChapterNumberCount)
+        [DataRow("¤¤¤¤¤Chapter-051-¤¤¤")]
+        public void TestUnit_TextBookDivideOnChapter(string lastFoundChapterNumberInMarkFormat)
         {            
             bool truePath = File.Exists(_filePath);
             Assert.IsTrue(truePath, "test file not found");
@@ -80,15 +81,15 @@ namespace TextSplit.Tests
             string fileContent = manager.GetContent(desiredTextLanguage);
 
             string pasHash = GetMd5Hash(fileContent);
-            //Trace.WriteLine("Hash = " + pasHash);
-            bool trueHash = pasHash == "23da3a362c368bef950974b44fccca4d"; //в отдельный метод
+            Trace.WriteLine("Hash = " + pasHash);
+            bool trueHash = pasHash == "e97f0953ea502433e5bc53607a89f6e8"; //в отдельный метод
             Assert.IsTrue(trueHash, "test file has been changed");            
 
             book.SetFileContent(fileContent, desiredTextLanguage);
             int portionBookTextResult = paragraphAnalyser.PortionBookTextOnParagraphs(desiredTextLanguage);
             int normalizeEmptyParagraphsResult = paragraphAnalyser.normalizeEmptyParagraphs(desiredTextLanguage);
             int paragraphTextLength = book.GetParagraphTextLength(desiredTextLanguage);
-            Trace.WriteLine("paragraphTextLength = " + paragraphTextLength.ToString());
+            //Trace.WriteLine("paragraphTextLength = " + paragraphTextLength.ToString());
             int[] chapterNameIsDigitsOnly = new int[paragraphTextLength];
 
             for (int i = 0; i < paragraphTextLength; i++)
@@ -102,7 +103,7 @@ namespace TextSplit.Tests
             string keyWordFounfForm = chapterAnalyser.KeyWordFormFound(desiredTextLanguage);
 
             var result = chapterAnalyser.TextBookDivideOnChapter(chapterNameIsDigitsOnly, increasedChapterNumbers, keyWordFounfForm, desiredTextLanguage);
-            Assert.AreEqual(expectedChapterNumberCount, result);
+            Assert.AreEqual(lastFoundChapterNumberInMarkFormat, result);
         }
     }
 }

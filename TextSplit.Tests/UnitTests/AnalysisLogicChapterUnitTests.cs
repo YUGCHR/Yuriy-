@@ -2,6 +2,7 @@
 using Moq;
 using Microsoft.VisualStudio.TestTools.UnitTesting; // using for tests
 using System.Diagnostics;
+using System.Globalization;
 
 namespace TextSplit.Tests
 {
@@ -67,7 +68,7 @@ namespace TextSplit.Tests
 
             target.FirstTenGroupsChecked(currentParagraph, chapterNameIsDigitsOnly, iParagraphNumber, desiredTextLanguage);
 
-            int baseKeyWordForms = _arrayChapter.GetBaseKeyWordForms();
+            int baseKeyWordForms = _arrayChapter.GetBaseKeyWordFormsQuantity();
             int resultWordCount = -1;
             int resultNumber = chapterNameIsDigitsOnly[iParagraphNumber];
 
@@ -89,15 +90,14 @@ namespace TextSplit.Tests
         [TestMethod]
         [DataRow("", -1)]
         [DataRow("Chapter ", 0)]
-        [DataRow("CHAPTER ", -1)]
-        [DataRow("Paragraph ", 1)]
-        [DataRow("PARAGRAPH ", -1)]
-        [DataRow("Section ", 2)]
-        [DataRow("SECTION ", -1)]
-        [DataRow("Subhead ", 3)]
-        [DataRow("SUBHEAD ", -1)]
+        [DataRow("CHAPTER ", 0)]
+        [DataRow("chapter ", 0)]
+        [DataRow("chapterAte ", 0)]
+        [DataRow("chapteR ", -1)]
+        [DataRow("ChapteR ", -1)]        
+        [DataRow("SUBHEAD ", 3)]
         [DataRow("Part ", 4)]
-        [DataRow("PART ", -1)]
+        [DataRow("PART ", 4)]
         [DataRow("Word", -1)]
         public void Test03_CheckWordOfParagraphCompare(string currentParagraph, int numberOfWords)
         {
@@ -222,9 +222,19 @@ namespace TextSplit.Tests
             IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)
             IAnalysisLogicChapterDataArrays _arrayChapter = new AnalysisLogicChapterDataArrays(bookData, msgService);
             Mock<IAllBookData> bookDataMock = new Mock<IAllBookData>();
+
+            //for(int language = 0; language <= 1, language++)
+            //{
+            //    for (int words = 0; words <5; words++)
+            //    {
+            //надо достать массив ключевых слов, сохранить его во временный и потом ниже залить его в мок так же, как массив с индексами, но немного не так (в своих циклах)
+            //    }
+            //}
+            
             Mock<IAnalysisLogicChapterDataArrays> arrayChapterMock = new Mock<IAnalysisLogicChapterDataArrays>();
             arrayChapterMock.Setup(x => x.GetChapterNamesSamplesLength(It.IsAny<int>())).Returns(chapterNamesVersionsCountTextLength);
-            arrayChapterMock.Setup(x => x.GetBaseKeyWordForms()).Returns(formCount);
+            //нужен массив GetChapterNamesSamples 
+            arrayChapterMock.Setup(x => x.GetBaseKeyWordFormsQuantity()).Returns(formCount);            
 
             for (int i = 0; i < chapterNamesVersionsCountTextLength; i++)
             {
@@ -237,8 +247,8 @@ namespace TextSplit.Tests
                 }
             }
             int possibleKeyWordIndex = arrayChapterMock.Object.GetChapterNamesVersionsCount(2, 4);
-            Trace.WriteLine("possibleKeyWordIndex = " + possibleKeyWordIndex.ToString());//проверка заполнения удаленного массива данными из DataRow
-            int desiredTextLanguage = 0;//english language            
+            Trace.WriteLine("formCount = " + formCount.ToString());//проверка заполнения удаленного массива данными из DataRow
+            int desiredTextLanguage = 0;//english language
 
             var target = new AnalysisLogicChapter(bookDataMock.Object, msgService, arrayChapterMock.Object);
 

@@ -19,7 +19,7 @@ namespace TextSplitLibrary
         int GetChapterNamesSamplesLength(int desiredTextLanguage);
         string GetChapterNamesSamples(int desiredTextLanguage, int i);
 
-        int GetBaseKeyWordForms();
+        int GetBaseKeyWordFormsQuantity();
         int GetChapterNamesVersionsCount(int m, int i);
         int SetChapterNamesVersionsCount(int m, int i, int countValue);
         int GetChapterSymbolsVersionsCount(int i);
@@ -45,7 +45,7 @@ namespace TextSplitLibrary
         private int[,] chapterNamesVersionsCount;
         private int[] chapterSymbolsVersionsCount;
         private char[] foundCharsSeparator;
-        private readonly int baseKeyWordForms;
+        private readonly int baseKeyWordFormsQuantity;
 
         public AnalysisLogicChapterDataArrays(IAllBookData bookData, IMessageService msgService)
         {
@@ -54,7 +54,7 @@ namespace TextSplitLibrary
 
             showMessagesLevel = Declaration.ShowMessagesLevel;
             strCRLF = Declaration.StrCRLF;
-            baseKeyWordForms = 3;
+            baseKeyWordFormsQuantity = 3;
             charsParagraphSeparator = new char[] { '\r', '\n' };
             charsSentenceSeparator = new char[] { '.', '!', '?' };
             stringMarksChapterNameBegin = "\u00A4\u00A4\u00A4\u00A4\u00A4";//¤¤¤¤¤ - метка строки перед началом названия главы
@@ -71,9 +71,9 @@ namespace TextSplitLibrary
             chapterSymbolsVersionsCount = new int[GetChapterNamesSamplesLength(0)];
         }
 
-        public int GetBaseKeyWordForms()
+        public int GetBaseKeyWordFormsQuantity()
         {
-            return baseKeyWordForms;
+            return baseKeyWordFormsQuantity;
         }
 
         public int SetFoundWordsOfParagraph(string wordOfParagraph, int i)

@@ -70,7 +70,7 @@ namespace TextSplit.Tests
             var target = new AnalysisLogicChapter(bookDataMock.Object, message, adata);
 
             // ACT
-            int result = target.ChapterNameAnalysis(0);//0 - Eng, 1 - Rus
+            string result = target.ChapterNameAnalysis(0);//0 - Eng, 1 - Rus
 
             // ASSERT
             Assert.AreEqual(0, result, "there must be no chapters.");
@@ -106,7 +106,7 @@ namespace TextSplit.Tests
             var target = new AnalysisLogicChapter(bookDataMock.Object, message, adata);
 
             // ACT
-            int result = target.ChapterNameAnalysis(0);//0 - Eng, 1 - Rus
+            string result = target.ChapterNameAnalysis(0);//0 - Eng, 1 - Rus
 
             // ASSERT
             Assert.AreEqual(1, result, "There is must be 1 chapter.");
@@ -117,7 +117,7 @@ namespace TextSplit.Tests
         public void ChapterNameAnalysis_OneChapters()
         {
             // ARRANGE
-            int result = assumptionData(testOneChapterText);            
+            string result = assumptionData(testOneChapterText);            
             // ASSERT
             Assert.AreEqual(1, result, "There must 1 chapter.");
         }
@@ -126,12 +126,12 @@ namespace TextSplit.Tests
         public void ChapterNameAnalysis_ThreeChapters()
         {
             // ARRANGE
-            int result = assumptionData(testThreeChapterText);            
+            string result = assumptionData(testThreeChapterText);            
             // ASSERT
             Assert.AreEqual(3, result, "There must 3 chapter.");
         }
 
-        public int assumptionData(string[] testText)
+        public string assumptionData(string[] testText)
         {   // ARRANGE
             IAllBookData book = new AllBookDataArrays();
             IMessageService message = Mock.Of<IMessageService>(); // - use this if there is no need to setup return values for a method of interface.
@@ -148,7 +148,7 @@ namespace TextSplit.Tests
             // create instance of a class we want to test
             var target = new AnalysisLogicChapter(bookDataMock.Object, message, adata);
             // ACT
-            int result = target.ChapterNameAnalysis(0);//0 - Eng, 1 - Rus
+            string result = target.ChapterNameAnalysis(0);//0 - Eng, 1 - Rus
             return result;
         }
     }    
