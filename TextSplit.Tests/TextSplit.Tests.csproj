@@ -64,7 +64,6 @@
   <ItemGroup>
     <Compile Include="IntegrationTests\AnalysisLogicChapterIntegrationTest.cs" />
     <Compile Include="UnitTests\AnalysisLogicChapterUnitTests.cs" />
-    <Compile Include="UnitTests\AnalysisLogicChapterMainTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

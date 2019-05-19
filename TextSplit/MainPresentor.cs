@@ -15,7 +15,7 @@ namespace TextSplit
         private readonly ITextSplitForm _view;
         private ITextSplitOpenForm _open;        
         private readonly IMessageService _messageService;
-        private readonly ITextBookAnalysis _analysis;        
+        private readonly IAllBookAnalysis _analysis;        
         private readonly ILoadTextToDataBase _load;
         private readonly IMainLogicCultivation _logic;
 
@@ -26,7 +26,7 @@ namespace TextSplit
         readonly private int buttonNamesCountInLanguageGroup;
         readonly private int showMessagesLevel;
 
-        public MainPresentor(ITextSplitForm view, ITextSplitOpenForm open, IMessageService message, ITextBookAnalysis analysis, ILoadTextToDataBase load, IAllBookData book, IMainLogicCultivation logic)
+        public MainPresentor(ITextSplitForm view, ITextSplitOpenForm open, IMessageService message, IAllBookAnalysis analysis, ILoadTextToDataBase load, IAllBookData book, IMainLogicCultivation logic)
         {
             _book = book;
             _view = view;            
@@ -35,11 +35,11 @@ namespace TextSplit
             _load = load;
             _logic = logic;
 
-            filesQuantity = Declaration.FilesQuantity;
-            textFieldsQuantity = Declaration.TextFieldsQuantity;
-            buttonNamesCountInLanguageGroup = Declaration.ButtonNamesCountInLanguageGroup;
-            showMessagesLevel = Declaration.ShowMessagesLevel;
-            strCRLF = Declaration.StrCRLF;
+            filesQuantity = DeclarationConstants.FilesQuantity;
+            textFieldsQuantity = DeclarationConstants.TextFieldsQuantity;
+            buttonNamesCountInLanguageGroup = DeclarationConstants.ButtonNamesCountInLanguageGroup;
+            showMessagesLevel = DeclarationConstants.ShowMessagesLevel;
+            strCRLF = DeclarationConstants.StrCRLF;
 
             string mainStart = "******************************************************************************************************************************************* \r\n";//Log-file separator
             _messageService.ShowTrace(mainStart + MethodBase.GetCurrentMethod().ToString(), " Started", CurrentClassName, showMessagesLevel);

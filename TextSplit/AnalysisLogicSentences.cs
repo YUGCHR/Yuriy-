@@ -15,37 +15,34 @@ namespace TextSplit
         //event EventHandler AnalyseInvokeTheMain;
     }
 
-    class AnalysisLogicSentences : IAnalysisLogicSentences
+    public class AnalysisLogicSentences : IAnalysisLogicSentences
     {
-        private readonly IAllBookData _book;
-        private readonly IMessageService _messageService;
+        private readonly IAllBookData _bookData;
+        private readonly IMessageService _msgService;
+        private readonly IAnalysisLogicCultivation _analysisLogic;
+        private readonly IAnalysisLogicDataArrays _arrayAnalysis;
 
         readonly private int filesQuantity;
         readonly private int showMessagesLevel;
         readonly private string strCRLF;
+        
+        int GetCharsSentenceSeparatorLength() => _arrayAnalysis.GetCharsSentenceSeparatorLength();
+        char GetCharsSentenceSeparator(int index) => _arrayAnalysis.GetCharsSentenceSeparator(index);
 
-        private string[,] chapterNamesSamples;
-        private readonly char[] charsParagraphSeparator;
-        private readonly char[] charsSentenceSeparator;
+        string AddSome00ToIntNumber(string currentChapterNumberToFind, int totalDigitsQuantity) => _analysisLogic.AddSome00ToIntNumber(currentChapterNumberToFind, totalDigitsQuantity);
 
         //public event EventHandler AnalyseInvokeTheMain;
 
-        public AnalysisLogicSentences(IAllBookData book, IMessageService service)
+        public AnalysisLogicSentences(IAllBookData bookData, IMessageService msgService, IAnalysisLogicCultivation analysisLogic, IAnalysisLogicDataArrays arrayAnalysis)
         {
-            _book = book;
-            _messageService = service;
+            _bookData = bookData;
+            _msgService = msgService;
+            _analysisLogic = analysisLogic;//общая логика
+            _arrayAnalysis = arrayAnalysis;
 
-            filesQuantity = Declaration.FilesQuantity;
-            showMessagesLevel = Declaration.ShowMessagesLevel;
-            strCRLF = Declaration.StrCRLF;
-
-            charsParagraphSeparator = new char[] { '\r', '\n' };
-            charsSentenceSeparator = new char[] { '.', '!', '?' };
-
-            //проверить типовые названия глав (для разных языков свои) - сделать метод универсальным и для частей тоже?
-            chapterNamesSamples = new string[,]
-            { { "Chapter ", "Paragraph ", "Section ", "Subhead ", "Part " },
-                { "Глава ", "Параграф " , "Раздел ", "Подраздел ", "Часть " }, };//а номера глав бывают буквами!
+            filesQuantity = DeclarationConstants.FilesQuantity;
+            showMessagesLevel = DeclarationConstants.ShowMessagesLevel;
+            strCRLF = DeclarationConstants.StrCRLF;            
         }
 
         

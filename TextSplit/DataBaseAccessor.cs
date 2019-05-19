@@ -45,9 +45,9 @@ namespace TextSplit
         {
             _messageService = service;
 
-            strCRLF = Declaration.StrCRLF;
-            showMessagesLevel = Declaration.ShowMessagesLevel;
-            dataBaseTableNames = Declaration.DataBaseTableNames;// - Languages, Chapters, Paragraphs, Sentences
+            strCRLF = DeclarationConstants.StrCRLF;
+            showMessagesLevel = DeclarationConstants.ShowMessagesLevel;
+            dataBaseTableNames = DeclarationConstants.DataBaseTableNames;// - Languages, Chapters, Paragraphs, Sentences
 
             dataBaseTableQuantuty = dataBaseTableNames.Length;
             dataBaseTableToDo = new int[dataBaseTableQuantuty];

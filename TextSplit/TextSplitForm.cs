@@ -40,9 +40,9 @@ namespace TextSplit
         private string LogBoxAllLines;
 
         readonly private string strCRLF;
-        readonly private int filesQuantity = Declaration.FilesQuantity;
-        readonly private int filesQuantityPlus = Declaration.ToDoQuantity;
-        readonly private int showMessagesLevel = Declaration.ShowMessagesLevel;
+        readonly private int filesQuantity = DeclarationConstants.FilesQuantity;
+        readonly private int filesQuantityPlus = DeclarationConstants.ToDoQuantity;
+        readonly private int showMessagesLevel = DeclarationConstants.ShowMessagesLevel;
 
         //public event EventHandler FormOpenClick;
         //public event EventHandler FilesSaveClick;
@@ -66,7 +66,7 @@ namespace TextSplit
             
             FormClosing += TextSplitForm_FormClosing;
 
-            strCRLF = Declaration.StrCRLF;
+            strCRLF = DeclarationConstants.StrCRLF;
             FilesToDo = new int[filesQuantityPlus];
             FilesPath = new string[filesQuantity];
             

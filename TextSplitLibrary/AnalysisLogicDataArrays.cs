@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace TextSplitLibrary
 {
-    public interface IAnalysisLogicChapterDataArrays
+    public interface IAnalysisLogicDataArrays
     {
         int SetFoundWordsOfParagraph(string wordOfParagraph, int i);
         string GetFoundWordsOfParagraph(int i);
@@ -15,7 +15,10 @@ namespace TextSplitLibrary
         int ClearFoundSymbolsOfParagraph();
         int GetFoundSymbolsOfParagraphLength();
 
-        string GetStringMarksChapterName(string markChapterName);
+        string GetStringMarksChapterName(string BeginOrEnd);
+        string GetStringMarksParagraphName(string BeginOrEnd);
+        string GetStringMarksSentenceName(string BeginOrEnd);
+
         int GetChapterNamesSamplesLength(int desiredTextLanguage);
         string GetChapterNamesSamples(int desiredTextLanguage, int i);
 
@@ -23,21 +26,31 @@ namespace TextSplitLibrary
         int GetChapterNamesVersionsCount(int m, int i);
         int SetChapterNamesVersionsCount(int m, int i, int countValue);
         int GetChapterSymbolsVersionsCount(int i);
-        int SetChapterSymbolsVersionsCount(int i, int countValue);        
+        int SetChapterSymbolsVersionsCount(int i, int countValue);
+
+        int GetCharsParagraphSeparatorLength();
+        char GetCharsParagraphSeparator(int index);
+        int GetCharsSentenceSeparatorLength();
+        char GetCharsSentenceSeparator(int index);
     }
 
-    public class AnalysisLogicChapterDataArrays : IAnalysisLogicChapterDataArrays
+    public class AnalysisLogicDataArrays : IAnalysisLogicDataArrays
     {
         private readonly IAllBookData _bookData;
         private readonly IMessageService _msgService;
 
         readonly private int showMessagesLevel;
+        readonly private int showMessagesLocal;
         readonly private string strCRLF;
 
         private string[] foundWordsOfParagraph;
         readonly private string[,] chapterNamesSamples;
         readonly private string stringMarksChapterNameBegin;
         readonly private string stringMarksChapterNameEnd;
+        readonly private string stringMarksParagraphBegin;
+        readonly private string stringMarksParagraphEnd;
+        readonly private string stringMarksSentenceBegin;
+        readonly private string stringMarksSentenceEnd;
         readonly private char[] charsParagraphSeparator;
         readonly private char[] charsSentenceSeparator;
 
@@ -47,20 +60,26 @@ namespace TextSplitLibrary
         private char[] foundCharsSeparator;
         private readonly int baseKeyWordFormsQuantity;
 
-        public AnalysisLogicChapterDataArrays(IAllBookData bookData, IMessageService msgService)
+        public AnalysisLogicDataArrays(IAllBookData bookData, IMessageService msgService)
         {
             _bookData = bookData;
             _msgService = msgService;
 
-            showMessagesLevel = Declaration.ShowMessagesLevel;
-            strCRLF = Declaration.StrCRLF;
+            showMessagesLevel = DeclarationConstants.ShowMessagesLevel;
+            strCRLF = DeclarationConstants.StrCRLF;
+            showMessagesLocal = showMessagesLevel;
+            showMessagesLocal = 3; //локальные печати класса выводятся на экран
             baseKeyWordFormsQuantity = 3;
             charsParagraphSeparator = new char[] { '\r', '\n' };
             charsSentenceSeparator = new char[] { '.', '!', '?' };
             stringMarksChapterNameBegin = "\u00A4\u00A4\u00A4\u00A4\u00A4";//¤¤¤¤¤ - метка строки перед началом названия главы
-            stringMarksChapterNameEnd = "\u00A4\u00A4\u00A4";//¤¤¤ - метка строки после названия главы, еще \u00A7 - §, \u007E - ~, \u00B6 - ¶            
-                                                             
-            chapterNamesSamples = new string[,]//а номера глав бывают буквами! то мелочи, ключевые слова могуть быть из прописных букв, может быть дефис между словом и номером или другой символ
+            stringMarksChapterNameEnd = "\u00A4\u00A4\u00A4";//¤¤¤ - метка строки после названия главы, еще \u007E - ~
+            stringMarksParagraphBegin = "\u00A7\u00A7\u00A7\u00A7\u00A7";//§§§§§ - метка строки перед началом абзаца
+            stringMarksParagraphEnd = "\u00A7\u00A7\u00A7";//§§§ - метка строки после абзаца
+            stringMarksSentenceBegin = "\u00B6\u00B6\u00B6\u00B6\u00B6";//¶¶¶¶¶ - метка строки перед началом предложния
+            stringMarksSentenceEnd = "\u00B6\u00B6\u00B6";//¶¶¶ - метка строки после конца предложения
+
+            chapterNamesSamples = new string[,]//а номера глав бывают буквами!
             { { "chapter", "paragraph", "section", "subhead", "part" },
                 { "Глава ", "Параграф " , "Раздел ", "Подраздел ", "Часть " }, };
                     
@@ -69,6 +88,26 @@ namespace TextSplitLibrary
             foundCharsSeparator = new char[10];//временное хранение найденных вариантов разделителей
             chapterNamesVersionsCount = new int[3,GetChapterNamesSamplesLength(0)];
             chapterSymbolsVersionsCount = new int[GetChapterNamesSamplesLength(0)];
+        }
+
+        public int GetCharsParagraphSeparatorLength()
+        {
+            return charsParagraphSeparator.Length;
+        }
+
+        public char GetCharsParagraphSeparator(int index)
+        {
+            return charsParagraphSeparator[index];
+        }
+
+        public int GetCharsSentenceSeparatorLength()
+        {
+            return charsSentenceSeparator.Length;
+        }
+
+        public char GetCharsSentenceSeparator(int index)
+        {
+            return charsSentenceSeparator[index];
         }
 
         public int GetBaseKeyWordFormsQuantity()
@@ -83,7 +122,7 @@ namespace TextSplitLibrary
                 foundWordsOfParagraph[i] = wordOfParagraph;
                 return 0;
             }
-            _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Warning in FoundWordsOfParagraph!" + strCRLF + "Attempt to WRITE with index outside the bounds of the array is detected" + strCRLF + "Requested I = " + i.ToString(), CurrentClassName, 3);
+            _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Warning in FoundWordsOfParagraph!" + strCRLF + "Attempt to WRITE with index outside the bounds of the array is detected" + strCRLF + "Requested I = " + i.ToString(), CurrentClassName, showMessagesLocal);
             return (int)MethodFindResult.NothingFound;
         }
 
@@ -94,7 +133,7 @@ namespace TextSplitLibrary
             {
                 return foundWordsOfParagraph[i];
             }            
-            _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Warning in FoundWordsOfParagraph!" + strCRLF + "Attempt to READ detected with the index besides the array" + strCRLF + "Requested I = " + i.ToString(), CurrentClassName, 3);
+            _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Warning in FoundWordsOfParagraph!" + strCRLF + "Attempt to READ detected with the index besides the array" + strCRLF + "Requested I = " + i.ToString(), CurrentClassName, showMessagesLocal);
             return null;
         }
 
@@ -117,7 +156,7 @@ namespace TextSplitLibrary
                 foundSymbolsOfParagraph[i] = symbolsOfParagraph;
                 return 0;
             }
-            _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Warning in FoundSymbolsOfParagraph!" + strCRLF + "Attempt to WRITE detected with the index besides the array" + strCRLF + "Requested I = " + i.ToString(), CurrentClassName, 3);
+            _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Warning in FoundSymbolsOfParagraph!" + strCRLF + "Attempt to WRITE detected with the index besides the array" + strCRLF + "Requested I = " + i.ToString(), CurrentClassName, showMessagesLocal);
             return (int)MethodFindResult.NothingFound;
         }
 
@@ -127,7 +166,7 @@ namespace TextSplitLibrary
             {
                 return foundSymbolsOfParagraph[i];
             }
-            _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Warning in FoundSymbolsOfParagraph!" + strCRLF + "Attempt to READ detected with the index besides the array" + strCRLF + "Requested I = " + i.ToString(), CurrentClassName, 3);
+            _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Warning in FoundSymbolsOfParagraph!" + strCRLF + "Attempt to READ detected with the index besides the array" + strCRLF + "Requested I = " + i.ToString(), CurrentClassName, showMessagesLocal);
             return null;
         }
 
@@ -143,9 +182,9 @@ namespace TextSplitLibrary
             return foundSymbolsOfParagraphLength;
         }
 
-        public string GetStringMarksChapterName(string markChapterName)
+        public string GetStringMarksChapterName(string BeginOrEnd)
         {
-            switch (markChapterName)
+            switch (BeginOrEnd)
             {
                 case
                 "Begin":
@@ -153,6 +192,34 @@ namespace TextSplitLibrary
                 case
                 "End":
                     return stringMarksChapterNameEnd;
+            }
+            return null;
+        }
+
+        public string GetStringMarksParagraphName(string BeginOrEnd)
+        {
+            switch (BeginOrEnd)
+            {
+                case
+                "Begin":
+                    return stringMarksParagraphBegin;
+                case
+                "End":
+                    return stringMarksParagraphEnd;
+            }
+            return null;
+        }
+
+        public string GetStringMarksSentenceName(string BeginOrEnd)
+        {
+            switch (BeginOrEnd)
+            {
+                case
+                "Begin":
+                    return stringMarksSentenceBegin;
+                case
+                "End":
+                    return stringMarksSentenceEnd;
             }
             return null;
         }

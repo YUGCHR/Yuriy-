@@ -17,7 +17,8 @@ namespace TextSplit
     {
         private readonly IAllBookData _bookData;
         private readonly IMessageService _msgService;
-        private readonly IAnalysisLogicChapterDataArrays _arrayChapter;
+        private readonly IAnalysisLogicCultivation _analysisLogic;
+        private readonly IAnalysisLogicDataArrays _arrayAnalysis;
 
         delegate bool IsOrNotEqual(char x);
         delegate bool DoElseConditions(string x, int i, int j);
@@ -35,68 +36,64 @@ namespace TextSplit
         int GetChapterNumberLength(int desiredTextLanguage) => _bookData.GetChapterNumberLength(desiredTextLanguage);
         int AddChapterNumber(int chapterNumberOnly, int desiredTextLanguage) => _bookData.AddChapterNumber(chapterNumberOnly, desiredTextLanguage);
 
-        string GetFoundWordsOfParagraph(int i) => _arrayChapter.GetFoundWordsOfParagraph(i);
-        int SetFoundWordsOfParagraph(string wordOfParagraph, int i) => _arrayChapter.SetFoundWordsOfParagraph(wordOfParagraph, i);
+        string GetFoundWordsOfParagraph(int i) => _arrayAnalysis.GetFoundWordsOfParagraph(i);
+        int SetFoundWordsOfParagraph(string wordOfParagraph, int i) => _arrayAnalysis.SetFoundWordsOfParagraph(wordOfParagraph, i);
         //int ClearFoundWordsOfParagraph();
         int GetFoundWordsOfParagraphLength() => GetFoundWordsOfParagraphLength();
-        int SetFoundSymbolsOfParagraph(string symbolsOfParagraph, int i) => _arrayChapter.SetFoundSymbolsOfParagraph(symbolsOfParagraph, i);
-        string GetFoundSymbolsOfParagraph(int i) => _arrayChapter.GetFoundSymbolsOfParagraph(i);
+        int SetFoundSymbolsOfParagraph(string symbolsOfParagraph, int i) => _arrayAnalysis.SetFoundSymbolsOfParagraph(symbolsOfParagraph, i);
+        string GetFoundSymbolsOfParagraph(int i) => _arrayAnalysis.GetFoundSymbolsOfParagraph(i);
         //int ClearFoundSymbolsOfParagraph();
-        int GetFoundSymbolsOfParagraphLength() => _arrayChapter.GetFoundSymbolsOfParagraphLength();
-        string GetStringMarksChapterName(string str) => _arrayChapter.GetStringMarksChapterName(str);
-        int GetBaseKeyWordFormsQuantity() => _arrayChapter.GetBaseKeyWordFormsQuantity();
-        int GetChapterNamesSamplesLength(int desiredTextLanguage) => _arrayChapter.GetChapterNamesSamplesLength(desiredTextLanguage);
-        string GetChapterNamesSamples(int desiredTextLanguage, int i) => _arrayChapter.GetChapterNamesSamples(desiredTextLanguage, i);
-        int GetChapterNamesVersionsCount(int m, int i) => _arrayChapter.GetChapterNamesVersionsCount(m, i);
-        int SetChapterNamesVersionsCount(int m, int i, int countValue) => _arrayChapter.SetChapterNamesVersionsCount(m, i, countValue);
-        int GetChapterSymbolsVersionsCount(int i) => _arrayChapter.GetChapterSymbolsVersionsCount(i);
-        int SetChapterSymbolsVersionsCount(int i, int countValue) => _arrayChapter.SetChapterSymbolsVersionsCount(i, countValue);
+        int GetFoundSymbolsOfParagraphLength() => _arrayAnalysis.GetFoundSymbolsOfParagraphLength();
+        string GetStringMarksChapterName(string str) => _arrayAnalysis.GetStringMarksChapterName(str);
+        int GetBaseKeyWordFormsQuantity() => _arrayAnalysis.GetBaseKeyWordFormsQuantity();
+        int GetChapterNamesSamplesLength(int desiredTextLanguage) => _arrayAnalysis.GetChapterNamesSamplesLength(desiredTextLanguage);
+        string GetChapterNamesSamples(int desiredTextLanguage, int i) => _arrayAnalysis.GetChapterNamesSamples(desiredTextLanguage, i);
+        int GetChapterNamesVersionsCount(int m, int i) => _arrayAnalysis.GetChapterNamesVersionsCount(m, i);
+        int SetChapterNamesVersionsCount(int m, int i, int countValue) => _arrayAnalysis.SetChapterNamesVersionsCount(m, i, countValue);
+        int GetChapterSymbolsVersionsCount(int i) => _arrayAnalysis.GetChapterSymbolsVersionsCount(i);
+        int SetChapterSymbolsVersionsCount(int i, int countValue) => _arrayAnalysis.SetChapterSymbolsVersionsCount(i, countValue);
+
+        string AddSome00ToIntNumber(string currentChapterNumberToFind, int totalDigitsQuantity) =>_analysisLogic.AddSome00ToIntNumber(currentChapterNumberToFind, totalDigitsQuantity);
 
         private readonly int showMessagesLevel;
         private readonly string strCRLF;
 
-        public AnalysisLogicChapter(IAllBookData bookData, IMessageService msgService, IAnalysisLogicChapterDataArrays arrayChapter)
+        public AnalysisLogicChapter(IAllBookData bookData, IMessageService msgService, IAnalysisLogicCultivation analysisLogic, IAnalysisLogicDataArrays arrayAnalysis)
         {
             _bookData = bookData;
             _msgService = msgService;
-            _arrayChapter = arrayChapter;
+            _analysisLogic = analysisLogic;//общая логика
+            _arrayAnalysis = arrayAnalysis;
 
-            showMessagesLevel = Declaration.ShowMessagesLevel;
-            strCRLF = Declaration.StrCRLF;            
+            showMessagesLevel = DeclarationConstants.ShowMessagesLevel;
+            strCRLF = DeclarationConstants.StrCRLF;            
         }
 
         public string ChapterNameAnalysis(int desiredTextLanguage)//Main здесь - ищем все названия и номера глав, создаем метку в фиксированном формате и записываем ее обратно в массив перед оригинальным называнием главы
         {
             int paragraphTextLength = GetParagraphTextLength(desiredTextLanguage); // это вместо _bookData.GetParagraphTextLength(desiredTextLanguage);
+            int baseKeyWordFormsQuantity = GetBaseKeyWordFormsQuantity();
             int[] chapterNameIsDigitsOnly = new int[paragraphTextLength];
             string[] allTextWithChapterNames = new string[paragraphTextLength];
 
             int maxKeyNameLength = ChapterKeyNamesAnalysis(desiredTextLanguage);//ищем слово с макс.символов из ключевых (непонятно, зачем это нужно, но пока пусть будет)
 
-            _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(),
-                "Mark of begining Chapter --> " + GetStringMarksChapterName("Begin") + strCRLF +
-                "Mark of the end of Chapter --> " + GetStringMarksChapterName("End") + strCRLF +
-                "maxKeyNameLength = " + maxKeyNameLength.ToString() + strCRLF +
-                "chapterNamesSamplesCount = " + GetChapterNamesSamplesLength(desiredTextLanguage), CurrentClassName, showMessagesLevel);//тестовая печать будущей маркировки глав, абзацев и прочего - просто проверка символов
-
-            for (int i = 0; i < paragraphTextLength; i++)//перебираем все абзацы текста, начиная с второго - в первом главы быть не должно
+            for (int i = 0; i < paragraphTextLength; i++)//перебираем все абзацы текста
             {
                 string currentParagraph = GetParagraphText(i, desiredTextLanguage);//_bookData.GetParagraphText(i, desiredTextLanguage);
-                FirstTenGroupsChecked(currentParagraph, chapterNameIsDigitsOnly, i, desiredTextLanguage);//преобразовать массив chapterNameIsDigitsOnly тоже в метод доступа к массиву?                
-            }
+                FirstTenGroupsChecked(currentParagraph, chapterNameIsDigitsOnly, i, desiredTextLanguage);
+            }           
 
-            int baseKeyWordFormsQuantity = GetBaseKeyWordFormsQuantity();            
-
-            for (int m = 0; m < baseKeyWordFormsQuantity; m++)
-            {
-                //в этом массиве значения показывают, сколько раз какое ключевое слово встретилось в тексте
-                _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Must be found 52 the same chapters name" + strCRLF +            
-                    "ChapterNamesVersionsCount[0] --> " + GetChapterNamesVersionsCount(m, 0) + strCRLF +            
-                    "ChapterNamesVersionsCount[1] --> " + GetChapterNamesVersionsCount(m, 1) + strCRLF +            
-                    "ChapterNamesVersionsCount[2] --> " + GetChapterNamesVersionsCount(m, 2) + strCRLF +            
-                    "ChapterNamesVersionsCount[3] --> " + GetChapterNamesVersionsCount(m, 3) + strCRLF +            
-                    "ChapterNamesVersionsCount[4] --> " + GetChapterNamesVersionsCount(m, 4), CurrentClassName, showMessagesLevel);
-            }            
+            //for (int m = 0; m < baseKeyWordFormsQuantity; m++)
+            //{
+            //    //в этом массиве значения показывают, сколько раз какое ключевое слово встретилось в тексте
+            //    _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Must be found 52 the same chapters name" + strCRLF +            
+            //        "ChapterNamesVersionsCount[0] --> " + GetChapterNamesVersionsCount(m, 0) + strCRLF +            
+            //        "ChapterNamesVersionsCount[1] --> " + GetChapterNamesVersionsCount(m, 1) + strCRLF +            
+            //        "ChapterNamesVersionsCount[2] --> " + GetChapterNamesVersionsCount(m, 2) + strCRLF +            
+            //        "ChapterNamesVersionsCount[3] --> " + GetChapterNamesVersionsCount(m, 3) + strCRLF +            
+            //        "ChapterNamesVersionsCount[4] --> " + GetChapterNamesVersionsCount(m, 4), CurrentClassName, showMessagesLevel);
+            //}            
 
             int increasedChapterNumbers = IsChapterNumbersIncreased(chapterNameIsDigitsOnly, desiredTextLanguage);//выделяем монотонно возрастающие номера глав и считаем количество
             
@@ -104,17 +101,13 @@ namespace TextSplit
 
             string lastFoundChapterNumberInMarkFormat = TextBookDivideOnChapter(chapterNameIsDigitsOnly, increasedChapterNumbers, keyWordFounfForm, desiredTextLanguage);//делим текст на главы, ставим метки с собственными номерами глав (совпадающими по значению с исходными)
 
-            for (int i = 0; i < paragraphTextLength; i++)//просто проверка, что получилось
-            {
-                string currentParagraph = GetParagraphText(i, desiredTextLanguage);
-                _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "CurrentParagraph with i = " + i.ToString() + "  -- > " + currentParagraph, CurrentClassName, showMessagesLevel);
-            }
             return lastFoundChapterNumberInMarkFormat;
         }
 
         public string TextBookDivideOnChapter(int[] chapterNameIsDigitsOnly, int increasedChapterNumbers, string keyWordFounfForm, int desiredTextLanguage)
         {//разделили текст на главы - перед каждой главой поставили специальную метку вида ¤¤¤¤¤KeyWord-NNN-¤¤¤, где KeyWord - в той же форме, в какой в тексте, а NNN - три цифры номера главы с лидирующими нулями
             string lastFoundChapterNumberInMarkFormat = ""; //вернем маркировку последней главы
+            int totalDigitsQuantity = 3; //для номера главы используем 3 цифры (до 99, должно хватить) - перенести в AnalysisLogicDataArrays
             int paragraphTextLength = GetParagraphTextLength(desiredTextLanguage);            
             int previousChapterNameIsDigitsOnly = chapterNameIsDigitsOnly[0] - 1;//получить первый (предположительно? - проверить на разных текстах) первый номер главы и отнять 1 для запуска цикла            
             //List<string> workParagraphText = new List<string>();
@@ -127,9 +120,9 @@ namespace TextSplit
                 _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "CurrentParagraph with i = " + i.ToString() + "  -- > " + currentParagraph + strCRLF +
                     "paragraphTextLength = " + paragraphTextLength.ToString() + strCRLF +
                     "chapterNumberLength = " + chapterNumberLength.ToString(), CurrentClassName, showMessagesLevel);
-                int foundNumberInParagraph = GetChapterNumber(i, desiredTextLanguage);
+                int foundNumberInChapter = GetChapterNumber(i, desiredTextLanguage);
 
-                if (foundNumberInParagraph > 0)
+                if (foundNumberInChapter > 0)
                 {
                     if (currentParagraph.Contains(keyWordFounfForm))
                     {
@@ -139,21 +132,25 @@ namespace TextSplit
                                 "correctedChapterNameIsDigitsOnly = " + correctedChapterNameIsDigitsOnly.ToString() + strCRLF +
                                 " == previousChapterNameIsDigitsOnly = " + previousChapterNameIsDigitsOnly.ToString() + strCRLF +
                                 " (" + currentChapterNumberToFind + ")" + strCRLF +
-                                "foundNumberInParagraph [" + i.ToString() + "] --> " + foundNumberInParagraph.ToString(), CurrentClassName, showMessagesLevel);
+                                "foundNumberInParagraph [" + i.ToString() + "] --> " + foundNumberInChapter.ToString(), CurrentClassName, showMessagesLevel);
                         if (currentParagraph.Contains(currentChapterNumberToFind))
                         {
                             bool isChapterNumbersIncreased = (previousChapterNameIsDigitsOnly + 1) == correctedChapterNameIsDigitsOnly;
                             if (isChapterNumbersIncreased)
                             {//нашли строку с названием и номером главы
-                                string currentChapterNumberToFind000 = Add000ToChapterNumber(currentChapterNumberToFind);
-                                string paragraphTextMarks = GetStringMarksChapterName("Begin") + keyWordFounfForm + "-" + currentChapterNumberToFind000 + "-" + GetStringMarksChapterName("End");
-                                SetParagraphText(paragraphTextMarks, i - 1, desiredTextLanguage);//проверить, что i больше 0, иначе некуда заносить
-                                string currentMarkParagraph = GetParagraphText(i - 1, desiredTextLanguage);//после тестов убрать вместе с печатью
+                                string currentChapterNumberToFind000 = AddSome00ToIntNumber(currentChapterNumberToFind, totalDigitsQuantity);
+                                if(currentChapterNumberToFind000 == null)
+                                {
+                                    return null;             
+                                }
+                                string chapterTextMarks = GetStringMarksChapterName("Begin") + currentChapterNumberToFind000 + GetStringMarksChapterName("End") + "-" + keyWordFounfForm + "-";
+                                SetParagraphText(chapterTextMarks, i - 1, desiredTextLanguage);//проверить, что i больше 0, иначе некуда заносить
+                                string currentMarkChapter = GetParagraphText(i - 1, desiredTextLanguage);//после тестов убрать вместе с печатью
                                 _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "CurrentParagraph with i = " + i.ToString() + "  -- > " + currentParagraph + strCRLF +
-                                "paragraphTextMarks " + paragraphTextMarks + strCRLF +
-                                "currentMarkParagraph" + currentMarkParagraph + strCRLF +
-                                "foundNumberInParagraph [" + i.ToString() + "] --> " + foundNumberInParagraph.ToString(), CurrentClassName, showMessagesLevel);
-                                lastFoundChapterNumberInMarkFormat = paragraphTextMarks;
+                                "chapterTextMarks " + chapterTextMarks + strCRLF +
+                                "currentMarkChapter" + currentMarkChapter + strCRLF +
+                                "foundNumberInChapter [" + i.ToString() + "] --> " + foundNumberInChapter.ToString(), CurrentClassName, showMessagesLevel);
+                                lastFoundChapterNumberInMarkFormat = chapterTextMarks;
                                 previousChapterNameIsDigitsOnly = correctedChapterNameIsDigitsOnly;
                             }
                         }
@@ -161,20 +158,6 @@ namespace TextSplit
                 }
             }
             return lastFoundChapterNumberInMarkFormat;//вернуть уточненное количество глав
-        }
-
-        public string Add000ToChapterNumber(string currentChapterNumberToFind)
-        {
-            string currentChapterNumberToFind000 = "";            
-            int currentChapterNumberLength = currentChapterNumberToFind.Length;
-            switch (currentChapterNumberLength)
-            {
-                case 1:
-                    return currentChapterNumberToFind000 = "00" + currentChapterNumberToFind;
-                case 2:
-                    return currentChapterNumberToFind000 = "0" + currentChapterNumberToFind;
-            }
-            return null;
         }
 
         public string KeyWordFormFound(int desiredTextLanguage)//возвращаем готовую форму найденного ключевого слова из массива образцов GetChapterNamesSamples и сохраненной статистики поиска
@@ -371,7 +354,7 @@ namespace TextSplit
             string currentParagraphWithSingleBlanks = RemoveMoreThenOneBlank(currentParagraph);//убрать сдвоенные пробелы из строки
             currentParagraph = currentParagraphWithSingleBlanks;
 
-            _arrayChapter.ClearFoundWordsOfParagraph();//можно передать контрольное число, подтверждающее, что массив можно очистить
+            _arrayAnalysis.ClearFoundWordsOfParagraph();//можно передать контрольное число, подтверждающее, что массив можно очистить
             int foundWordsCount = 0;
 
             IsOrNotEqual isEqual = IsEqual;//check condition is current charArrayOfChapterNumber[] LetterOrDigit
@@ -385,7 +368,7 @@ namespace TextSplit
             int charArrayOfChapterNumberLength = charArrayOfChapterNumber.Length;
             for (int i = 0; i < charArrayOfChapterNumberLength; i++)
             {
-                if (foundWordsCount < _arrayChapter.GetFoundWordsOfParagraphLength())
+                if (foundWordsCount < _arrayAnalysis.GetFoundWordsOfParagraphLength())
                 {
                     if (Char.IsLetterOrDigit(charArrayOfChapterNumber[i]))
                     {//проверка, есть ли цепочка букв-цифр
@@ -406,11 +389,11 @@ namespace TextSplit
             }
             _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "foundWordsCount = " + foundWordsCount.ToString() + strCRLF +
             "currentParagraph --> " + currentParagraph + strCRLF +
-            "foundWordsOfParagraph[0] --> " + _arrayChapter.GetFoundWordsOfParagraph(0) + strCRLF +
-            "foundWordsOfParagraph[1] --> " + _arrayChapter.GetFoundWordsOfParagraph(1) + strCRLF +
-            "foundWordsOfParagraph[2] --> " + _arrayChapter.GetFoundWordsOfParagraph(2) + strCRLF +
-            "foundWordsOfParagraph[3] --> " + _arrayChapter.GetFoundWordsOfParagraph(3) + strCRLF +
-            "foundWordsOfParagraph[4] --> " + _arrayChapter.GetFoundWordsOfParagraph(4), CurrentClassName, showMessagesLevel);
+            "foundWordsOfParagraph[0] --> " + _arrayAnalysis.GetFoundWordsOfParagraph(0) + strCRLF +
+            "foundWordsOfParagraph[1] --> " + _arrayAnalysis.GetFoundWordsOfParagraph(1) + strCRLF +
+            "foundWordsOfParagraph[2] --> " + _arrayAnalysis.GetFoundWordsOfParagraph(2) + strCRLF +
+            "foundWordsOfParagraph[3] --> " + _arrayAnalysis.GetFoundWordsOfParagraph(3) + strCRLF +
+            "foundWordsOfParagraph[4] --> " + _arrayAnalysis.GetFoundWordsOfParagraph(4), CurrentClassName, showMessagesLevel);
             return foundWordsCount;
         }
 
@@ -433,7 +416,7 @@ namespace TextSplit
                     bool resultElse = currentDoElse(wordOfParagraph, i, j);//выбираем сравнение - непустое слово или j-i>1 - это означает, что найдена лидирующая группа спецсимволов, которую надо сохранить, как слово
                     if (resultElse)                    
                     {
-                        _arrayChapter.SetFoundWordsOfParagraph(wordOfParagraph, foundWordsCount);
+                        _arrayAnalysis.SetFoundWordsOfParagraph(wordOfParagraph, foundWordsCount);
                     }
                     return currentCharIndex - doMinusOne;//вычитаем 1 или нет - по ситуации (вычитать надо когда?)
                 }
@@ -441,7 +424,7 @@ namespace TextSplit
             bool resultIsNullOrEmpty = StringIsNotNull(wordOfParagraph, 0, 0);//в методе используется только первый аргумент, два других для совпадения вызова в делегате - ой, криво!
             if(resultIsNullOrEmpty)            
             {
-                _arrayChapter.SetFoundWordsOfParagraph(wordOfParagraph, foundWordsCount);
+                _arrayAnalysis.SetFoundWordsOfParagraph(wordOfParagraph, foundWordsCount);
             }
             return currentCharIndex;
         }
@@ -533,9 +516,9 @@ namespace TextSplit
             int maxKeyNameLength = 0;
             int previousKeyNameLength = 0;
 
-            for (int n = 0; n < _arrayChapter.GetChapterNamesSamplesLength(desiredTextLanguage); n++)
+            for (int n = 0; n < _arrayAnalysis.GetChapterNamesSamplesLength(desiredTextLanguage); n++)
             {
-                string currentKeyName = _arrayChapter.GetChapterNamesSamples(desiredTextLanguage, n);
+                string currentKeyName = _arrayAnalysis.GetChapterNamesSamples(desiredTextLanguage, n);
                 int currentKeyNameLength = currentKeyName.Length;
                 if (n > 0 && currentKeyNameLength > previousKeyNameLength)
                 {

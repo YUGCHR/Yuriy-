@@ -11,10 +11,11 @@ namespace TextSplit
     public interface IAnalysisLogicCultivation
     {
         int GetDesiredTextLanguage();
+        string AddSome00ToIntNumber(string currentNumberToFind, int totalDigitsQuantity);
         //event EventHandler AnalyseInvokeTheMain;
     }
 
-    class AnalysisLogicCultivation : IAnalysisLogicCultivation
+    public class AnalysisLogicCultivation : IAnalysisLogicCultivation
     {
         private readonly IAllBookData _bookData;
         private readonly IMessageService _msgService;
@@ -28,9 +29,9 @@ namespace TextSplit
             _bookData = bookData;
             _msgService = msgService;
 
-            filesQuantity = Declaration.FilesQuantity;
-            showMessagesLevel = Declaration.ShowMessagesLevel;
-            strCRLF = Declaration.StrCRLF;            
+            filesQuantity = DeclarationConstants.FilesQuantity;
+            showMessagesLevel = DeclarationConstants.ShowMessagesLevel;
+            strCRLF = DeclarationConstants.StrCRLF;            
         }
         
         public int GetDesiredTextLanguage()
@@ -44,6 +45,29 @@ namespace TextSplit
                 if (iDesiredTextLanguage == (int)WhatNeedDoWithFiles.AnalyseChapterName) desiredTextLanguage = i;
             }
             return desiredTextLanguage;
+        }
+
+        public string AddSome00ToIntNumber(string currentNumberToFind, int totalDigitsQuantity)
+        {
+            //string currentChapterNumberToFind000 = "";
+            int currentChapterNumberLength = currentNumberToFind.Length;
+            int add00Digits = totalDigitsQuantity - currentChapterNumberLength;
+            if(add00Digits <= 0)
+            {
+                return null;
+            }
+            for(int i = 0; i < add00Digits; i++)
+            {
+                currentNumberToFind = "0" + currentNumberToFind;
+            }
+            //switch (currentChapterNumberLength)
+            //{
+            //    case 1:
+            //        return currentChapterNumberToFind000 = "00" + currentNumberToFind;
+            //    case 2:
+            //        return currentChapterNumberToFind000 = "0" + currentNumberToFind;
+            //}
+            return currentNumberToFind;
         }
 
         public static string CurrentClassName

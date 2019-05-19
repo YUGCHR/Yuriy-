@@ -68,7 +68,7 @@ namespace TextSplitLibrary
         {
             //_messageService = service;
 
-            filesQuantity = Declaration.FilesQuantity;
+            filesQuantity = DeclarationConstants.FilesQuantity;
 
             filesToDo = new int[filesQuantity];
             filesToSave = new int[filesQuantity];

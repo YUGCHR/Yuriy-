@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TextSplitLibrary
 {
-    public static class Declaration
+    public static class DeclarationConstants
     {
         public const int FilesQuantity = 3; //the length of the all Files___ arrays (except FilesToDo)
         public const int ToDoQuantity = FilesQuantity + 1; //the length of the FilesToDo array (+1 for BreakpointManager)
@@ -25,21 +25,41 @@ namespace TextSplitLibrary
         //2 - Paragraphs - Columns - ID, ID_Language, ID_Chapter, int Paragraph, nvchar10 Paragraph_name
         //3 - Sentences - Columns - ID, ID_Language, ID_Chapter, ID_Paragraph, int Sentence, ntext Sentence_name
         public static readonly string[] DataBaseTableNames = new string[] { "Languages", "Chapters", "Paragraphs", "Sentences" };
-
     }
 
-    public enum MethodFindResult : int { English = 0, Russian = 1, Result = 2, AllRight = 3, Error = 4, NothingFound = -1 }; // for work with (not only) AllBookData (int)MethodFindResult.AllRight
+    public enum MethodFindResult : int {
+        English = 0,
+        Russian = 1,
+        Result = 2,
+        AllRight = 3,
+        Error = 4,
+        NothingFound = -1 }; // for work with (not only) AllBookData (int)MethodFindResult.AllRight
 
-    public enum ButtonName : int { OpenFile = 0, SaveFile = 1, AnalyseText = 2, SelectChapterName = 3, Reserved = 4 };
+    public enum ButtonName : int {
+        OpenFile = 0,
+        SaveFile = 1,
+        AnalyseText = 2,
+        SelectChapterName = 3,
+        Reserved = 4 };
 
-    public enum TextBoxImplementationMessages : int { EnglishFilePathSelected = 0, RussianFilePathSelected = 1, ResultFilePathSelected = 2, ResultFileCreated = 3 };
+    public enum TextBoxImplementationMessages : int {
+        EnglishFilePathSelected = 0,
+        RussianFilePathSelected = 1,
+        ResultFilePathSelected = 2,
+        ResultFileCreated = 3 };
 
-    public enum TablesNamesNumbers : int { Languages = 0, Chapters = 1, Paragraphs = 2, Sentences = 3 }; 
+    public enum TablesNamesNumbers : int {
+        Languages = 0,
+        Chapters = 1,
+        Paragraphs = 2,
+        Sentences = 3 }; 
 
-    public enum TableLanguagesContent : int { English = 0, Russian = 1, Result = 2 };
+    public enum TableLanguagesContent : int {
+        English = 0,
+        Russian = 1,
+        Result = 2 };
 
-    public enum WhatNeedDoWithFiles : int
-    {
+    public enum WhatNeedDoWithFiles : int {
         PassThrough = 0,
         ReadFileFirst = 1,
         ContentChanged = 2,
@@ -52,11 +72,9 @@ namespace TextSplitLibrary
         Reserved10 = 10,
         SelectChapterName = 11,
         Reserved12 = 12,
-        AnalyseChapterName = 13
-    };
+        AnalyseChapterName = 13 };
 
-    public enum WhatNeedSaveFiles : int
-    {
+    public enum WhatNeedSaveFiles : int {
         PassThrough = 0,
         SaveFileFirst = 1,        
         SaveFile = 2,
@@ -66,24 +84,9 @@ namespace TextSplitLibrary
         Reserved6 = 6,
         WittingIncomplete = 7,
         ContinueProcessing = 8,
-        StopProcessing = 9
-    };
+        StopProcessing = 9 };    
 
-    //public enum SavingResults : int
-    //{
-    //    PassThrough = 0,
-    //    FileSavedSuccessfully = 1,
-    //    CannotRead = 2,
-    //    Reserved3 = 3,
-    //    CannotWrite = 4,
-    //    Reserved4 = 5,
-    //    WittingIncomplete = 6,
-    //    ContinueProcessing = 6,
-    //    StopProcessing = 8,
-    //};
-
-    public enum WhatNeedDoWithTables : int
-    {
+    public enum WhatNeedDoWithTables : int {
         PassThrough = 0,
         ReadRecord = 1,
         ReadAllRecord = 2,
@@ -92,17 +95,25 @@ namespace TextSplitLibrary
         DeleteRecord = 5,
         ClearTable = 7,
         ContinueProcessing = 8,
-        StopProcessing = 9
-    };
+        StopProcessing = 9 };
 
-    public enum TablesProcessingResult : int
-    {
+    public enum TablesProcessingResult : int {
         Successfully = 0,
         CannotRead = 1,
         Reserved2 = 2,
         CannotInsert = 3,
-        UsingWrongTableName = 4
-    };
+        UsingWrongTableName = 4 };
 }
-
+//public enum SavingResults : int
+//{
+//    PassThrough = 0,
+//    FileSavedSuccessfully = 1,
+//    CannotRead = 2,
+//    Reserved3 = 3,
+//    CannotWrite = 4,
+//    Reserved4 = 5,
+//    WittingIncomplete = 6,
+//    ContinueProcessing = 6,
+//    StopProcessing = 8,
+//};
 

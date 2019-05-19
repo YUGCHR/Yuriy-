@@ -43,14 +43,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AllBookDataArrays.cs" />
-    <Compile Include="AnalysisLogicChapterDataArrays.cs" />
-    <Compile Include="Declaration.cs" />
+    <Compile Include="AnalysisLogicDataArrays.cs" />
+    <Compile Include="DeclarationConstants.cs" />
     <Compile Include="FileManager.cs" />
     <Compile Include="FormsObjectsNames.cs" />
     <Compile Include="IMessageService.cs" />
     <Compile Include="LogFileMessages.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="WhatToDoWithFiles.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
