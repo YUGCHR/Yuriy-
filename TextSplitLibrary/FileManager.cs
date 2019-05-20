@@ -5,6 +5,7 @@ using System.Text;
 using System.IO;
 using System.Windows.Forms; //Delete after finishing
 using System.Threading.Tasks;
+using System.Security.Cryptography;
 
 namespace TextSplitLibrary
 {
@@ -13,10 +14,13 @@ namespace TextSplitLibrary
         string GetContent(int i);
         string GetContent(int i, Encoding encoding);        
         int SaveContent(int i);
-        int SaveContent(int i, Encoding encoding);        
+        int SaveContent(int i, Encoding encoding);
+        int SaveContent(string tracedFilePathAndName, string tracedFileContent, int i);//i - no need yet
         int GetSymbolsCount(int i);        
         bool IsFileExist(string FilesPath);
-        
+        string GetMd5Hash(string fileContent);
+
+
         void WriteToFilePathPlus(string[] textParagraphes, string filesPath, string filesPathPlus);
         void AppendContent(string tracePointName, string tracePointValue, string tracePointPlace);
         void AppendContent(string tracePointName, string tracePointValue, string tracePointPlace, Encoding encoding);
@@ -45,8 +49,7 @@ namespace TextSplitLibrary
             if (!isLogFileExist)
             {                
                 File.AppendAllText(logFilePathName, "LogFile Created \r\n", _defaultEncoding);
-            }
-            
+            }            
         }
 
         
@@ -82,7 +85,20 @@ namespace TextSplitLibrary
                 return (int)WhatNeedSaveFiles.CannotSaveFile;
             }
         }
-       
+
+        public int SaveContent(string tracedFilePathAndName, string tracedFileContent, int i)//i - no need yet
+        {
+            try
+            {
+                File.WriteAllText(tracedFilePathAndName, tracedFileContent, _defaultEncoding);
+                return (int)WhatNeedSaveFiles.FileSavedSuccessfully;
+            }
+            catch
+            {
+                return (int)WhatNeedSaveFiles.CannotSaveFile;
+            }
+        }        
+
         public int GetSymbolsCount(int i)
         {
             string fileContent = _book.GetFileContent(i);
@@ -151,6 +167,20 @@ namespace TextSplitLibrary
             return logFilePathName;
         }
         #endregion
+
+        public string GetMd5Hash(string fileContent)
+        {
+            MD5 md5Hasher = MD5.Create(); //создаем объект класса MD5 - он создается не через new, а вызовом метода Create            
+            byte[] data = md5Hasher.ComputeHash(Encoding.Default.GetBytes(fileContent));//преобразуем входную строку в массив байт и вычисляем хэш
+            StringBuilder sBuilder = new StringBuilder();//создаем новый Stringbuilder (изменяемую строку) для набора байт
+            for (int i = 0; i < data.Length; i++)// Преобразуем каждый байт хэша в шестнадцатеричную строку
+            {
+                sBuilder.Append(data[i].ToString("x2"));//указывает, что нужно преобразовать элемент в шестнадцатиричную строку длиной в два символа
+            }
+            string pasHash = sBuilder.ToString();
+
+            return pasHash;
+        }
     }
 }
 

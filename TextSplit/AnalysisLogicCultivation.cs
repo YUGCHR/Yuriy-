@@ -70,6 +70,13 @@ namespace TextSplit
             return currentNumberToFind;
         }
 
+        public string SaveTextToFile(int desiredTextLanguage)
+        {
+            string hashFile = "";
+
+            return hashFile;
+        }
+
         public static string CurrentClassName
         {
             get { return MethodBase.GetCurrentMethod().DeclaringType.Name; }

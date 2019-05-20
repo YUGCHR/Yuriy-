@@ -50,43 +50,17 @@ namespace TextSplit
             }            
         }
 
-        public void ShowTrace(string tracePointName, string[] tracePointValue, string tracePointPlace, int showLevel)//it is need overload method to show\print int arrays
-        {            
-            if (showLevel != 0)
-            {
-                if (tracePointValue != null)
-                {
-                    int ii = tracePointValue.Length;
-                    string tracePointMessage = "";
-                    if (showLevel > 1)
-                    {
-                        for (int i = 0; i < ii; i++)
-                        {
-                            if (tracePointValue[i] != null)
-                            {
-                                string tracePointValueCut = "";
-                                int count = 0;
-                                foreach (char tracePointValueSymbol in tracePointValue[i])
-                                {
-                                    if (count < 100)
-                                    {
-                                        tracePointValueCut = tracePointValueCut + tracePointValueSymbol;
-                                        count++;
-                                    }
-                                }
-                                string[] tracePointArray = { tracePointMessage, tracePointValueCut };
-                                tracePointMessage = String.Join("\r\n", tracePointArray);
-                            }                            
-                        }
-                        ShowTrace(tracePointName, tracePointMessage, tracePointPlace, showLevel);
-                    }
-                    else
-                    {
-                        MessageBox.Show(MethodBase.GetCurrentMethod().ToString() + " _manager.AppendContent will Call ", CurrentClassName, MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        _manager.AppendContent(tracePointName, tracePointValue, tracePointPlace);
-                    }
-                }
-            }
+        public string SaveTracedToFile(string tracedFileNameAddition, string tracedFileContent)
+        {
+            int i = 0;
+            string tracedFilePathAndName = "";
+            tracedFilePathAndName = tracedFileNameAddition;
+            bool truePath = _manager.IsFileExist(tracedFilePathAndName);
+
+            string pasHash = _manager.GetMd5Hash(tracedFileContent);
+            int result =  _manager.SaveContent(tracedFilePathAndName, tracedFileContent, i);//i - no need yet
+
+            return pasHash;
         }
 
         public static string CurrentClassName

@@ -24,38 +24,41 @@ namespace TextSplit
         private readonly IMessageService _msgService;
         private readonly IAnalysisLogicCultivation _analysisLogic;
         private readonly IAnalysisLogicDataArrays _arrayAnalysis;
+        private readonly IAnalysisLogicSentences _sentenceAnalyser;
 
         readonly private int filesQuantity;
         readonly private int showMessagesLevel;
         readonly private string strCRLF;
         
-        private readonly int charsParagraphSeparatorLength;
+        //private readonly int charsParagraphSeparatorLength;
 
         int GetParagraphTextLength(int desiredTextLanguage) => _bookData.GetParagraphTextLength(desiredTextLanguage);
         string GetParagraphText(int paragraphCount, int desiredTextLanguage) => _bookData.GetParagraphText(paragraphCount, desiredTextLanguage);
         int SetParagraphText(string paragraphText, int paragraphCount, int desiredTextLanguage) => _bookData.SetParagraphText(paragraphText, paragraphCount, desiredTextLanguage);
 
-        int GetCharsParagraphSeparatorLength() => _arrayAnalysis.GetCharsParagraphSeparatorLength();
-        char GetCharsParagraphSeparator(int index) => _arrayAnalysis.GetCharsParagraphSeparator(index);
+        int GetCharsSeparatorLength(string ParagraphOrSentence) => _arrayAnalysis.GetCharsSeparatorLength(ParagraphOrSentence);
+        char[] GetCharsSeparator(string ParagraphOrSentence) => _arrayAnalysis.GetCharsSeparator(ParagraphOrSentence);
         string GetStringMarksChapterName(string BeginOrEnd) => _arrayAnalysis.GetStringMarksChapterName(BeginOrEnd);
         string GetStringMarksParagraphName(string BeginOrEnd) => _arrayAnalysis.GetStringMarksParagraphName(BeginOrEnd);
+
+        int PrepareToDividePagagraph(int desiredTextLanguage, string currentParagraph, int currentChapterNumber, int currentParagraphNumber, int i) => 
+            _sentenceAnalyser.PrepareToDividePagagraph(desiredTextLanguage, currentParagraph, currentChapterNumber, currentParagraphNumber, i);
 
         string AddSome00ToIntNumber(string currentChapterNumberToFind, int totalDigitsQuantity) => _analysisLogic.AddSome00ToIntNumber(currentChapterNumberToFind, totalDigitsQuantity);
 
         //public event EventHandler AnalyseInvokeTheMain;
 
-        public AnalysisLogicParagraph(IAllBookData bookData, IMessageService msgService, IAnalysisLogicCultivation analysisLogic, IAnalysisLogicDataArrays arrayAnalysis)
+        public AnalysisLogicParagraph(IAllBookData bookData, IMessageService msgService, IAnalysisLogicCultivation analysisLogic, IAnalysisLogicSentences sentenceAnalyser, IAnalysisLogicDataArrays arrayAnalysis)
         {
             _bookData = bookData;
             _msgService = msgService;
             _analysisLogic = analysisLogic;//общая логика
             _arrayAnalysis = arrayAnalysis;
+            _sentenceAnalyser = sentenceAnalyser;//предложения
 
             filesQuantity = DeclarationConstants.FilesQuantity;
             showMessagesLevel = DeclarationConstants.ShowMessagesLevel;
-            strCRLF = DeclarationConstants.StrCRLF;
-
-            charsParagraphSeparatorLength = GetCharsParagraphSeparatorLength();            
+            strCRLF = DeclarationConstants.StrCRLF;                        
         }        
 
         public int markAndEnumerateParagraphs (string lastFoundChapterNumberInMarkFormat, int desiredTextLanguage)
@@ -93,7 +96,6 @@ namespace TextSplit
                         return (int)MethodFindResult.NothingFound;
                     }
                 }
-
                 if(currentChapterNumber < 0)
                 {
                     paragraphTextMarks = GetStringMarksParagraphName("Begin") + "Introduction" + GetStringMarksParagraphName("End") + "-" + "Paragraph" + "-";//создаем маркировку введения/предисловия
@@ -104,7 +106,6 @@ namespace TextSplit
                     string currentParagraphNumberToFind00 =  AddSome00ToIntNumber(currentParagraphNumberSrting, totalDigitsQuantity);
                     paragraphTextMarks = GetStringMarksParagraphName("Begin") + currentParagraphNumberToFind00 + GetStringMarksParagraphName("End") + "-Paragraph-of-Chapter-" + currentChapterNumber.ToString();
                 }
-
                 //сформирована маркировка абзаца, можно искать начало абзацев (пустые строки) и заносить (пустые строки перед главой уже заняты)
                 bool currentParagraphEmptyResult = string.IsNullOrEmpty(currentParagraph);
                 if (currentParagraphEmptyResult)
@@ -115,23 +116,21 @@ namespace TextSplit
                     _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Paragraph must be EMPTY [" + i.ToString() + "] --> " + currentParagraph + strCRLF +
                             "paragraphTextMarks --> " + paragraphTextMarks + strCRLF +
                             "enumerateParagraphsCount++ = " + enumerateParagraphsInChapterCount.ToString(), CurrentClassName, showMessagesLevel);
-                }
-
+                    //подходящий момент разделить целое на части... можно прямо тут делить абзацы на предложения
+                    int countSentencesInCurrentParagraph = PrepareToDividePagagraph(desiredTextLanguage, currentParagraph, currentChapterNumber, enumerateParagraphsInChapterCount, i);//только нужный абзац для дележки - на i+1
+                }               
                 //все, что до первого номера главы, маркировать предысловием (можно было бы нулевой главой, но нет)
                 //получив номер главы, в каждую пустую строку вставляем номер абзаца - §§§§§Paragraph-0000-§§§(-of-000) - где 000 берутся из номера главы ¤¤¤¤¤Chapter-000-¤¤¤
-            }
-            //
-
+            }            
             return enumerateParagraphsInChapterCount;
         }
 
         public int PortionBookTextOnParagraphs(int desiredTextLanguage)//делит текст на абзацы по EOL, сохраняет в List в AllBookData
         {
+            int charsParagraphSeparatorLength = GetCharsSeparatorLength("Paragraph");
             char[] charsParagraphSeparator = new char[charsParagraphSeparatorLength];
-            for (int i = 0; i < charsParagraphSeparatorLength; i++)
-            {
-                charsParagraphSeparator[i] = GetCharsParagraphSeparator(i);
-            }
+            charsParagraphSeparator = GetCharsSeparator("Paragraph");
+            
             string textToAnalyse = _bookData.GetFileContent(desiredTextLanguage);
             string[] TextOnParagraphsPortioned = textToAnalyse.Split(charsParagraphSeparator);//portioned all book content in the ParagraphsArray via EOL
             //потом тут можно написать свой метод деления на абзацы (или этот пусть делит по одному сепаратору)
@@ -170,7 +169,7 @@ namespace TextSplit
 
             int paragraphTextLength = _bookData.GetParagraphTextLength(desiredTextLanguage);
             _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), strCRLF +
-                "paragraphTextLength = " + paragraphTextLength.ToString() + strCRLF, CurrentClassName, 3);
+                "paragraphTextLength = " + paragraphTextLength.ToString() + strCRLF, CurrentClassName, showMessagesLevel);
 
             bool normalizeEmptyParagraphsFlag = false;//флаг пустой текущей строки, true - если пустая
             int emplyParagraphCount = 0;

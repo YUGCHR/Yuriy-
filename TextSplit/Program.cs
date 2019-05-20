@@ -29,8 +29,8 @@ namespace TextSplit
             AnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService);
             AnalysisLogicDataArrays arrayAnalysis = new AnalysisLogicDataArrays(bookData, msgService);
             AnalysisLogicChapter chapterLogic = new AnalysisLogicChapter(bookData, msgService, analysisLogic, arrayAnalysis);
-            AnalysisLogicParagraph paragraphLogic = new AnalysisLogicParagraph(bookData, msgService, analysisLogic, arrayAnalysis);
             AnalysisLogicSentences sentenceLogic = new AnalysisLogicSentences(bookData, msgService, analysisLogic, arrayAnalysis);
+            AnalysisLogicParagraph paragraphLogic = new AnalysisLogicParagraph(bookData, msgService, analysisLogic, sentenceLogic, arrayAnalysis);            
             AllBookAnalysis analysisBook = new AllBookAnalysis(bookData, msgService, analysisLogic, chapterLogic, paragraphLogic, sentenceLogic);
             LoadTextToDataBase loadDataBase = new LoadTextToDataBase(bookData, dataAccess, msgService);
             MainLogicCultivation logicMain = new MainLogicCultivation(bookData, msgService, fileManager);

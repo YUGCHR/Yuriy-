@@ -179,7 +179,7 @@ namespace TextSplit
         {
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Start", CurrentClassName, showMessagesLevel);
             // где-то тут погасить кнопку, но какую надпись - непонятно
-            int analysisResult = _analysis.AnalyseTextBook();//еще можно было бы сразу анализировать текст на стандартные слова нумерации глав, а уже потом приставать к пользователю
+            string analysisResult = _analysis.AnalyseTextBook();
         }
 
         public static string CurrentClassName
