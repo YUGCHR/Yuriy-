@@ -36,18 +36,22 @@ namespace TextSplit
         int GetChapterNumberLength(int desiredTextLanguage) => _bookData.GetChapterNumberLength(desiredTextLanguage);
         int AddChapterNumber(int chapterNumberOnly, int desiredTextLanguage) => _bookData.AddChapterNumber(chapterNumberOnly, desiredTextLanguage);
 
+        int GetConstantWhatNotLength(string WhatNot) => _arrayAnalysis.GetConstantWhatNotLength(WhatNot);
+        string[] GetConstantWhatNot(string WhatNot) => _arrayAnalysis.GetConstantWhatNot(WhatNot);
+        int GetChapterNamesSamplesLength(int desiredTextLanguage) => _arrayAnalysis.GetChapterNamesSamplesLength(desiredTextLanguage);
+        string GetChapterNamesSamples(int desiredTextLanguage, int i) => _arrayAnalysis.GetChapterNamesSamples(desiredTextLanguage, i);
+
+        int GetFoundWordsOfParagraphLength() => GetFoundWordsOfParagraphLength();
         string GetFoundWordsOfParagraph(int i) => _arrayAnalysis.GetFoundWordsOfParagraph(i);
         int SetFoundWordsOfParagraph(string wordOfParagraph, int i) => _arrayAnalysis.SetFoundWordsOfParagraph(wordOfParagraph, i);
         //int ClearFoundWordsOfParagraph();
-        int GetFoundWordsOfParagraphLength() => GetFoundWordsOfParagraphLength();
+
+        int GetFoundSymbolsOfParagraphLength() => _arrayAnalysis.GetFoundSymbolsOfParagraphLength();
         int SetFoundSymbolsOfParagraph(string symbolsOfParagraph, int i) => _arrayAnalysis.SetFoundSymbolsOfParagraph(symbolsOfParagraph, i);
         string GetFoundSymbolsOfParagraph(int i) => _arrayAnalysis.GetFoundSymbolsOfParagraph(i);
         //int ClearFoundSymbolsOfParagraph();
-        int GetFoundSymbolsOfParagraphLength() => _arrayAnalysis.GetFoundSymbolsOfParagraphLength();
-        string GetStringMarksChapterName(string str) => _arrayAnalysis.GetStringMarksChapterName(str);
-        int GetBaseKeyWordFormsQuantity() => _arrayAnalysis.GetBaseKeyWordFormsQuantity();
-        int GetChapterNamesSamplesLength(int desiredTextLanguage) => _arrayAnalysis.GetChapterNamesSamplesLength(desiredTextLanguage);
-        string GetChapterNamesSamples(int desiredTextLanguage, int i) => _arrayAnalysis.GetChapterNamesSamples(desiredTextLanguage, i);
+               
+        int GetBaseKeyWordFormsQuantity() => _arrayAnalysis.GetBaseKeyWordFormsQuantity();        
         int GetChapterNamesVersionsCount(int m, int i) => _arrayAnalysis.GetChapterNamesVersionsCount(m, i);
         int SetChapterNamesVersionsCount(int m, int i, int countValue) => _arrayAnalysis.SetChapterNamesVersionsCount(m, i, countValue);
         int GetChapterSymbolsVersionsCount(int i) => _arrayAnalysis.GetChapterSymbolsVersionsCount(i);
@@ -143,7 +147,9 @@ namespace TextSplit
                                 {
                                     return null;             
                                 }
-                                string chapterTextMarks = GetStringMarksChapterName("Begin") + currentChapterNumberToFind000 + GetStringMarksChapterName("End") + "-" + keyWordFounfForm + "-";
+                                string markChapterBegin = GetConstantWhatNot("ChapterBegin")[0];
+                                string markChapterEnd = GetConstantWhatNot("ChapterEnd")[0];
+                                string chapterTextMarks = markChapterBegin + currentChapterNumberToFind000 + markChapterEnd + "-" + keyWordFounfForm + "-";
                                 SetParagraphText(chapterTextMarks, i - 1, desiredTextLanguage);//проверить, что i больше 0, иначе некуда заносить
                                 string currentMarkChapter = GetParagraphText(i - 1, desiredTextLanguage);//после тестов убрать вместе с печатью
                                 _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "CurrentParagraph with i = " + i.ToString() + "  -- > " + currentParagraph + strCRLF +

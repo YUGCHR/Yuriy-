@@ -10,28 +10,29 @@ namespace TextSplitLibrary
         string GetFoundWordsOfParagraph(int i);
         int ClearFoundWordsOfParagraph();
         int GetFoundWordsOfParagraphLength();
+
         int SetFoundSymbolsOfParagraph(string symbolsOfParagraph, int i);
         string GetFoundSymbolsOfParagraph(int i);
         int ClearFoundSymbolsOfParagraph();
         int GetFoundSymbolsOfParagraphLength();
 
-        string GetStringMarksChapterName(string BeginOrEnd);
-        string GetStringMarksParagraphName(string BeginOrEnd);
-        string GetStringMarksSentenceName(string BeginOrEnd);
-
+        //string GetStringMarksChapterName(string BeginOrEnd);
+        //string GetStringMarksParagraphName(string BeginOrEnd);
+        //string GetStringMarksSentenceName(string BeginOrEnd);
+        //
         int GetChapterNamesSamplesLength(int desiredTextLanguage);
         string GetChapterNamesSamples(int desiredTextLanguage, int i);
-
+        //
         int GetBaseKeyWordFormsQuantity();
         int GetChapterNamesVersionsCount(int m, int i);
         int SetChapterNamesVersionsCount(int m, int i, int countValue);
         int GetChapterSymbolsVersionsCount(int i);
         int SetChapterSymbolsVersionsCount(int i, int countValue);
 
-        int GetCharsParagraphSeparatorLength();
-        char GetCharsParagraphSeparator(int index);
-        int GetCharsSeparatorLength(string ParagraphOrSentence);
-        char[] GetCharsSeparator(string ParagraphOrSentence);
+        //int GetCharsParagraphSeparatorLength();
+        //string[] GetCharsParagraphSeparator(int index);
+        int GetConstantWhatNotLength(string WhatNot);
+        string[] GetConstantWhatNot(string WhatNot);
     }
 
     public class AnalysisLogicDataArrays : IAnalysisLogicDataArrays
@@ -47,15 +48,15 @@ namespace TextSplitLibrary
         readonly private string[,] chapterNamesSamples;//два следующих массива собираются заменить этот двумерный
         readonly private string[] chapterNamesSamplesLanguage0;
         readonly private string[] chapterNamesSamplesLanguage1;
-        readonly private string stringMarksChapterNameBegin;
-        readonly private string stringMarksChapterNameEnd;
-        readonly private string stringMarksParagraphBegin;
-        readonly private string stringMarksParagraphEnd;
-        readonly private string stringMarksSentenceBegin;
-        readonly private string stringMarksSentenceEnd;
-        readonly private char[] charsParagraphSeparator;
-        readonly private char[] charsSentenceSeparator;
-        readonly private char[] charsQuotesSeparator;
+        readonly private string[] stringMarksChapterNameBegin;
+        readonly private string[] stringMarksChapterNameEnd;
+        readonly private string[] stringMarksParagraphBegin;
+        readonly private string[] stringMarksParagraphEnd;
+        readonly private string[] stringMarksSentenceBegin;
+        readonly private string[] stringMarksSentenceEnd;
+        readonly private string[] charsParagraphSeparator;
+        readonly private string[] charsSentenceSeparator;
+        readonly private string[] charsQuotesSeparator;
 
         private string[] foundSymbolsOfParagraph;
         private int[,] chapterNamesVersionsCount;
@@ -73,15 +74,15 @@ namespace TextSplitLibrary
             showMessagesLocal = showMessagesLevel;
             showMessagesLocal = 3; //локальные печати класса выводятся на экран
             baseKeyWordFormsQuantity = 3;
-            charsParagraphSeparator = new char[] { '\r', '\n' };//можно переделать все на строковый массив - чтобы передавать одним методом
-            charsSentenceSeparator = new char[] { '.', '!', '?' };
-            charsQuotesSeparator = new char[] { '.', '!', '?' };// "\U0022 «\U00AB »\U00BB ʺ\U02BA ˮ\U02EE ˝\U02DD 
-            stringMarksChapterNameBegin = "\u00A4\u00A4\u00A4\u00A4\u00A4";//¤¤¤¤¤ - метка строки перед началом названия главы
-            stringMarksChapterNameEnd = "\u00A4\u00A4\u00A4";//¤¤¤ - метка строки после названия главы, еще \u007E - ~
-            stringMarksParagraphBegin = "\u00A7\u00A7\u00A7\u00A7\u00A7";//§§§§§ - метка строки перед началом абзаца
-            stringMarksParagraphEnd = "\u00A7\u00A7\u00A7";//§§§ - метка строки после абзаца
-            stringMarksSentenceBegin = "\u00B6\u00B6\u00B6\u00B6\u00B6";//¶¶¶¶¶ - метка строки перед началом предложния
-            stringMarksSentenceEnd = "\u00B6\u00B6\u00B6";//¶¶¶ - метка строки после конца предложения
+            charsParagraphSeparator = new string[] { "\r\n" };//можно переделать все на строковый массив - чтобы передавать одним методом
+            charsSentenceSeparator = new string[] { ".", "!", "?" };
+            charsQuotesSeparator = new string[] { ".", "!", "?" };// "\U0022 «\U00AB »\U00BB ʺ\U02BA ˮ\U02EE ˝\U02DD 
+            stringMarksChapterNameBegin = new string[] { "\u00A4\u00A4\u00A4\u00A4\u00A4" };//¤¤¤¤¤ - метка строки перед началом названия главы
+            stringMarksChapterNameEnd = new string[] { "\u00A4\u00A4\u00A4" };//¤¤¤ - метка строки после названия главы, еще \u007E - ~
+            stringMarksParagraphBegin = new string[] { "\u00A7\u00A7\u00A7\u00A7\u00A7" };//§§§§§ - метка строки перед началом абзаца
+            stringMarksParagraphEnd = new string[] { "\u00A7\u00A7\u00A7" };//§§§ - метка строки после абзаца
+            stringMarksSentenceBegin = new string[] { "\u00B6\u00B6\u00B6\u00B6\u00B6" };//¶¶¶¶¶ - метка строки перед началом предложния
+            stringMarksSentenceEnd = new string[] { "\u00B6\u00B6\u00B6" };//¶¶¶ - метка строки после конца предложения
 
             chapterNamesSamples = new string[,]//а номера глав бывают буквами!
             { { "chapter", "paragraph", "section", "subhead", "part" },
@@ -97,61 +98,71 @@ namespace TextSplitLibrary
             chapterSymbolsVersionsCount = new int[GetChapterNamesSamplesLength(0)];
         }
 
-        public int GetCharsParagraphSeparatorLength()
-        {
-            return charsParagraphSeparator.Length;
+        //public int GetCharsParagraphSeparatorLength()
+        //{
+        //    return charsParagraphSeparator.Length;
+        //}
+
+        //public string[] GetCharsParagraphSeparator(int index)
+        //{
+        //    return charsParagraphSeparator;
+        //}
+
+        //public string GetStringMarksChapterName(string BeginOrEnd)
+        //{
+        //    switch (BeginOrEnd)
+        //    {
+        //        case
+        //        "Begin":
+        //            return stringMarksChapterNameBegin;
+        //        case
+        //        "End":
+        //            return stringMarksChapterNameEnd;
+        //    }
+        //    return null;
+        //}
+
+        //public string GetStringMarksParagraphName(string BeginOrEnd)
+        //{
+        //    switch (BeginOrEnd)
+        //    {
+        //        case
+        //        "Begin":
+        //            return stringMarksParagraphBegin;
+        //        case
+        //        "End":
+        //            return stringMarksParagraphEnd;
+        //    }
+        //    return null;
+        //}
+
+        //public string GetStringMarksSentenceName(string BeginOrEnd)
+        //{
+        //    switch (BeginOrEnd)
+        //    {
+        //        case
+        //        "Begin":
+        //            return stringMarksSentenceBegin;
+        //        case
+        //        "End":
+        //            return stringMarksSentenceEnd;
+        //    }
+        //    return null;
+        //}
+
+        public int GetChapterNamesSamplesLength(int desiredTextLanguage)
+        {//в дальнейшем массив можно сделать динамическим и с разным количеством ключевых слов для разных языков, тогда получать язык при запросе
+            return chapterNamesSamples.GetLength(1);
         }
 
-        public char GetCharsParagraphSeparator(int index)
-        {
-            return charsParagraphSeparator[index];
+        public string GetChapterNamesSamples(int desiredTextLanguage, int i)
+        {//потом сделать динамический массив
+            return chapterNamesSamples[desiredTextLanguage, i];
         }
 
-        public string GetStringMarksChapterName(string BeginOrEnd)
+        public int GetConstantWhatNotLength(string WhatNot)
         {
-            switch (BeginOrEnd)
-            {
-                case
-                "Begin":
-                    return stringMarksChapterNameBegin;
-                case
-                "End":
-                    return stringMarksChapterNameEnd;
-            }
-            return null;
-        }
-
-        public string GetStringMarksParagraphName(string BeginOrEnd)
-        {
-            switch (BeginOrEnd)
-            {
-                case
-                "Begin":
-                    return stringMarksParagraphBegin;
-                case
-                "End":
-                    return stringMarksParagraphEnd;
-            }
-            return null;
-        }
-
-        public string GetStringMarksSentenceName(string BeginOrEnd)
-        {
-            switch (BeginOrEnd)
-            {
-                case
-                "Begin":
-                    return stringMarksSentenceBegin;
-                case
-                "End":
-                    return stringMarksSentenceEnd;
-            }
-            return null;
-        }
-
-        public int GetCharsSeparatorLength(string ParagraphOrSentence)
-        {
-            switch (ParagraphOrSentence)
+            switch (WhatNot)
             {
                 case
                 "Sentence":
@@ -162,35 +173,71 @@ namespace TextSplitLibrary
                 case
                 "Quotes":
                     return charsQuotesSeparator.Length;
-                    //case
-                    //"NamesSamples0":
-                    //    return chapterNamesSamplesLanguage0.Length;
-                    //case
-                    //"NamesSamples1":
-                    //    return chapterNamesSamplesLanguage1.Length;
+                case
+                "ChapterBegin":
+                    return stringMarksChapterNameBegin.Length;
+                case
+                "ChapterEnd":
+                    return stringMarksChapterNameEnd.Length;
+                case
+                "ParagraphBegin":
+                    return stringMarksParagraphBegin.Length;
+                case
+                "ParagraphEnd":
+                    return stringMarksParagraphEnd.Length;
+                case
+                "SentenceBegin":
+                    return stringMarksSentenceBegin.Length;
+                case
+                "SentenceEnd":
+                    return stringMarksSentenceEnd.Length;
+                case                    
+                "NamesSamples0":
+                    return chapterNamesSamplesLanguage0.Length;
+                case                    
+                "NamesSamples1":
+                    return chapterNamesSamplesLanguage1.Length;
             }
             return 0;
         }
 
-        public char[] GetCharsSeparator(string ParagraphOrSentence)
+        public string[] GetConstantWhatNot(string WhatNot)
         {
-            switch (ParagraphOrSentence)
+            switch (WhatNot)
             {
                 case
                 "Sentence":
                     return charsSentenceSeparator;
-                case                
+                case
                 "Paragraph":
                     return charsParagraphSeparator;
-                case                    
+                case
                 "Quotes":
                     return charsQuotesSeparator;
-                //case
-                //"NamesSamples0":
-                //    return chapterNamesSamplesLanguage0.ToCharArray();
-                //case
-                //"NamesSamples1":
-                //    return chapterNamesSamplesLanguage1;
+                case
+                "ChapterBegin":
+                    return stringMarksChapterNameBegin;
+                case
+                "ChapterEnd":
+                    return stringMarksChapterNameEnd;
+                case
+                "ParagraphBegin":
+                    return stringMarksParagraphBegin;
+                case
+                "ParagraphEnd":
+                    return stringMarksParagraphEnd;
+                case
+                "SentenceBegin":
+                    return stringMarksSentenceBegin;
+                case
+                "SentenceEnd":
+                    return stringMarksSentenceEnd;
+                case                    
+                "NamesSamples0":
+                    return chapterNamesSamplesLanguage0;
+                case                    
+                "NamesSamples1":
+                    return chapterNamesSamplesLanguage1;
             }
             return null;            
         }
@@ -265,17 +312,7 @@ namespace TextSplitLibrary
         {
             int foundSymbolsOfParagraphLength = foundSymbolsOfParagraph.Length;
             return foundSymbolsOfParagraphLength;
-        }
-
-        public int GetChapterNamesSamplesLength(int desiredTextLanguage)
-        {//в дальнейшем массив можно сделать динамическим и с разным количеством ключевых слов для разных языков, тогда получать язык при запросе
-            return chapterNamesSamples.GetLength(1);
-        }
-
-        public string GetChapterNamesSamples(int desiredTextLanguage, int i)
-        {//потом сделать динамический массив
-            return chapterNamesSamples[desiredTextLanguage, i];
-        }
+        }        
 
         public int GetChapterNamesVersionsCount(int m, int i) //m - варианты форм, i - варианты ключевых слов
         {

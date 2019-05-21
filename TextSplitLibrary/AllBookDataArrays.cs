@@ -16,7 +16,7 @@ namespace TextSplitLibrary
 
         int GetFileToSave(int i);        
         int SetFileToSave(int fileToSave, int i);
-        int WhatFileNeedToSave(int whatNeedToSave);//возвращает индекс ToDo, в котором найдено значение whatNeedToDo, если не найдено, возвращает -1
+        int WhatFileNeedToSave(int whatNeedToSave);//возвращает индекс FileToSave, в котором найдено значение WhatFileNeedToSave, если не найдено, возвращает -1
 
         string GetFilePath(int i);
         int SetFilePath(string filePath, int i);

@@ -30,8 +30,8 @@ namespace TextSplit
         string GetParagraphText(int paragraphCount, int desiredTextLanguage) => _bookData.GetParagraphText(paragraphCount, desiredTextLanguage);
         int SetParagraphText(string paragraphText, int paragraphCount, int desiredTextLanguage) => _bookData.SetParagraphText(paragraphText, paragraphCount, desiredTextLanguage);
 
-        int GetCharsSeparatorLength(string ParagraphOrSentence) => _arrayAnalysis.GetCharsSeparatorLength(ParagraphOrSentence);
-        char[] GetCharsSeparator(string ParagraphOrSentence) => _arrayAnalysis.GetCharsSeparator(ParagraphOrSentence);
+        int GetCharsSeparatorLength(string ParagraphOrSentence) => _arrayAnalysis.GetConstantWhatNotLength(ParagraphOrSentence);
+        string[] GetCharsSeparator(string ParagraphOrSentence) => _arrayAnalysis.GetConstantWhatNot(ParagraphOrSentence);
 
         string AddSome00ToIntNumber(string currentChapterNumberToFind, int totalDigitsQuantity) => _analysisLogic.AddSome00ToIntNumber(currentChapterNumberToFind, totalDigitsQuantity);
 
@@ -83,12 +83,13 @@ namespace TextSplit
             int countSentencesNumber = 0;            
             //достать и сформировать временный массив разделителей предложений из _arrayAnalysis (через метод GetCharsSeparator)
             int charsSentenceSeparatorLength = GetCharsSeparatorLength("Sentence");
-            char[] charsSentenceSeparator = new char[charsSentenceSeparatorLength];
+            string[] charsSentenceSeparator = new string[charsSentenceSeparatorLength];
             charsSentenceSeparator = GetCharsSeparator("Sentence");//хорошо бы проверить, что не null
             //собираем массив Quotes
             int charsQuotesSeparatorLength = GetCharsSeparatorLength("Quotes");
-            char[] charsQuotesSeparator = new char[charsQuotesSeparatorLength];
+            string[] charsQuotesSeparator = new string[charsQuotesSeparatorLength];
             charsQuotesSeparator = GetCharsSeparator("Sentence");//хорошо бы проверить, что не null
+            //если будет нужен массив char[], то сделать так же, как с ParagraphSeparators - или сразу же так сделать для однообразия?
 
             //правила раздела текста на предложения -
             //начинаем нумерацию предложений - в этом абзаце и общую в тексте (может быть во всем тексте или метод вызвали для отдельной главы?)

@@ -36,10 +36,10 @@ namespace TextSplit
         string GetParagraphText(int paragraphCount, int desiredTextLanguage) => _bookData.GetParagraphText(paragraphCount, desiredTextLanguage);
         int SetParagraphText(string paragraphText, int paragraphCount, int desiredTextLanguage) => _bookData.SetParagraphText(paragraphText, paragraphCount, desiredTextLanguage);
 
-        int GetCharsSeparatorLength(string ParagraphOrSentence) => _arrayAnalysis.GetCharsSeparatorLength(ParagraphOrSentence);
-        char[] GetCharsSeparator(string ParagraphOrSentence) => _arrayAnalysis.GetCharsSeparator(ParagraphOrSentence);
-        string GetStringMarksChapterName(string BeginOrEnd) => _arrayAnalysis.GetStringMarksChapterName(BeginOrEnd);
-        string GetStringMarksParagraphName(string BeginOrEnd) => _arrayAnalysis.GetStringMarksParagraphName(BeginOrEnd);
+        //int GetCharsSeparatorLength(string ParagraphOrSentence) => _arrayAnalysis.GetConstantWhatNotLength(ParagraphOrSentence);
+        //string[] GetCharsSeparator(string ParagraphOrSentence) => _arrayAnalysis.GetConstantWhatNot(ParagraphOrSentence);
+        int GetConstantWhatNotLength(string WhatNot) => _arrayAnalysis.GetConstantWhatNotLength(WhatNot);
+        string[] GetConstantWhatNot(string WhatNot) => _arrayAnalysis.GetConstantWhatNot(WhatNot);
 
         int PrepareToDividePagagraph(int desiredTextLanguage, string currentParagraph, int currentChapterNumber, int currentParagraphNumber, int i) => 
             _sentenceAnalyser.PrepareToDividePagagraph(desiredTextLanguage, currentParagraph, currentChapterNumber, currentParagraphNumber, i);
@@ -71,11 +71,14 @@ namespace TextSplit
             string currentParagraphNumberSrting = "";
             int totalDigitsQuantity = 5; //для номера главы используем 5 цифр (до 999, должно хватить) - перенести в AnalysisLogicDataArrays
             int paragraphTextLength = GetParagraphTextLength(desiredTextLanguage);
+            string markParagraphBegin = GetConstantWhatNot("ParagraphBegin")[0];
+            string markParagraphEnd = GetConstantWhatNot("ParagraphEnd")[0];
+
             for (int i = 0; i < paragraphTextLength; i++)//перебираем все абзацы текста
             {
                 string currentParagraph = GetParagraphText(i, desiredTextLanguage);
                 //найти маркер клавы, выделить номер главы, сравнить со счетчиком, прибавить счетчик
-                string chapterMarkBegin = GetStringMarksChapterName("Begin");
+                string chapterMarkBegin = GetConstantWhatNot("ChapterBegin")[0];//расписать подробнее, что используем только нулевую ячейку массива
                 int chapterMarkBeginLength = chapterMarkBegin.Length;
                 bool foundChapterMark = currentParagraph.Contains(chapterMarkBegin);
                 if (foundChapterMark)
@@ -98,13 +101,13 @@ namespace TextSplit
                 }
                 if(currentChapterNumber < 0)
                 {
-                    paragraphTextMarks = GetStringMarksParagraphName("Begin") + "Introduction" + GetStringMarksParagraphName("End") + "-" + "Paragraph" + "-";//создаем маркировку введения/предисловия
+                    paragraphTextMarks = markParagraphBegin + "Introduction" + markParagraphEnd + "-" + "Paragraph" + "-";//создаем маркировку введения/предисловия
                 }
                 else
                 {
                     currentParagraphNumberSrting = enumerateParagraphsInChapterCount.ToString();
                     string currentParagraphNumberToFind00 =  AddSome00ToIntNumber(currentParagraphNumberSrting, totalDigitsQuantity);
-                    paragraphTextMarks = GetStringMarksParagraphName("Begin") + currentParagraphNumberToFind00 + GetStringMarksParagraphName("End") + "-Paragraph-of-Chapter-" + currentChapterNumber.ToString();
+                    paragraphTextMarks = markParagraphBegin + currentParagraphNumberToFind00 + markParagraphEnd + "-Paragraph-of-Chapter-" + currentChapterNumber.ToString();
                 }
                 //сформирована маркировка абзаца, можно искать начало абзацев (пустые строки) и заносить (пустые строки перед главой уже заняты)
                 bool currentParagraphEmptyResult = string.IsNullOrEmpty(currentParagraph);
@@ -127,10 +130,11 @@ namespace TextSplit
 
         public int PortionBookTextOnParagraphs(int desiredTextLanguage)//делит текст на абзацы по EOL, сохраняет в List в AllBookData
         {
-            int charsParagraphSeparatorLength = GetCharsSeparatorLength("Paragraph");
-            char[] charsParagraphSeparator = new char[charsParagraphSeparatorLength];
-            charsParagraphSeparator = GetCharsSeparator("Paragraph");
-            
+            int charsParagraphSeparatorLength = GetConstantWhatNotLength("Paragraph");
+            string[] charsParagraphSeparatorInString = new string[charsParagraphSeparatorLength];
+            charsParagraphSeparatorInString = GetConstantWhatNot("Paragraph");
+            char[] charsParagraphSeparator = charsParagraphSeparatorInString[0].ToCharArray();
+
             string textToAnalyse = _bookData.GetFileContent(desiredTextLanguage);
             string[] TextOnParagraphsPortioned = textToAnalyse.Split(charsParagraphSeparator);//portioned all book content in the ParagraphsArray via EOL
             //потом тут можно написать свой метод деления на абзацы (или этот пусть делит по одному сепаратору)
