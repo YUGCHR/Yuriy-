@@ -38,11 +38,12 @@ namespace TextSplit
 
         //int GetCharsSeparatorLength(string ParagraphOrSentence) => _arrayAnalysis.GetConstantWhatNotLength(ParagraphOrSentence);
         //string[] GetCharsSeparator(string ParagraphOrSentence) => _arrayAnalysis.GetConstantWhatNot(ParagraphOrSentence);
+
         int GetConstantWhatNotLength(string WhatNot) => _arrayAnalysis.GetConstantWhatNotLength(WhatNot);
         string[] GetConstantWhatNot(string WhatNot) => _arrayAnalysis.GetConstantWhatNot(WhatNot);
 
-        int PrepareToDividePagagraph(int desiredTextLanguage, string currentParagraph, int currentChapterNumber, int currentParagraphNumber, int i) => 
-            _sentenceAnalyser.PrepareToDividePagagraph(desiredTextLanguage, currentParagraph, currentChapterNumber, currentParagraphNumber, i);
+        int PrepareToDividePagagraphToSentences(int desiredTextLanguage, string currentParagraph, int currentChapterNumber, int currentParagraphNumber, int i) => 
+            _sentenceAnalyser.PrepareToDividePagagraphToSentences(desiredTextLanguage, currentParagraph, currentChapterNumber, currentParagraphNumber, i);
 
         string AddSome00ToIntNumber(string currentChapterNumberToFind, int totalDigitsQuantity) => _analysisLogic.AddSome00ToIntNumber(currentChapterNumberToFind, totalDigitsQuantity);
 
@@ -120,8 +121,8 @@ namespace TextSplit
                             "paragraphTextMarks --> " + paragraphTextMarks + strCRLF +
                             "enumerateParagraphsCount++ = " + enumerateParagraphsInChapterCount.ToString(), CurrentClassName, showMessagesLevel);
                     //подходящий момент разделить целое на части... можно прямо тут делить абзацы на предложения
-                    int countSentencesInCurrentParagraph = PrepareToDividePagagraph(desiredTextLanguage, currentParagraph, currentChapterNumber, enumerateParagraphsInChapterCount, i);//только нужный абзац для дележки - на i+1
-                }               
+                    int countSentencesInCurrentParagraph = PrepareToDividePagagraphToSentences(desiredTextLanguage, currentParagraph, currentChapterNumber, enumerateParagraphsInChapterCount, i);//только нужный абзац для дележки - на i+1
+                }
                 //все, что до первого номера главы, маркировать предысловием (можно было бы нулевой главой, но нет)
                 //получив номер главы, в каждую пустую строку вставляем номер абзаца - §§§§§Paragraph-0000-§§§(-of-000) - где 000 берутся из номера главы ¤¤¤¤¤Chapter-000-¤¤¤
             }            

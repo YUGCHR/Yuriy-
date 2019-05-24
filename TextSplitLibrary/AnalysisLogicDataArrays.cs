@@ -76,7 +76,7 @@ namespace TextSplitLibrary
             baseKeyWordFormsQuantity = 3;
             charsParagraphSeparator = new string[] { "\r\n" };//можно переделать все на строковый массив - чтобы передавать одним методом
             charsSentenceSeparator = new string[] { ".", "!", "?" };
-            charsQuotesSeparator = new string[] { ".", "!", "?" };// "\U0022 «\U00AB »\U00BB ʺ\U02BA ˮ\U02EE ˝\U02DD 
+            charsQuotesSeparator = new string[] { "\u0022", "\u00AB", "\u00BB", "\u02BA", "\u02EE", "\u02DD" };// "\u0022 «\u00AB »\u00BB ʺ\u02BA ˮ\u02EE ˝\u02DD 
             stringMarksChapterNameBegin = new string[] { "\u00A4\u00A4\u00A4\u00A4\u00A4" };//¤¤¤¤¤ - метка строки перед началом названия главы
             stringMarksChapterNameEnd = new string[] { "\u00A4\u00A4\u00A4" };//¤¤¤ - метка строки после названия главы, еще \u007E - ~
             stringMarksParagraphBegin = new string[] { "\u00A7\u00A7\u00A7\u00A7\u00A7" };//§§§§§ - метка строки перед началом абзаца

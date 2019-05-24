@@ -291,5 +291,29 @@ namespace TextSplit.Tests
 
             Assert.AreEqual(currentNumberWith00, result);
         }
+
+        [TestMethod]
+        [DataRow(6, "\"Yes, \" the maid was saying into the phone, \"Who is it ? Baron Maigel ? Hullo.Yes!The artiste is at home today.Yes, he'll be happy to see you. Yes, there'll be guests...Tails or a black dinner jacket What ? Before midnight.\" After finishing her conversation, the maid put back the receiver and turned to the bartender, \"What can I do for you ? \"")]
+        [DataRow(8, "\"Yes, \" the maid was saying into the phone, \"Who is it ? Baron Maigel ? «Hullo».Yes!The artiste is at home today.Yes, he'll be happy to see you. Yes, there'll be guests...Tails or a black dinner jacket What ? Before midnight.\" After finishing her conversation, the maid put back the receiver and turned to the bartender, \"What can I do for you ? \"")]
+
+        public void Test08_FindQuotesInText(int quotesCount, string textParagraph)
+        {
+            IAllBookData bookData = new AllBookDataArrays();
+            IFileManager manager = new FileManager(bookData);
+            Mock<IAllBookData> bookDataMock = new Mock<IAllBookData>();
+            //IMessageService msgService = Mock.Of<IMessageService>();// - вывод на печать отключить
+            IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)
+            IAnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService);
+            IAnalysisLogicDataArrays arrayAnalysis = new AnalysisLogicDataArrays(bookData, msgService);
+            IAnalysisLogicSentences sentenceAnalyser = new AnalysisLogicSentences(bookData, msgService, analysisLogic, arrayAnalysis);
+            var target = new AnalysisLogicSentences(bookDataMock.Object, msgService, analysisLogic, arrayAnalysis);
+            Trace.WriteLine("textParagraph: " + textParagraph);
+
+            int result = target.FindQuotesInText(textParagraph);
+
+            Assert.AreEqual(quotesCount, result);
+        }
     }
 }
+
+
