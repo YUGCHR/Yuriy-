@@ -86,18 +86,56 @@ namespace TextSplit
         public int FindQuotesInText(string textParagraph)
         {//собираем массив Quotes
             int textParagraphLength = textParagraph.Length;
-            int charsQuotesSeparatorLength = GetConstantWhatNotLength("Quotes");//хорошо бы проверить, что массив не null
-            string[] charsQuotesSeparator = new string[charsQuotesSeparatorLength];//если будет нужен массив char[], то сделать так же, как с ParagraphSeparators - или сразу же так сделать для однообразия?
-            charsQuotesSeparator = GetConstantWhatNot("Quotes");
-            //char[] charArrQuotesSeparator = charsQuotesSeparator;
             Dictionary<int, string> searchResultQuotes = new Dictionary<int, string>(10);//начальная емкость списка - скажем 10, типа 5 пар кавычек
-            //List<int> searchResultQuotes = new List<int>() 
+            int quotesQuantity = searchResultQuotes.Count;//просто инициализовали allIndexesQuotesLength, ничего личного         
+
+            int quotesTypesQuantity = SelectAllQuotesInText(textParagraph, searchResultQuotes);            
+
+            quotesQuantity = searchResultQuotes.Count;
+
+            if ((quotesQuantity & 1) == 0) //Console.WriteLine("Четное") - to check the quantity of quotes is even, if it is by contrast impair, will ask users or place the sentence in promlem list
+            {
+                //int endIndexQuotes = 0;
+                switch (quotesTypesQuantity)
+                {
+                    case
+                    0:
+                        return (int)MethodFindResult.NothingFound;//не нашли никаких кавычек - чего тогда звали?
+                    case
+                    1://нашли один тип кавычек, вызываем анализ предложения
+                        //endIndexQuotes = CollectTextInQuotes(textParagraph, searchResultQuotes, quotesTypesQuantity);//quotesTypesQuantity = 1
+                        return quotesQuantity;
+                    case
+                    2://нашли (наверное) сдвоенный тип кавычек, вызываем анализ предложения с открывающими и закрывающими кавычками                    
+                        //endIndexQuotes = CollectTextInQuotes(textParagraph, searchResultQuotes, quotesTypesQuantity); //quotesTypesQuantity = 1, вызываем метод обработки разных кавычек
+                        return quotesQuantity;
+                }
+            }
+            else
+            {
+                _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "textParagraph -- > " + textParagraph + strCRLF + strCRLF +
+                    "Found Quotes Types Quantity is impair = " + quotesQuantity.ToString(), CurrentClassName, 3);// impair (общ.) наносить ущерб, (бур.) - нечётное число
+                return quotesQuantity;
+            }
+            //если сюда попали, то число типов кавычек больше 2-х
+            _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "textParagraph -- > " + textParagraph + strCRLF + strCRLF +
+                    "Found Quotes Types Quantity is too much = " + quotesTypesQuantity.ToString(), CurrentClassName, 3);
+
+            return quotesQuantity;
+        }
+
+        public int SelectAllQuotesInText(string textParagraph, Dictionary<int, string> searchResultQuotes)
+        {
+            int textParagraphLength = textParagraph.Length;
             int startFindIndex = 0;
             int finishFindIndex = textParagraphLength;
             int indexResultQuotes = 0;
+            int charsQuotesSeparatorLength = GetConstantWhatNotLength("Quotes");//хорошо бы проверить, что массив не null
+            string[] charsQuotesSeparator = new string[charsQuotesSeparatorLength];//если будет нужен массив char[], то сделать так же, как с ParagraphSeparators - или сразу же так сделать для однообразия?
+            charsQuotesSeparator = GetConstantWhatNot("Quotes");
             int quotesTypesQuantity = 0;//общее количество найденных типов кавычек - в идеале должно быть 1 или 2 (если разные открывающие и закрывающие), если больше - пока не будем обрабатывать
             int quotesQuantity = 0;//общее количество найденных кавычек всех типов
-            
+
             for (int i = 0; i < charsQuotesSeparatorLength; i++)
             {
                 startFindIndex = 0;
@@ -106,7 +144,7 @@ namespace TextSplit
 
                 if (indexResultQuotes > -1)
                 {
-                    quotesTypesQuantity++;                    
+                    quotesTypesQuantity++;
                 }
                 while (indexResultQuotes != -1)//если одни нашлись (уже не -1), собираем все остальные кавычки, пока находятся
                 {
@@ -117,7 +155,7 @@ namespace TextSplit
                         "startFindIndex (start of the search) = " + startFindIndex.ToString() + strCRLF +
                         "indexResultQuotes (quotes found on position No.) = " + indexResultQuotes.ToString() + strCRLF +
                         "charsQuotesSeparator[i] --> " + charsQuotesSeparator[i] + strCRLF +
-                        "searchResultQuotes value on [" + indexResultQuotes.ToString() + "] = " + searchResultQuotes[indexResultQuotes], CurrentClassName, showMessagesLevel);                    
+                        "searchResultQuotes value on [" + indexResultQuotes.ToString() + "] = " + searchResultQuotes[indexResultQuotes], CurrentClassName, showMessagesLevel);
 
                     startFindIndex = indexResultQuotes + 1;//начинаем новый поиск с места найденных кавычек (наверное, тут надо добавить +1)
                     finishFindIndex = textParagraphLength - startFindIndex;//надо каждый раз вычитать последнюю найденную позицию из полной длины текста, а не остатка
@@ -127,32 +165,64 @@ namespace TextSplit
                     _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "NEW finishFindIndex (- indexResultQuotes) = " + finishFindIndex.ToString() + strCRLF +
                         "NEW startFindIndex (+ indexResultQuotes) = " + startFindIndex.ToString(), CurrentClassName, showMessagesLevel);
                 }
-            }            
+            }
+            return quotesTypesQuantity;
+        }
 
+        public int CollectTextInQuotes(string textParagraph, Dictionary<int, string> searchResultQuotes, int quotesTypesQuantity)
+        {//получили текст абзаца, найденные кавычки, позиция кавычек, количество найденных кавычек
+            int quotesQuantity = searchResultQuotes.Count;
+            int[,] allPairsQuotes = new int[2, quotesQuantity/2];//в нулевой строке массива индекс (по тексту абзаца) открывающей кавычки, в первой - закрывающей
+            int endIndexQuotes = (int)MethodFindResult.NothingFound; ;//если -1 - текст в кавычках не найден, придумать более подходящее название переменной
             switch (quotesTypesQuantity)
             {
                 case
                 0:
-                    return (int)MethodFindResult.NothingFound;//не нашли никаких кавычек - чего тогда звали?
+                    return (int)MethodFindResult.NothingFound;//не нашли никаких кавычек - чего тогда звали? не может быть такого варианта - можно убрать
                 case
-                1://нашли один тип кавычек, вызываем анализ предложения
-                    int endIndexQuotes = collectTextInQuotes(textParagraph, searchResultQuotes);
-                    return quotesQuantity;
+                1://нашли один тип кавычек
+                    int forwardOrBacksparkQuote = 0;
+                    int i = 0;
+                    int j = 0;
+                    foreach (int indexQuotes in searchResultQuotes.Keys)
+                    {
+                        forwardOrBacksparkQuote = i & 1;
+                        allPairsQuotes[forwardOrBacksparkQuote, j] = indexQuotes;//записали открывающие и закрывающие кавычки в разные линейки массива
+                        _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "indexQuotes = " + indexQuotes.ToString() + strCRLF +
+                            "i = " + i.ToString() + strCRLF +
+                            "j = " + j.ToString() + strCRLF +
+                            "forwardOrBacksparkQuote = " + forwardOrBacksparkQuote.ToString(), CurrentClassName, 3);
+                        if ((i & 1) == 1) j++;
+                        i++;
+                    }
+                    int forwardQuoteIndex = 0;
+                    int backsparkQuoteIndex = 0;
+                    for (int n = 0; n < (quotesQuantity / 2); n++)
+                    {
+
+                        forwardQuoteIndex = allPairsQuotes[0, n];
+                        backsparkQuoteIndex = allPairsQuotes[1, n];
+                        //нет, это тоска - надо все же посимвольно искать конец предложения?
+
+
+                    }
+                    //pair.Key, pair.Value
+                    _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), 
+                        "allPairsQuotes[0,0] = " + allPairsQuotes[0, 0].ToString() + strCRLF +
+                        "allPairsQuotes[1,0] = " + allPairsQuotes[1, 0].ToString() + strCRLF + 
+                        "allPairsQuotes[0,1] = " + allPairsQuotes[0, 1].ToString() + strCRLF +
+                        "allPairsQuotes[1,1] = " + allPairsQuotes[1, 1].ToString() + strCRLF +
+                        "allPairsQuotes[0,2] = " + allPairsQuotes[0, 2].ToString() + strCRLF +
+                        "allPairsQuotes[1,2] = " + allPairsQuotes[1, 2].ToString() + strCRLF +                        
+                        "quotesQuantity = " + quotesQuantity.ToString(), CurrentClassName, 3);
+                    i++;
+                    return quotesTypesQuantity; //endIndexQuotes;
                 case
-                2://нашли (наверное) сдвоенный тип кавычек, вызываем анализ предложения с открывающими и закрывающими кавычками
-                    //int endIndexQuotes = collectTextInQuotes(textParagraph, searchResultQuotes); //вызываем метод обработки разных кавычек
-                    return quotesQuantity;
+                2://нашли (наверное) сдвоенный тип кавычек - проверяем, так ли это (или раньше надо было проверить?)
+                    
+                    return endIndexQuotes;
             }
 
-            _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "textParagraph -- > " + textParagraph + strCRLF + strCRLF +
-                    "Found Quotes Types Quantity is too much = " + quotesTypesQuantity.ToString(), CurrentClassName, 3);
-
-            return quotesQuantity;
-        }        
-
-        public int collectTextInQuotes(string textParagraph, Dictionary<int, string> searchResultQuotes)
-        {//получили текст абзаца, найденные кавычки, позиция кавычек, длина текста (наверное, не нужна?)
-            int endIndexQuotes = (int)MethodFindResult.NothingFound; ;//если -1 - текст в кавычках не найден, если найден - индекс закрывающих кавычек, потом искать начиная с него+1
 
             //кусок абзаца от кавычки до кавычки проверить на окончания предложения, кроме последнего символа перед кавычкой
             //если нет окончаний, проверить последний символ перед кавычкой и первый после кавычки
@@ -162,8 +232,8 @@ namespace TextSplit
             //если есть, то проверить, что во всех предложениях внутри кавычек меньше 5-ти слов
             //если меньше, собрать предложение и перейти к следующему
             //если больше - думать (может, не пяти слов, а 10-ти?)
-            
-            return (int)MethodFindResult.NothingFound; //-1 - текст в кавычках не найден - или вторые кавычки не найдены? в общем, засада и что-то надо делать
+
+            return quotesTypesQuantity;// endIndexQuotes; //-1 - текст в кавычках не найден - или вторые кавычки не найдены? в общем, засада и что-то надо делать
         }
 
         //искать будем методом IndexOf(String, Int32, Int32) - Возвращает индекс с отсчетом от нуля первого вхождения значения указанной строки в данном экземпляре. Поиск начинается с указанной позиции знака; проверяется заданное количество позиций
