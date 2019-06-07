@@ -57,6 +57,7 @@ namespace TextSplitLibrary
         readonly private string[] charsParagraphSeparator;
         readonly private string[] charsSentenceSeparator;
         readonly private string[] charsQuotesSeparator;
+        readonly private string[] charsBracketsSeparator;
 
         private string[] foundSymbolsOfParagraph;
         private int[,] chapterNamesVersionsCount;
@@ -75,8 +76,9 @@ namespace TextSplitLibrary
             showMessagesLocal = 3; //локальные печати класса выводятся на экран
             baseKeyWordFormsQuantity = 3;
             charsParagraphSeparator = new string[] { "\r\n" };//можно переделать все на строковый массив - чтобы передавать одним методом
-            charsSentenceSeparator = new string[] { ".", "!", "?" };
-            charsQuotesSeparator = new string[] { "\u0022", "\u00AB", "\u00BB", "\u02BA", "\u02EE", "\u02DD" };// "\u0022 «\u00AB »\u00BB ʺ\u02BA ˮ\u02EE ˝\u02DD 
+            charsSentenceSeparator = new string[] { ".", "…", "!", "?", ";" };//…\u2026 (Horizontal Ellipsis) ⁇\u2047 ⁈\u2048 ⁉\u2049 ‼\u203C
+            charsQuotesSeparator = new string[] { "\u0022", "/", "\u02BA", "\u02EE", "\u02DD" };// "\u0022 ʺ\u02BA ˮ\u02EE ˝\u02DD - кавычки и скобки без деления на открывающие и закрывающие
+            charsBracketsSeparator = new string[] { "()", "[]", "{}", "«»", "<>" };// - кавычки и скобки открывающие и закрывающие - «\u00AB »\u00BB
             stringMarksChapterNameBegin = new string[] { "\u00A4\u00A4\u00A4\u00A4\u00A4" };//¤¤¤¤¤ - метка строки перед началом названия главы
             stringMarksChapterNameEnd = new string[] { "\u00A4\u00A4\u00A4" };//¤¤¤ - метка строки после названия главы, еще \u007E - ~
             stringMarksParagraphBegin = new string[] { "\u00A7\u00A7\u00A7\u00A7\u00A7" };//§§§§§ - метка строки перед началом абзаца
@@ -98,58 +100,6 @@ namespace TextSplitLibrary
             chapterSymbolsVersionsCount = new int[GetChapterNamesSamplesLength(0)];
         }
 
-        //public int GetCharsParagraphSeparatorLength()
-        //{
-        //    return charsParagraphSeparator.Length;
-        //}
-
-        //public string[] GetCharsParagraphSeparator(int index)
-        //{
-        //    return charsParagraphSeparator;
-        //}
-
-        //public string GetStringMarksChapterName(string BeginOrEnd)
-        //{
-        //    switch (BeginOrEnd)
-        //    {
-        //        case
-        //        "Begin":
-        //            return stringMarksChapterNameBegin;
-        //        case
-        //        "End":
-        //            return stringMarksChapterNameEnd;
-        //    }
-        //    return null;
-        //}
-
-        //public string GetStringMarksParagraphName(string BeginOrEnd)
-        //{
-        //    switch (BeginOrEnd)
-        //    {
-        //        case
-        //        "Begin":
-        //            return stringMarksParagraphBegin;
-        //        case
-        //        "End":
-        //            return stringMarksParagraphEnd;
-        //    }
-        //    return null;
-        //}
-
-        //public string GetStringMarksSentenceName(string BeginOrEnd)
-        //{
-        //    switch (BeginOrEnd)
-        //    {
-        //        case
-        //        "Begin":
-        //            return stringMarksSentenceBegin;
-        //        case
-        //        "End":
-        //            return stringMarksSentenceEnd;
-        //    }
-        //    return null;
-        //}
-
         public int GetChapterNamesSamplesLength(int desiredTextLanguage)
         {//в дальнейшем массив можно сделать динамическим и с разным количеством ключевых слов для разных языков, тогда получать язык при запросе
             return chapterNamesSamples.GetLength(1);
@@ -160,7 +110,7 @@ namespace TextSplitLibrary
             return chapterNamesSamples[desiredTextLanguage, i];
         }
 
-        public int GetConstantWhatNotLength(string WhatNot)
+        public int GetConstantWhatNotLength(string WhatNot)//хорошо бы проверить, что не null
         {
             switch (WhatNot)
             {
@@ -173,6 +123,9 @@ namespace TextSplitLibrary
                 case
                 "Quotes":
                     return charsQuotesSeparator.Length;
+                case
+                "Brackets":
+                    return charsBracketsSeparator.Length; 
                 case
                 "ChapterBegin":
                     return stringMarksChapterNameBegin.Length;
@@ -214,6 +167,9 @@ namespace TextSplitLibrary
                 case
                 "Quotes":
                     return charsQuotesSeparator;
+                case
+                "Brackets":
+                    return charsBracketsSeparator;
                 case
                 "ChapterBegin":
                     return stringMarksChapterNameBegin;

@@ -294,10 +294,10 @@ namespace TextSplit.Tests
         }
 
         [TestMethod]
-        [DataRow(6, "\"Yes, \" the maid was saying into the phone, \"Who is it ? Baron Maigel ? Hullo.Yes!The artiste is at home today.Yes, he'll be happy to see you. Yes, there'll be guests...Tails or a black dinner jacket What ? Before midnight.\" After finishing her conversation, the maid put back the receiver and turned to the bartender, \"What can I do for you ? \"")]
-        [DataRow(8, "\"Yes, \" the maid was saying into the phone, \"Who is it ? Baron Maigel ? «Hullo».Yes!The artiste is at home today.Yes, he'll be happy to see you. Yes, there'll be guests...Tails or a black dinner jacket What ? Before midnight.\" After finishing her conversation, the maid put back the receiver and turned to the bartender, \"What can I do for you ? \"")]
+        [DataRow(8, "\"Yes, \" the maid was saying into the phone, \"Who is it ? Baron Maigel ? Hullo.Yes!The artiste is at home today.Yes, he'll be happy to see you. Yes, there'll be guests...Tails or a black dinner jacket What ? Before midnight.\" After finishing her conversation, the maid put back the receiver and turned to the bartender, \"What can I do for you ? \"")]
+        [DataRow(10, "\"Yes, \" the maid was saying into the phone, \"Who is it ? Baron Maigel ? «Hullo».Yes!The artiste is at home today.Yes, he'll be happy to see you. Yes, there'll be guests...Tails or a black dinner jacket What ? Before midnight.\" After finishing her conversation, the maid put back the receiver and turned to the bartender, \"What can I do for you ? \"")]
 
-        public void Test08_FindQuotesInText(int quotesCount, string textParagraph)
+        public void Test08_FindSeparatorsInText(int quotesCount, string textParagraph)
         {
             IAllBookData bookData = new AllBookDataArrays();
             IFileManager manager = new FileManager(bookData);
@@ -310,14 +310,14 @@ namespace TextSplit.Tests
             var target = new AnalysisLogicSentences(bookDataMock.Object, msgService, analysisLogic, arrayAnalysis);
             Trace.WriteLine("textParagraph: " + textParagraph);
 
-            int result = target.FindQuotesInText(textParagraph);
+            int result = target.FindSeparatorsInText(textParagraph);
 
             Assert.AreEqual(quotesCount, result);
         }
 
         [TestMethod]
-        [DataRow(1, "\"Yes, \" the maid was saying into the phone, \"Who is it ? Baron Maigel ? Hullo.Yes!The artiste is at home today.Yes, he'll be happy to see you. Yes, there'll be guests...Tails or a black dinner jacket What ? Before midnight.\" After finishing her conversation, the maid put back the receiver and turned to the bartender, \"What can I do for you ? \"")]
-        [DataRow(3, "\"Yes, \" the maid was saying into the phone, \"Who is it ? Baron Maigel ? «Hullo».Yes!The artiste is at home today.Yes, he'll be happy to see you. Yes, there'll be guests...Tails or a black dinner jacket What ? Before midnight.\" After finishing her conversation, the maid put back the receiver and turned to the bartender, \"What can I do for you ? \"")]
+        [DataRow(7, "\"Yes, \" the maid was saying into the phone, \"Who is it ? Baron Maigel ? Hullo.Yes!The artiste is at home today.Yes, he'll be happy to see you. Yes, there'll be guests...Tails or a black dinner jacket What ? Before midnight.\" After finishing her conversation, the maid put back the receiver and turned to the bartender, \"What can I do for you ? \"")]
+        [DataRow(20, "\"Yes, \" the maid was saying into the phone, \"Who is it ? Baron Maigel ? «Hullo».Yes!The artiste is at home today.Yes, he'll be happy to see you. Yes, there'll be guests...Tails or a black dinner jacket What ? Before midnight.\" After finishing her conversation, the maid put back the receiver and turned to the bartender, \"What can I do for you ? \"")]
 
         public void Test09_CollectTextInQuotes(int quotesCount, string textParagraph)
         {
@@ -332,11 +332,15 @@ namespace TextSplit.Tests
             var target = new AnalysisLogicSentences(bookDataMock.Object, msgService, analysisLogic, arrayAnalysis);
             Trace.WriteLine("textParagraph: " + textParagraph);
 
+            int charsSentenceSeparatorLength = arrayAnalysis.GetConstantWhatNotLength("Sentence");
+            string[] charsSentencesSeparators = new string[charsSentenceSeparatorLength];
+            charsSentencesSeparators = arrayAnalysis.GetConstantWhatNot("Sentence");
+
             Dictionary<int, string> searchResultQuotes = new Dictionary<int, string>(10);//начальная емкость списка - скажем 10, типа 5 пар кавычек
             int quotesQuantity = searchResultQuotes.Count;//просто инициализовали allIndexesQuotesLength, ничего личного    
-            int quotesTypesQuantity = target.SelectAllQuotesInText(textParagraph, searchResultQuotes);
+            int quotesTypesQuantity = target.SelectAllQuotesOrSeparatorsInText(textParagraph, searchResultQuotes, charsSentencesSeparators);
 
-            int result = target.CollectTextInQuotes(textParagraph, searchResultQuotes, quotesTypesQuantity);
+            int result = target.CollectTextInQuotes(textParagraph, searchResultQuotes, quotesTypesQuantity, charsSentencesSeparators, charsSentenceSeparatorLength);
 
             Assert.AreEqual(quotesCount, result);
         }
