@@ -55,9 +55,10 @@ namespace TextSplitLibrary
         readonly private string[] stringMarksSentenceBegin;
         readonly private string[] stringMarksSentenceEnd;
         readonly private string[] charsParagraphSeparator;
-        readonly private string[] charsSentenceSeparator;
+        readonly private string[] charsSentenceSeparators;
         readonly private string[] charsQuotesSeparator;
         readonly private string[] charsBracketsSeparator;
+        readonly private string[] numbersOfGroupsNames; 
 
         private string[] foundSymbolsOfParagraph;
         private int[,] chapterNamesVersionsCount;
@@ -75,16 +76,19 @@ namespace TextSplitLibrary
             showMessagesLocal = showMessagesLevel;
             showMessagesLocal = 3; //локальные печати класса выводятся на экран
             baseKeyWordFormsQuantity = 3;
-            charsParagraphSeparator = new string[] { "\r\n" };//можно переделать все на строковый массив - чтобы передавать одним методом
-            charsSentenceSeparator = new string[] { ".", "…", "!", "?", ";" };//…\u2026 (Horizontal Ellipsis) ⁇\u2047 ⁈\u2048 ⁉\u2049 ‼\u203C
+            charsParagraphSeparator = new string[] { "\r\n" };//в строковом массиве - чтобы получать все константы одним методом
+
+            charsSentenceSeparators = new string[] { ".", "…", "!", "?", ";" };//…\u2026 (Horizontal Ellipsis) ⁇\u2047 ⁈\u2048 ⁉\u2049 ‼\u203C
             charsQuotesSeparator = new string[] { "\u0022", "/", "\u02BA", "\u02EE", "\u02DD" };// "\u0022 ʺ\u02BA ˮ\u02EE ˝\u02DD - кавычки и скобки без деления на открывающие и закрывающие
             charsBracketsSeparator = new string[] { "()", "[]", "{}", "«»", "<>" };// - кавычки и скобки открывающие и закрывающие - «\u00AB »\u00BB
+            numbersOfGroupsNames = new string[] { "Sentence", "Quotes", "Brackets" }; //номера групп сепараторов для получения их значений в цикле
+
             stringMarksChapterNameBegin = new string[] { "\u00A4\u00A4\u00A4\u00A4\u00A4" };//¤¤¤¤¤ - метка строки перед началом названия главы
             stringMarksChapterNameEnd = new string[] { "\u00A4\u00A4\u00A4" };//¤¤¤ - метка строки после названия главы, еще \u007E - ~
             stringMarksParagraphBegin = new string[] { "\u00A7\u00A7\u00A7\u00A7\u00A7" };//§§§§§ - метка строки перед началом абзаца
             stringMarksParagraphEnd = new string[] { "\u00A7\u00A7\u00A7" };//§§§ - метка строки после абзаца
             stringMarksSentenceBegin = new string[] { "\u00B6\u00B6\u00B6\u00B6\u00B6" };//¶¶¶¶¶ - метка строки перед началом предложния
-            stringMarksSentenceEnd = new string[] { "\u00B6\u00B6\u00B6" };//¶¶¶ - метка строки после конца предложения
+            stringMarksSentenceEnd = new string[] { "\u00B6\u00B6\u00B6" };//¶¶¶ - метка строки после конца предложения            
 
             chapterNamesSamples = new string[,]//а номера глав бывают буквами!
             { { "chapter", "paragraph", "section", "subhead", "part" },
@@ -116,16 +120,19 @@ namespace TextSplitLibrary
             {
                 case
                 "Sentence":
-                    return charsSentenceSeparator.Length;
-                case
-                "Paragraph":
-                    return charsParagraphSeparator.Length;
+                    return charsSentenceSeparators.Length;                
                 case
                 "Quotes":
                     return charsQuotesSeparator.Length;
                 case
                 "Brackets":
-                    return charsBracketsSeparator.Length; 
+                    return charsBracketsSeparator.Length;
+                case
+                "GroupsNumbers":
+                    return numbersOfGroupsNames.Length;
+                case
+                "Paragraph":
+                    return charsParagraphSeparator.Length;
                 case
                 "ChapterBegin":
                     return stringMarksChapterNameBegin.Length;
@@ -160,16 +167,19 @@ namespace TextSplitLibrary
             {
                 case
                 "Sentence":
-                    return charsSentenceSeparator;
-                case
-                "Paragraph":
-                    return charsParagraphSeparator;
+                    return charsSentenceSeparators;                
                 case
                 "Quotes":
                     return charsQuotesSeparator;
                 case
                 "Brackets":
                     return charsBracketsSeparator;
+                case
+                "GroupsNumbers":
+                    return numbersOfGroupsNames;
+                case
+                "Paragraph":
+                    return charsParagraphSeparator;
                 case
                 "ChapterBegin":
                     return stringMarksChapterNameBegin;

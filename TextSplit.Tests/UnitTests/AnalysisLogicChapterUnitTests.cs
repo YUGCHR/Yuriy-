@@ -294,10 +294,10 @@ namespace TextSplit.Tests
         }
 
         [TestMethod]
-        [DataRow(8, "\"Yes, \" the maid was saying into the phone, \"Who is it ? Baron Maigel ? Hullo.Yes!The artiste is at home today.Yes, he'll be happy to see you. Yes, there'll be guests...Tails or a black dinner jacket What ? Before midnight.\" After finishing her conversation, the maid put back the receiver and turned to the bartender, \"What can I do for you ? \"")]
-        [DataRow(10, "\"Yes, \" the maid was saying into the phone, \"Who is it ? Baron Maigel ? «Hullo».Yes!The artiste is at home today.Yes, he'll be happy to see you. Yes, there'll be guests...Tails or a black dinner jacket What ? Before midnight.\" After finishing her conversation, the maid put back the receiver and turned to the bartender, \"What can I do for you ? \"")]
+        [DataRow(2, "\"Yes, \" the maid was saying into the phone, \"Who is it ? Baron Maigel ? Hullo.Yes!The artiste is at home today.Yes, he'll be happy to see you. Yes, there'll be guests...Tails or a black dinner jacket What ? Before midnight.\" After finishing her conversation, the maid put back the receiver and turned to the bartender, \"What can I do for you ? \"")]
+        [DataRow(2, "\"Yes, \" the maid was saying into the phone, \"Who is it ? Baron Maigel ? «Hullo».Yes!The artiste is at home today.Yes, he'll be happy to see you. Yes, there'll be guests...Tails or a black dinner jacket What ? Before midnight.\" After finishing her conversation, the maid put back the receiver and turned to the bartender, \"What can I do for you ? \"")]
 
-        public void Test08_FindSeparatorsInText(int quotesCount, string textParagraph)
+        public void Test08_FindSeparatorsInText(int foundRealSentencesCount, string textParagraph)
         {
             IAllBookData bookData = new AllBookDataArrays();
             IFileManager manager = new FileManager(bookData);
@@ -312,38 +312,38 @@ namespace TextSplit.Tests
 
             int result = target.FindSeparatorsInText(textParagraph);
 
-            Assert.AreEqual(quotesCount, result);
+            Assert.AreEqual(foundRealSentencesCount, result);
         }
 
-        [TestMethod]
-        [DataRow(7, "\"Yes, \" the maid was saying into the phone, \"Who is it ? Baron Maigel ? Hullo.Yes!The artiste is at home today.Yes, he'll be happy to see you. Yes, there'll be guests...Tails or a black dinner jacket What ? Before midnight.\" After finishing her conversation, the maid put back the receiver and turned to the bartender, \"What can I do for you ? \"")]
-        [DataRow(20, "\"Yes, \" the maid was saying into the phone, \"Who is it ? Baron Maigel ? «Hullo».Yes!The artiste is at home today.Yes, he'll be happy to see you. Yes, there'll be guests...Tails or a black dinner jacket What ? Before midnight.\" After finishing her conversation, the maid put back the receiver and turned to the bartender, \"What can I do for you ? \"")]
+        //[TestMethod]
+        //[DataRow(7, "\"Yes, \" the maid was saying into the phone, \"Who is it ? Baron Maigel ? Hullo.Yes!The artiste is at home today.Yes, he'll be happy to see you. Yes, there'll be guests...Tails or a black dinner jacket What ? Before midnight.\" After finishing her conversation, the maid put back the receiver and turned to the bartender, \"What can I do for you ? \"")]
+        //[DataRow(20, "\"Yes, \" the maid was saying into the phone, \"Who is it ? Baron Maigel ? «Hullo».Yes!The artiste is at home today.Yes, he'll be happy to see you. Yes, there'll be guests...Tails or a black dinner jacket What ? Before midnight.\" After finishing her conversation, the maid put back the receiver and turned to the bartender, \"What can I do for you ? \"")]
 
-        public void Test09_CollectTextInQuotes(int quotesCount, string textParagraph)
-        {
-            IAllBookData bookData = new AllBookDataArrays();
-            IFileManager manager = new FileManager(bookData);
-            Mock<IAllBookData> bookDataMock = new Mock<IAllBookData>();
-            //IMessageService msgService = Mock.Of<IMessageService>();// - вывод на печать отключить
-            IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)
-            IAnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService);
-            IAnalysisLogicDataArrays arrayAnalysis = new AnalysisLogicDataArrays(bookData, msgService);
-            IAnalysisLogicSentences sentenceAnalyser = new AnalysisLogicSentences(bookData, msgService, analysisLogic, arrayAnalysis);
-            var target = new AnalysisLogicSentences(bookDataMock.Object, msgService, analysisLogic, arrayAnalysis);
-            Trace.WriteLine("textParagraph: " + textParagraph);
+        //public void Test09_CollectTextInQuotes(int quotesCount, string textParagraph)
+        //{
+        //    IAllBookData bookData = new AllBookDataArrays();
+        //    IFileManager manager = new FileManager(bookData);
+        //    Mock<IAllBookData> bookDataMock = new Mock<IAllBookData>();
+        //    //IMessageService msgService = Mock.Of<IMessageService>();// - вывод на печать отключить
+        //    IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)
+        //    IAnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService);
+        //    IAnalysisLogicDataArrays arrayAnalysis = new AnalysisLogicDataArrays(bookData, msgService);
+        //    IAnalysisLogicSentences sentenceAnalyser = new AnalysisLogicSentences(bookData, msgService, analysisLogic, arrayAnalysis);
+        //    var target = new AnalysisLogicSentences(bookDataMock.Object, msgService, analysisLogic, arrayAnalysis);
+        //    Trace.WriteLine("textParagraph: " + textParagraph);
 
-            int charsSentenceSeparatorLength = arrayAnalysis.GetConstantWhatNotLength("Sentence");
-            string[] charsSentencesSeparators = new string[charsSentenceSeparatorLength];
-            charsSentencesSeparators = arrayAnalysis.GetConstantWhatNot("Sentence");
+        //    int charsSentenceSeparatorLength = arrayAnalysis.GetConstantWhatNotLength("Sentence");
+        //    string[] charsSentencesSeparators = new string[charsSentenceSeparatorLength];
+        //    charsSentencesSeparators = arrayAnalysis.GetConstantWhatNot("Sentence");
 
-            Dictionary<int, string> searchResultQuotes = new Dictionary<int, string>(10);//начальная емкость списка - скажем 10, типа 5 пар кавычек
-            int quotesQuantity = searchResultQuotes.Count;//просто инициализовали allIndexesQuotesLength, ничего личного    
-            int quotesTypesQuantity = target.SelectAllQuotesOrSeparatorsInText(textParagraph, searchResultQuotes, charsSentencesSeparators);
+        //    Dictionary<int, string> searchResultQuotes = new Dictionary<int, string>(10);//начальная емкость списка - скажем 10, типа 5 пар кавычек
+        //    int quotesQuantity = searchResultQuotes.Count;//просто инициализовали allIndexesQuotesLength, ничего личного    
+        //    int quotesTypesQuantity = target.SelectAllQuotesOrSeparatorsInText(textParagraph, searchResultQuotes, charsSentencesSeparators);
 
-            int result = target.CollectTextInQuotes(textParagraph, searchResultQuotes, quotesTypesQuantity, charsSentencesSeparators, charsSentenceSeparatorLength);
+        //    int result = target.CollectTextInQuotes(textParagraph, searchResultQuotes, quotesTypesQuantity, charsSentencesSeparators, charsSentenceSeparatorLength);
 
-            Assert.AreEqual(quotesCount, result);
-        }
+        //    Assert.AreEqual(quotesCount, result);
+        //}
     }
 }
 
