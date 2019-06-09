@@ -25,12 +25,12 @@ namespace TextSplit
             MessageService msgService = new MessageService(fileManager);
             DataBaseAccessor dataAccess = new DataBaseAccessor(msgService);
             TextSplitForm viewForm = new TextSplitForm(msgService, logFile);
-            TextSplitOpenForm openForm = new TextSplitOpenForm(bookData, msgService);
-            AnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService);
+            TextSplitOpenForm openForm = new TextSplitOpenForm(bookData, msgService);            
             AnalysisLogicDataArrays arrayAnalysis = new AnalysisLogicDataArrays(bookData, msgService);
+            AnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService, arrayAnalysis);
             AnalysisLogicChapter chapterLogic = new AnalysisLogicChapter(bookData, msgService, analysisLogic, arrayAnalysis);
             AnalysisLogicSentences sentenceLogic = new AnalysisLogicSentences(bookData, msgService, analysisLogic, arrayAnalysis);
-            AnalysisLogicParagraph paragraphLogic = new AnalysisLogicParagraph(bookData, msgService, analysisLogic, sentenceLogic, arrayAnalysis);            
+            AnalysisLogicParagraph paragraphLogic = new AnalysisLogicParagraph(bookData, msgService, analysisLogic, arrayAnalysis);
             AllBookAnalysis analysisBook = new AllBookAnalysis(bookData, msgService, analysisLogic, chapterLogic, paragraphLogic, sentenceLogic);
             LoadTextToDataBase loadDataBase = new LoadTextToDataBase(bookData, dataAccess, msgService);
             MainLogicCultivation logicMain = new MainLogicCultivation(bookData, msgService, fileManager);

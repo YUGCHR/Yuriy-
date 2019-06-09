@@ -34,8 +34,8 @@ namespace TextSplit.Tests
             IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)
 
             Mock<IAllBookData> bookDataMock = new Mock<IAllBookData>();
-            IAnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService);
             IAnalysisLogicDataArrays arrayAnalysis = new AnalysisLogicDataArrays(bookData, msgService);
+            IAnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService, arrayAnalysis);
             Trace.WriteLine("Input: " + currentParagraph);
 
             var target = new AnalysisLogicChapter(bookDataMock.Object, msgService, analysisLogic, arrayAnalysis);
@@ -56,10 +56,9 @@ namespace TextSplit.Tests
             IFileManager manager = new FileManager(bookData);
 
             //IMessageService msgService = Mock.Of<IMessageService>();// - вывод на печать отключить
-            IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)
-
-            IAnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService);
+            IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)            
             IAnalysisLogicDataArrays arrayAnalysis = new AnalysisLogicDataArrays(bookData, msgService);
+            IAnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService, arrayAnalysis);
             Mock<IAllBookData> bookDataMock = new Mock<IAllBookData>();
 
             var target = new AnalysisLogicChapter(bookDataMock.Object, msgService, analysisLogic, arrayAnalysis);
@@ -97,7 +96,7 @@ namespace TextSplit.Tests
         [DataRow("chapter ", 0)]
         [DataRow("chapterAte ", 0)]
         [DataRow("chapteR ", -1)]
-        [DataRow("ChapteR ", -1)]        
+        [DataRow("ChapteR ", -1)]
         [DataRow("SUBHEAD ", 3)]
         [DataRow("Part ", 4)]
         [DataRow("PART ", 4)]
@@ -111,8 +110,8 @@ namespace TextSplit.Tests
             IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)
 
             Mock<IAllBookData> bookDataMock = new Mock<IAllBookData>();
-            IAnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService);
             IAnalysisLogicDataArrays arrayAnalysis = new AnalysisLogicDataArrays(bookData, msgService);
+            IAnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService, arrayAnalysis);
             Trace.WriteLine("Input: " + currentParagraph);
 
             var target = new AnalysisLogicChapter(bookDataMock.Object, msgService, analysisLogic, arrayAnalysis);
@@ -135,8 +134,8 @@ namespace TextSplit.Tests
             //IMessageService msgService = Mock.Of<IMessageService>();// - вывод на печать отключить
 
             Mock<IAllBookData> bookDataMock = new Mock<IAllBookData>();
-            IAnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService);
             IAnalysisLogicDataArrays arrayAnalysis = new AnalysisLogicDataArrays(bookData, msgService);
+            IAnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService, arrayAnalysis);
             Trace.WriteLine("Input: " + currentParagraph);
 
             var target = new AnalysisLogicChapter(bookDataMock.Object, msgService, analysisLogic, arrayAnalysis);
@@ -153,9 +152,9 @@ namespace TextSplit.Tests
             IFileManager manager = new FileManager(bookData);
 
             //IMessageService msgService = Mock.Of<IMessageService>();// - вывод на печать отключить
-            IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)
-            IAnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService);
+            IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)            
             IAnalysisLogicDataArrays arrayAnalysis = new AnalysisLogicDataArrays(bookData, msgService);
+            IAnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService, arrayAnalysis);
             Mock<IAllBookData> bookDataMock = new Mock<IAllBookData>();
             bookDataMock.Setup(x => x.GetParagraphTextLength(It.IsAny<int>())).Returns(paragraphTextLength);
 
@@ -172,34 +171,34 @@ namespace TextSplit.Tests
         }
 
         [TestMethod]
-        [DataRow("Chapter", new int[] { 52, 12, 0, 10, 2 }, new int[] { 11, 12, 3, 10, 2}, new int[] { 8, 12, 10, 0, 2})]//{ "Chapter", "Paragraph", "Section", "Subhead", "Part" }, {all UPPER}, {all LOWER}
-        [DataRow("Subhead", new int[] { 1, 12, 3, 52, 22 }, new int[] { 11, 12, 3, 10, 2}, new int[] { 8, 12, 10, 0, 2})]
-        [DataRow("PARAGRAPH", new int[] { 0, 32, 3, 12, 10 }, new int[] { 11, 52, 3, 10, 2}, new int[] { 8, 12, 10, 0, 2})]
-        [DataRow("Part", new int[] { 51, 1, 10, 7, 52 }, new int[] { 11, 12, 3, 10, 2}, new int[] { 8, 12, 10, 0, 2})]
+        [DataRow("Chapter", new int[] { 52, 12, 0, 10, 2 }, new int[] { 11, 12, 3, 10, 2 }, new int[] { 8, 12, 10, 0, 2 })]//{ "Chapter", "Paragraph", "Section", "Subhead", "Part" }, {all UPPER}, {all LOWER}
+        [DataRow("Subhead", new int[] { 1, 12, 3, 52, 22 }, new int[] { 11, 12, 3, 10, 2 }, new int[] { 8, 12, 10, 0, 2 })]
+        [DataRow("PARAGRAPH", new int[] { 0, 32, 3, 12, 10 }, new int[] { 11, 52, 3, 10, 2 }, new int[] { 8, 12, 10, 0, 2 })]
+        [DataRow("Part", new int[] { 51, 1, 10, 7, 52 }, new int[] { 11, 12, 3, 10, 2 }, new int[] { 8, 12, 10, 0, 2 })]
         public void Test06_KeyWordIndexFound(string expectedChapterName, int[] chapterNamesVersionsCount0, int[] chapterNamesVersionsCount1, int[] chapterNamesVersionsCount2)//метод выбирает наибольшое значение и возвращает ключевое слово в нужной форме
         {
             int chapterNamesVersionsCountTextLength = chapterNamesVersionsCount0.Length;
             int formCount = 3;
-            int[,] chapterNamesVersionsCount = new int [formCount, chapterNamesVersionsCountTextLength];
+            int[,] chapterNamesVersionsCount = new int[formCount, chapterNamesVersionsCountTextLength];
             IAllBookData bookData = new AllBookDataArrays();
             IFileManager manager = new FileManager(bookData);
             //IMessageService msgService = Mock.Of<IMessageService>();// - вывод на печать отключить
             IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)
-            IAnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService);
             IAnalysisLogicDataArrays arrayAnalysis = new AnalysisLogicDataArrays(bookData, msgService);
+            IAnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService, arrayAnalysis);
             Mock<IAllBookData> bookDataMock = new Mock<IAllBookData>();
-            
-            for(int i = 0; i < chapterNamesVersionsCountTextLength; i++)
+
+            for (int i = 0; i < chapterNamesVersionsCountTextLength; i++)
             {
                 chapterNamesVersionsCount[0, i] = chapterNamesVersionsCount0[i];
                 chapterNamesVersionsCount[1, i] = chapterNamesVersionsCount1[i];
                 chapterNamesVersionsCount[2, i] = chapterNamesVersionsCount2[i];
                 for (int m = 0; m < formCount; m++)
-                {                    
+                {
                     int b = arrayAnalysis.SetChapterNamesVersionsCount(m, i, chapterNamesVersionsCount[m, i]);
                 }
-            }            
-            int possibleKeyWordIndex = arrayAnalysis.GetChapterNamesVersionsCount(0,0);
+            }
+            int possibleKeyWordIndex = arrayAnalysis.GetChapterNamesVersionsCount(0, 0);
             Trace.WriteLine("possibleKeyWordIndex = " + possibleKeyWordIndex.ToString());//проверка заполнения удаленного массива данными из DataRow
             int desiredTextLanguage = 0;//english language            
 
@@ -211,22 +210,22 @@ namespace TextSplit.Tests
         }
 
         [TestMethod]
-        [DataRow("Chapter", new int[] { 52, 12, 0, 10, 33 }, new int[] { 11, 12, 3, 10, 34}, new int[] { 8, 12, 10, 0, 35 })]//{ "Chapter", "Paragraph", "Section", "Subhead", "Part" }, {all UPPER}, {all LOWER}
-        [DataRow("Subhead", new int[] { 1, 12, 3, 52, 23}, new int[] { 11, 12, 3, 10, 24}, new int[] { 8, 12, 10, 0, 25})]
-        [DataRow("PARAGRAPH", new int[] { 0, 32, 3, 12, 43}, new int[] { 11, 52, 3, 10, 44}, new int[] { 8, 12, 10, 0, 45})]
-        [DataRow("Part", new int[] { 51, 1, 10, 7, 52}, new int[] { 11, 12, 3, 10, 37}, new int[] { 8, 12, 10, 0, 47})]        
+        [DataRow("Chapter", new int[] { 52, 12, 0, 10, 33 }, new int[] { 11, 12, 3, 10, 34 }, new int[] { 8, 12, 10, 0, 35 })]//{ "Chapter", "Paragraph", "Section", "Subhead", "Part" }, {all UPPER}, {all LOWER}
+        [DataRow("Subhead", new int[] { 1, 12, 3, 52, 23 }, new int[] { 11, 12, 3, 10, 24 }, new int[] { 8, 12, 10, 0, 25 })]
+        [DataRow("PARAGRAPH", new int[] { 0, 32, 3, 12, 43 }, new int[] { 11, 52, 3, 10, 44 }, new int[] { 8, 12, 10, 0, 45 })]
+        [DataRow("Part", new int[] { 51, 1, 10, 7, 52 }, new int[] { 11, 12, 3, 10, 37 }, new int[] { 8, 12, 10, 0, 47 })]
         public void Test06Mock_KeyWordIndexFound(string expectedChapterName, int[] chapterNamesVersionsCount0, int[] chapterNamesVersionsCount1, int[] chapterNamesVersionsCount2)//такой же тест, но через Mock
         {
             int chapterNamesVersionsCountTextLength = chapterNamesVersionsCount0.Length;
-            int formCount = 3;            
+            int formCount = 3;
             int[,] chapterNamesVersionsCount = new int[formCount, chapterNamesVersionsCountTextLength];
 
             IAllBookData bookData = new AllBookDataArrays();
             IFileManager manager = new FileManager(bookData);
             //IMessageService msgService = Mock.Of<IMessageService>();// - вывод на печать отключить
             IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)
-            IAnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService);
-            IAnalysisLogicDataArrays _arrayAnalysis = new AnalysisLogicDataArrays(bookData, msgService);
+            IAnalysisLogicDataArrays arrayAnalysis = new AnalysisLogicDataArrays(bookData, msgService);
+            IAnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService, arrayAnalysis);
             Mock<IAllBookData> bookDataMock = new Mock<IAllBookData>();
 
             //for(int language = 0; language <= 1, language++)
@@ -236,11 +235,11 @@ namespace TextSplit.Tests
             //надо достать массив ключевых слов, сохранить его во временный и потом ниже залить его в мок так же, как массив с индексами, но немного не так (в своих циклах)
             //    }
             //}
-            
+
             Mock<IAnalysisLogicDataArrays> arrayChapterMock = new Mock<IAnalysisLogicDataArrays>();
             arrayChapterMock.Setup(x => x.GetChapterNamesSamplesLength(It.IsAny<int>())).Returns(chapterNamesVersionsCountTextLength);
             //нужен массив GetChapterNamesSamples 
-            arrayChapterMock.Setup(x => x.GetBaseKeyWordFormsQuantity()).Returns(formCount);            
+            arrayChapterMock.Setup(x => x.GetBaseKeyWordFormsQuantity()).Returns(formCount);
 
             for (int i = 0; i < chapterNamesVersionsCountTextLength; i++)
             {
@@ -282,7 +281,8 @@ namespace TextSplit.Tests
             IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)
 
             //Mock<IAllBookData> bookDataMock = new Mock<IAllBookData>();
-            IAnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService);
+            IAnalysisLogicDataArrays arrayAnalysis = new AnalysisLogicDataArrays(bookData, msgService);
+            IAnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService, arrayAnalysis);
             //IAnalysisLogicDataArrays arrayAnalysis = new AnalysisLogicDataArrays(bookData, msgService);
             Trace.WriteLine("currentNumberToFind: " + currentNumberToFind);
 
@@ -294,24 +294,29 @@ namespace TextSplit.Tests
         }
 
         [TestMethod]
-        [DataRow(2, "\"Yes, \" the maid was saying into the phone, \"Who is it ? Baron Maigel ? Hullo.Yes!The artiste is at home today.Yes, he'll be happy to see you. Yes, there'll be guests...Tails or a black dinner jacket What ? Before midnight.\" After finishing her conversation, the maid put back the receiver and turned to the bartender, \"What can I do for you ? \"")]
-        [DataRow(2, "\"Yes, \" the maid was saying into the phone, \"Who is it ? Baron Maigel ? «Hullo».Yes!The artiste is at home today.Yes, he'll be happy to see you. Yes, there'll be guests...Tails or a black dinner jacket What ? Before midnight.\" After finishing her conversation, the maid put back the receiver and turned to the bartender, \"What can I do for you ? \"")]
+        [DataRow(2, "\"Yes,\" the maid was saying into the phone, \"Who is it? Baron Maigel? Hullo. Yes! The artiste is at home today. Yes, he'll be happy to see you. Yes, there'll be guests... Tails or a black dinner jacket What? Before midnight. \" After finishing her conversation, the maid put back the receiver and turned to the bartender, \"What can I do for you?\"")]
+        [DataRow(2, "\"May I see the chairman of the housing committee?\"$The economic planner inquired politely, taking off his hat and putting his suitcase on the chair by the doorway.")]
+        [DataRow(5, "True, it would be difficult, very difficult.$But the difficulties had to be overcome, no matter what.$As an experienced man of the world.$Maximilian Andreyevich knew the first thing he had to do to accomplbh this goal was to get registered.$In his late nephew's three-room apartment.")]
+        [DataRow(5, "AT the same time as bookkeeper was in the taxj enroute to his encounter with the suit, man was getting off the  car of the No.$9 train from Kiev.$This passenger was Poplavsky, the uncle of the late Berlioz, who lived in Kiev.$The reason for his trip to Moscow was a telegram.$It said,$\"I have just been cut in half by a streetcar.$Funeral Friday 3 PM.$Come.$Berlioz.\"")]
 
-        public void Test08_FindSeparatorsInText(int foundRealSentencesCount, string textParagraph)
+        public void Test08_DividePagagraphToSentences(int foundRealSentencesCount, string textParagraph)
         {
             IAllBookData bookData = new AllBookDataArrays();
             IFileManager manager = new FileManager(bookData);
             Mock<IAllBookData> bookDataMock = new Mock<IAllBookData>();
             //IMessageService msgService = Mock.Of<IMessageService>();// - вывод на печать отключить
-            IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)
-            IAnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService);
+            IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)            
             IAnalysisLogicDataArrays arrayAnalysis = new AnalysisLogicDataArrays(bookData, msgService);
+            IAnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService, arrayAnalysis);
             IAnalysisLogicSentences sentenceAnalyser = new AnalysisLogicSentences(bookData, msgService, analysisLogic, arrayAnalysis);
             var target = new AnalysisLogicSentences(bookDataMock.Object, msgService, analysisLogic, arrayAnalysis);
             Trace.WriteLine("textParagraph: " + textParagraph);
 
-            int result = target.FindSeparatorsInText(textParagraph);
+            int desiredTextLanguage = 0;
+            string sentenceTextMarksWithOtherNumbers = "-Paragraph-3-of-Chapter-3";
 
+            string[] resultArray = target.DividePagagraphToSentences(desiredTextLanguage, textParagraph, sentenceTextMarksWithOtherNumbers);
+            int result = resultArray.Length;
             Assert.AreEqual(foundRealSentencesCount, result);
         }
 

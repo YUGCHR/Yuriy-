@@ -49,29 +49,33 @@ namespace TextSplit
         {
             string lastFoundChapterNumberInMarkFormat = "";
             int chapterCountNumber = 0;
-            int enumerateParagraphsCount = 0;
+            
             int desiredTextLanguage = _analysisLogic.GetDesiredTextLanguage();//возвращает номер языка, если на нем есть AnalyseText или AnalyseChapterName
             if (desiredTextLanguage == (int)MethodFindResult.NothingFound) return desiredTextLanguage.ToString();//типа, нечего анализировать
             _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), strCRLF + "Start desiredTextLanguage = " + desiredTextLanguage.ToString(), CurrentClassName, showMessagesLevel);
 
-            if (_bookData.GetFileToDo(desiredTextLanguage) == (int)WhatNeedDoWithFiles.AnalyseText)
-            {//если первоначальный анализ текста, без подсказки пользователя о названии глав, ищем главы самостоятельно
+            if (_bookData.GetFileToDo(desiredTextLanguage) == (int)WhatNeedDoWithFiles.AnalyseText)//если первоначальный анализ текста, без подсказки пользователя о названии глав, ищем главы самостоятельно
+            {
                 int portionBookTextResult = _paragraphAnalyser.PortionBookTextOnParagraphs(desiredTextLanguage);
+
                 _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), strCRLF + "portionBookTextResult = " + portionBookTextResult.ToString(), CurrentClassName, showMessagesLevel);
+
                 int normalizeEmptyParagraphsResult = _paragraphAnalyser.normalizeEmptyParagraphs(desiredTextLanguage);//удаляем лишние пустые строки, оставляя только одну, результат - количество удаленных пустых строк                
+
                 lastFoundChapterNumberInMarkFormat = _chapterAnalysis.ChapterNameAnalysis(desiredTextLanguage);//находим название и номера, расставляем метки глав в тексте
+
                 if (lastFoundChapterNumberInMarkFormat == null)
                 {
                     _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), lastFoundChapterNumberInMarkFormat + " - Stop here - ChapterNameAnalysis cannon do analysis!", CurrentClassName, 3);
                 }
-                
-                //теперь поставить метки и номера абзацев
-                enumerateParagraphsCount = _paragraphAnalyser.markAndEnumerateParagraphs(lastFoundChapterNumberInMarkFormat, desiredTextLanguage);
+
+                int enumerateParagraphsCount = _paragraphAnalyser.markAndEnumerateParagraphs(lastFoundChapterNumberInMarkFormat, desiredTextLanguage);//тут раставляем метки и номера абзацев - lastFoundChapterNumberInMarkFormat - не особо нужен
                 //затем - предложений
 
-                //тут писать вызов разделения на предложения
+                //тут писать вызов разделения на предложения - посмотреть минимум параметров для вызова - desiredTextLanguage
+                int countSentencesNumber = _sentenceAnalyser.DividePagagraphToSentencesAndEnumerate(desiredTextLanguage);
 
-                StringBuilder appendFileContent = new StringBuilder();//тут сохранить весь текст в файл - убрать метод в дополнения
+                StringBuilder appendFileContent = new StringBuilder();//тут сохраняем весь текст в файл для контрольной печати - убрать метод в дополнения
                 int paragraphTextLength = GetParagraphTextLength(desiredTextLanguage);
                 for (int i = 0; i < paragraphTextLength; i++)
                 {

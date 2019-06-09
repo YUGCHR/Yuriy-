@@ -11,6 +11,8 @@ namespace TextSplit
     public interface IAnalysisLogicCultivation
     {
         int GetDesiredTextLanguage();
+        bool FindTextPartMarker(string currentParagraph, string stringMarkBegin);
+        int FindTextPartNumber(string currentParagraph, string stringMarkBegin, int totalDigitsQuantity);
         string AddSome00ToIntNumber(string currentNumberToFind, int totalDigitsQuantity);
         //event EventHandler AnalyseInvokeTheMain;
     }
@@ -19,15 +21,19 @@ namespace TextSplit
     {
         private readonly IAllBookData _bookData;
         private readonly IMessageService _msgService;
-
+        private readonly IAnalysisLogicDataArrays _arrayAnalysis;
         readonly private int filesQuantity;
         readonly private int showMessagesLevel;
         readonly private string strCRLF;
 
-        public AnalysisLogicCultivation(IAllBookData bookData, IMessageService msgService)
+        int GetConstantWhatNotLength(string WhatNot) => _arrayAnalysis.GetConstantWhatNotLength(WhatNot);
+        string[] GetConstantWhatNot(string WhatNot) => _arrayAnalysis.GetConstantWhatNot(WhatNot);
+
+        public AnalysisLogicCultivation(IAllBookData bookData, IMessageService msgService, IAnalysisLogicDataArrays arrayAnalysis)
         {
             _bookData = bookData;
             _msgService = msgService;
+            _arrayAnalysis = arrayAnalysis;            
 
             filesQuantity = DeclarationConstants.FilesQuantity;
             showMessagesLevel = DeclarationConstants.ShowMessagesLevel;
@@ -45,6 +51,35 @@ namespace TextSplit
                 if (iDesiredTextLanguage == (int)WhatNeedDoWithFiles.AnalyseChapterName) desiredTextLanguage = i;
             }
             return desiredTextLanguage;
+        }
+
+        public bool FindTextPartMarker(string currentParagraph, string stringMarkBegin)//если найден маркер главы, сбрасываем счетчик абзацев на 1 (кстати, почему не на 0?)
+        {
+            string symbolsMarkBegin = GetConstantWhatNot(stringMarkBegin)[0];//расписать подробнее, что используем только нулевую ячейку массива            
+            bool foundPartMark = currentParagraph.StartsWith(symbolsMarkBegin);//тут можно искать маркировку не во всем абзаце, а только в заданном месте, где она должна быть - пока вариант, ищем в начале            
+            return foundPartMark;
+        }
+
+        public int FindTextPartNumber(string currentParagraph, string stringMarkBegin, int totalDigitsQuantity)
+        {
+            //найти и выделить номер главы
+            int currentPartNumber = -1;//чтобы не спутать с нулевым индексом на выходе, -1 - ничего нет (совсем ничего)
+            string symbolsMarkBegin = GetConstantWhatNot(stringMarkBegin)[0];//расписать подробнее, что используем только нулевую ячейку массива
+            int symbolsMarkBeginLength = symbolsMarkBegin.Length;
+            bool partNumberFound = Int32.TryParse(currentParagraph.Substring(symbolsMarkBeginLength, totalDigitsQuantity), out currentPartNumber);//вместо 3 взять totalDigitsQuantity для главы
+            if (partNumberFound)
+            {
+                return currentPartNumber;
+            }
+            else
+            {
+                //что-то пошло не так, остановиться
+                _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "currentParagraph = " + currentParagraph + " -->" + strCRLF +                                
+                    "stringMarkBegin --> " + stringMarkBegin + strCRLF +                                
+                    "totalDigitsQuantity = " + totalDigitsQuantity.ToString(), CurrentClassName, 3);
+                //System.Diagnostics.Debug.Assert(partNumberFound, "Stop here - partNumberFound did not find!");                
+                return (int)MethodFindResult.NothingFound;
+            }            
         }
 
         public string AddSome00ToIntNumber(string currentNumberToFind, int totalDigitsQuantity)

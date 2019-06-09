@@ -24,7 +24,7 @@ namespace TextSplit
         private readonly IMessageService _msgService;
         private readonly IAnalysisLogicCultivation _analysisLogic;
         private readonly IAnalysisLogicDataArrays _arrayAnalysis;
-        private readonly IAnalysisLogicSentences _sentenceAnalyser;
+        //private readonly IAnalysisLogicSentences _sentenceAnalyser;
 
         readonly private int filesQuantity;
         readonly private int showMessagesLevel;
@@ -35,6 +35,8 @@ namespace TextSplit
         int GetParagraphTextLength(int desiredTextLanguage) => _bookData.GetParagraphTextLength(desiredTextLanguage);
         string GetParagraphText(int paragraphCount, int desiredTextLanguage) => _bookData.GetParagraphText(paragraphCount, desiredTextLanguage);
         int SetParagraphText(string paragraphText, int paragraphCount, int desiredTextLanguage) => _bookData.SetParagraphText(paragraphText, paragraphCount, desiredTextLanguage);
+        bool FindTextPartMarker(string currentParagraph, string stringMarkBegin) => _analysisLogic.FindTextPartMarker(currentParagraph, stringMarkBegin);
+        int FindTextPartNumber(string currentParagraph, string stringMarkBegin, int totalDigitsQuantity) => _analysisLogic.FindTextPartNumber(currentParagraph, stringMarkBegin, totalDigitsQuantity);
 
         //int GetCharsSeparatorLength(string ParagraphOrSentence) => _arrayAnalysis.GetConstantWhatNotLength(ParagraphOrSentence);
         //string[] GetCharsSeparator(string ParagraphOrSentence) => _arrayAnalysis.GetConstantWhatNot(ParagraphOrSentence);
@@ -42,91 +44,84 @@ namespace TextSplit
         int GetConstantWhatNotLength(string WhatNot) => _arrayAnalysis.GetConstantWhatNotLength(WhatNot);
         string[] GetConstantWhatNot(string WhatNot) => _arrayAnalysis.GetConstantWhatNot(WhatNot);
 
-        int PrepareToDividePagagraphToSentences(int desiredTextLanguage, string currentParagraph, int currentChapterNumber, int currentParagraphNumber, int i) => 
-            _sentenceAnalyser.PrepareToDividePagagraphToSentences(desiredTextLanguage, currentParagraph, currentChapterNumber, currentParagraphNumber, i);
+        //int PrepareToDividePagagraphToSentences(int desiredTextLanguage, string currentParagraph, int currentChapterNumber, int currentParagraphNumber, int i) => 
+        //    _sentenceAnalyser.PrepareToDividePagagraphToSentences(desiredTextLanguage, currentParagraph, currentChapterNumber, currentParagraphNumber, i);
 
         string AddSome00ToIntNumber(string currentChapterNumberToFind, int totalDigitsQuantity) => _analysisLogic.AddSome00ToIntNumber(currentChapterNumberToFind, totalDigitsQuantity);
 
         //public event EventHandler AnalyseInvokeTheMain;
 
-        public AnalysisLogicParagraph(IAllBookData bookData, IMessageService msgService, IAnalysisLogicCultivation analysisLogic, IAnalysisLogicSentences sentenceAnalyser, IAnalysisLogicDataArrays arrayAnalysis)
+        public AnalysisLogicParagraph(IAllBookData bookData, IMessageService msgService, IAnalysisLogicCultivation analysisLogic, IAnalysisLogicDataArrays arrayAnalysis)
         {
             _bookData = bookData;
             _msgService = msgService;
             _analysisLogic = analysisLogic;//общая логика
             _arrayAnalysis = arrayAnalysis;
-            _sentenceAnalyser = sentenceAnalyser;//предложения
+            //_sentenceAnalyser = sentenceAnalyser;//предложения
 
             filesQuantity = DeclarationConstants.FilesQuantity;
             showMessagesLevel = DeclarationConstants.ShowMessagesLevel;
             strCRLF = DeclarationConstants.StrCRLF;                        
         }        
 
-        public int markAndEnumerateParagraphs (string lastFoundChapterNumberInMarkFormat, int desiredTextLanguage)
+        public int markAndEnumerateParagraphs (string lastFoundChapterNumberInMarkFormat, int desiredTextLanguage)//пока что проверяется интеграционным тестом TestMain_AnalyseTextBook с контролем хэша файла
         {
-            int enumerateParagraphsInChapterCount = 1;
-            int enumerateParagraphsTotalCount = 1;
-            int currentChapterNumber =-1;
-            int currentChapterNumberCount = 0;
-            string paragraphTextMarks = "";
-            string currentParagraphNumberSrting = "";
-            int totalDigitsQuantity = 5; //для номера главы используем 5 цифр (до 999, должно хватить) - перенести в AnalysisLogicDataArrays
-            int paragraphTextLength = GetParagraphTextLength(desiredTextLanguage);
-            string markParagraphBegin = GetConstantWhatNot("ParagraphBegin")[0];
-            string markParagraphEnd = GetConstantWhatNot("ParagraphEnd")[0];
+            //все, что до первого номера главы, маркировать предысловием (можно было бы нулевой главой, но нет)
+            //получив номер главы, в каждую пустую строку вставляем номер абзаца - §§§§§Paragraph-0000-§§§(-of-000) - где 000 берутся из номера главы ¤¤¤¤¤Chapter-000-¤¤¤
 
+            int enumerateParagraphsCount = 0;//можно было поставить 0 - номер главы еще не найден, нумерация абзацев не начиналась            
+            int currentChapterNumber = -1;//чтобы не спутать с нулевым индексом на выходе, -1 - ничего нет (совсем ничего)            
+            int totalDigitsQuantity3 = 3;//костыль для поиска номера главы - он из 3-х цифр, как минимум, перенести в AnalysisLogicDataArrays            
+
+            int paragraphTextLength = GetParagraphTextLength(desiredTextLanguage);
             for (int i = 0; i < paragraphTextLength; i++)//перебираем все абзацы текста
             {
                 string currentParagraph = GetParagraphText(i, desiredTextLanguage);
-                //найти маркер клавы, выделить номер главы, сравнить со счетчиком, прибавить счетчик
-                string chapterMarkBegin = GetConstantWhatNot("ChapterBegin")[0];//расписать подробнее, что используем только нулевую ячейку массива
-                int chapterMarkBeginLength = chapterMarkBegin.Length;
-                bool foundChapterMark = currentParagraph.Contains(chapterMarkBegin);
+                bool foundChapterMark = FindTextPartMarker(currentParagraph, "ChapterBegin");//проверяем начало абзаца на маркер главы, если есть, то надо найти номер главы и сбросить нумерацию абзацев на 1
                 if (foundChapterMark)
                 {
-                    bool chapterNumberFound = Int32.TryParse(currentParagraph.Substring(chapterMarkBeginLength, 3), out currentChapterNumber);//вместо 3 взять totalDigitsQuantity для главы
-                    if (chapterNumberFound)
-                    {
-                        currentChapterNumberCount++;
-                        enumerateParagraphsInChapterCount = 1;//новая глава, нумерация абзацев с 1
-                        _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Current Paragraph [" + i.ToString() + "] --> " + currentParagraph + strCRLF +
-                            "currentChapterNumber = " + currentChapterNumber.ToString() + strCRLF +
-                            "currentChapterNumberCount = " + currentChapterNumberCount.ToString(), CurrentClassName, showMessagesLevel);
-                    }
-                    else
-                    {
-                        //что-то пошло не так, остановиться
-                        _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), lastFoundChapterNumberInMarkFormat + " - Stop here - markAndEnumerateParagraphs cannon do enumerate!", CurrentClassName, 3);
-                        return (int)MethodFindResult.NothingFound;
-                    }
+                    enumerateParagraphsCount = 1;
+                    currentChapterNumber = FindTextPartNumber(currentParagraph, "ChapterBegin", totalDigitsQuantity3);//ищем номер главы, перенести totalDigitsQuantity3 внутрь метода
                 }
-                if(currentChapterNumber < 0)
-                {
-                    paragraphTextMarks = markParagraphBegin + "Introduction" + markParagraphEnd + "-" + "Paragraph" + "-";//создаем маркировку введения/предисловия
-                }
-                else
-                {
-                    currentParagraphNumberSrting = enumerateParagraphsInChapterCount.ToString();
-                    string currentParagraphNumberToFind00 =  AddSome00ToIntNumber(currentParagraphNumberSrting, totalDigitsQuantity);
-                    paragraphTextMarks = markParagraphBegin + currentParagraphNumberToFind00 + markParagraphEnd + "-Paragraph-of-Chapter-" + currentChapterNumber.ToString();
-                }
+                string paragraphTextMarks = CreateParagraphMarks(currentChapterNumber, enumerateParagraphsCount);
                 //сформирована маркировка абзаца, можно искать начало абзацев (пустые строки) и заносить (пустые строки перед главой уже заняты)
                 bool currentParagraphEmptyResult = string.IsNullOrEmpty(currentParagraph);
                 if (currentParagraphEmptyResult)
                 {
-                    SetParagraphText(paragraphTextMarks, i, desiredTextLanguage);
-                    enumerateParagraphsInChapterCount++;
-                    enumerateParagraphsTotalCount++;//тут будет общее количество абзацев в книге (можно добавить последние несколько строчек и занести общее количество глав и абзацев)
-                    _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Paragraph must be EMPTY [" + i.ToString() + "] --> " + currentParagraph + strCRLF +
-                            "paragraphTextMarks --> " + paragraphTextMarks + strCRLF +
-                            "enumerateParagraphsCount++ = " + enumerateParagraphsInChapterCount.ToString(), CurrentClassName, showMessagesLevel);
-                    //подходящий момент разделить целое на части... можно прямо тут делить абзацы на предложения
-                    int countSentencesInCurrentParagraph = PrepareToDividePagagraphToSentences(desiredTextLanguage, currentParagraph, currentChapterNumber, enumerateParagraphsInChapterCount, i);//только нужный абзац для дележки - на i+1
-                }
-                //все, что до первого номера главы, маркировать предысловием (можно было бы нулевой главой, но нет)
-                //получив номер главы, в каждую пустую строку вставляем номер абзаца - §§§§§Paragraph-0000-§§§(-of-000) - где 000 берутся из номера главы ¤¤¤¤¤Chapter-000-¤¤¤
+                    enumerateParagraphsCount = SetMarkInParagraphText(desiredTextLanguage, paragraphTextMarks, i, enumerateParagraphsCount);//записываем маркировку абзаца в пустую строку и прибавляем счетчик номера абзаца
+                }                
             }            
+            return enumerateParagraphsCount;
+        }
+
+        public int SetMarkInParagraphText(int desiredTextLanguage, string paragraphTextMarks, int i, int enumerateParagraphsInChapterCount)
+        {            
+            SetParagraphText(paragraphTextMarks, i, desiredTextLanguage);
+            enumerateParagraphsInChapterCount++;
+            //enumerateParagraphsTotalCount++;//тут было бы общее количество абзацев в книге (можно добавить последние несколько строчек и занести общее количество глав и абзацев) - но пока нет (кому надо будет - сам посчитает, чай, не баре)
+            //подходящий момент разделить целое на части... можно прямо тут делить абзацы на предложения - но нет, к сожалению
+            //int countSentencesInCurrentParagraph = PrepareToDividePagagraphToSentences(desiredTextLanguage, currentParagraph, currentChapterNumber, enumerateParagraphsInChapterCount, i);//только нужный абзац для дележки - на i+1
             return enumerateParagraphsInChapterCount;
+        }
+
+        public string CreateParagraphMarks(int currentChapterNumber, int enumerateParagraphsCount)
+        {
+            int totalDigitsQuantity5 = 5;//для номера главы используем 5 цифр (до 999, должно хватить) - перенести в AnalysisLogicDataArrays
+            string markParagraphBegin = GetConstantWhatNot("ParagraphBegin")[0];
+            string markParagraphEnd = GetConstantWhatNot("ParagraphEnd")[0];
+
+            if (currentChapterNumber < 0)//номера главы еще нет, а текст есть - предисловие
+            {
+                string paragraphTextMarks = markParagraphBegin + "Introduction" + markParagraphEnd + "-" + "Paragraph" + "-";//создаем маркировку введения/предисловия
+                return paragraphTextMarks;
+            }
+            else
+            {
+                string currentParagraphNumberSrting = enumerateParagraphsCount.ToString();
+                string currentParagraphNumberToFind00 = AddSome00ToIntNumber(currentParagraphNumberSrting, totalDigitsQuantity5);
+                string paragraphTextMarks = markParagraphBegin + currentParagraphNumberToFind00 + markParagraphEnd + "-Paragraph-of-Chapter-" + currentChapterNumber.ToString();//создали маркировку и номер текущего абзаца
+                return paragraphTextMarks;
+            }
         }
 
         public int PortionBookTextOnParagraphs(int desiredTextLanguage)//делит текст на абзацы по EOL, сохраняет в List в AllBookData
