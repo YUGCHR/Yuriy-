@@ -73,11 +73,11 @@ namespace TextSplit
             }
             else
             {
-                //что-то пошло не так, остановиться
-                _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "currentParagraph = " + currentParagraph + " -->" + strCRLF +                                
+                //что-то пошло не так, остановиться - System.Diagnostics.Debug.Assert(partNumberFound, "Stop here - partNumberFound did not find!");
+                _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "STOP HERE - currentPartNumber did not find in currentParagraph!" + strCRLF +
+                    "currentParagraph = " + currentParagraph + " -->" + strCRLF +
                     "stringMarkBegin --> " + stringMarkBegin + strCRLF +                                
-                    "totalDigitsQuantity = " + totalDigitsQuantity.ToString(), CurrentClassName, 3);
-                //System.Diagnostics.Debug.Assert(partNumberFound, "Stop here - partNumberFound did not find!");                
+                    "totalDigitsQuantity = " + totalDigitsQuantity.ToString(), CurrentClassName, 3);                
                 return (int)MethodFindResult.NothingFound;
             }            
         }

@@ -150,7 +150,7 @@ namespace TextSplit
                                 string markChapterBegin = GetConstantWhatNot("ChapterBegin")[0];
                                 string markChapterEnd = GetConstantWhatNot("ChapterEnd")[0];
                                 string chapterTextMarks = markChapterBegin + currentChapterNumberToFind000 + markChapterEnd + "-" + keyWordFounfForm + "-";
-                                SetParagraphText(chapterTextMarks, i - 1, desiredTextLanguage);//проверить, что i больше 0, иначе некуда заносить
+                                SetParagraphText(chapterTextMarks, i - 1, desiredTextLanguage);//проверить, что i больше 0, иначе некуда заносить - ЗДЕСЬ запись SetParagraphText! - записываем номер главы в строку перед именем главы! проверить, что будет, если добавить перевод строки? ничего хорошего - потом не найти маркировку, так как строка теперь начинается не маркой
                                 string currentMarkChapter = GetParagraphText(i - 1, desiredTextLanguage);//после тестов убрать вместе с печатью
                                 _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "CurrentParagraph with i = " + i.ToString() + "  -- > " + currentParagraph + strCRLF +
                                 "chapterTextMarks " + chapterTextMarks + strCRLF +

@@ -75,13 +75,28 @@ namespace TextSplit
                 //тут писать вызов разделения на предложения - посмотреть минимум параметров для вызова - desiredTextLanguage
                 int countSentencesNumber = _sentenceAnalyser.DividePagagraphToSentencesAndEnumerate(desiredTextLanguage);
 
-                StringBuilder appendFileContent = new StringBuilder();//тут сохраняем весь текст в файл для контрольной печати - убрать метод в дополнения
+
+
                 int paragraphTextLength = GetParagraphTextLength(desiredTextLanguage);
+                for (int i = 0; i < paragraphTextLength; i++)//перебираем все абзацы текста
+                {
+                    string currentParagraph = GetParagraphText(i, desiredTextLanguage);
+                    
+                        _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Paragraph[" + i.ToString() + "] -> " + currentParagraph, CurrentClassName, showMessagesLevel);
+                    
+                }
+
+
+
+
+
+                StringBuilder appendFileContent = new StringBuilder();//тут сохраняем весь текст в файл для контрольной печати - убрать метод в дополнения
+                //int paragraphTextLength = GetParagraphTextLength(desiredTextLanguage);
                 for (int i = 0; i < paragraphTextLength; i++)
                 {
                     string currentParagraph = GetParagraphText(i, desiredTextLanguage);
                     _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "CurrentParagraph [" + i.ToString() + "] -- > " + currentParagraph, CurrentClassName, showMessagesLevel);
-                    appendFileContent = appendFileContent.AppendLine(currentParagraph);                    
+                    appendFileContent = appendFileContent.AppendLine(currentParagraph + strCRLF);                    
                 }
                 string tracedFileContent = appendFileContent.ToString();
                 string tracedFileNameAddition = ".//testBooks//testEndlishTexts_03R.txt";//путь только для тестов, для полного запуска надо брать путь, указанный пользователем

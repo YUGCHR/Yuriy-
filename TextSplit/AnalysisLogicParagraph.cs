@@ -89,6 +89,7 @@ namespace TextSplit
                 if (currentParagraphEmptyResult)
                 {
                     enumerateParagraphsCount = SetMarkInParagraphText(desiredTextLanguage, paragraphTextMarks, i, enumerateParagraphsCount);//записываем маркировку абзаца в пустую строку и прибавляем счетчик номера абзаца
+                    //если в этой строке нашли номер главы, то как в нее можно записать номер абзаца? надо разобраться, что вообще происходит
                 }                
             }            
             return enumerateParagraphsCount;
@@ -96,7 +97,7 @@ namespace TextSplit
 
         public int SetMarkInParagraphText(int desiredTextLanguage, string paragraphTextMarks, int i, int enumerateParagraphsInChapterCount)
         {            
-            SetParagraphText(paragraphTextMarks, i, desiredTextLanguage);
+            SetParagraphText(paragraphTextMarks, i, desiredTextLanguage);//ЗДЕСЬ запись SetParagraphText! - записываем номер абзаца в пустую строку после имени главы! проверить, что будет, если добавить перевод строки (хорошо будет)
             enumerateParagraphsInChapterCount++;
             //enumerateParagraphsTotalCount++;//тут было бы общее количество абзацев в книге (можно добавить последние несколько строчек и занести общее количество глав и абзацев) - но пока нет (кому надо будет - сам посчитает, чай, не баре)
             //подходящий момент разделить целое на части... можно прямо тут делить абзацы на предложения - но нет, к сожалению
@@ -119,7 +120,7 @@ namespace TextSplit
             {
                 string currentParagraphNumberSrting = enumerateParagraphsCount.ToString();
                 string currentParagraphNumberToFind00 = AddSome00ToIntNumber(currentParagraphNumberSrting, totalDigitsQuantity5);
-                string paragraphTextMarks = markParagraphBegin + currentParagraphNumberToFind00 + markParagraphEnd + "-Paragraph-of-Chapter-" + currentChapterNumber.ToString();//создали маркировку и номер текущего абзаца
+                string paragraphTextMarks = markParagraphBegin + currentParagraphNumberToFind00 + markParagraphEnd + "-Paragraph-of-Chapter-" + currentChapterNumber.ToString();//создали маркировку и номер текущего абзаца - проверяем, что если добавить перевод строки? ничего хорошего - потом не найти маркировку, так как строка теперь начинается не маркой
                 return paragraphTextMarks;
             }
         }

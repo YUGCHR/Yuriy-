@@ -69,9 +69,9 @@ namespace TextSplit
                     string[] paragraphSentences = PrepareToDividePagagraphToSentences(desiredTextLanguage, currentParagraph, i);
                     if (paragraphSentences != null)
                     {
-                        currentParagraph = string.Join(strCRLF, paragraphSentences);
+                        currentParagraph = string.Join(strCRLF, paragraphSentences);//добавить ли в конце еще один перевод строки?
                         countSentencesNumber = paragraphSentences.Length;
-                        SetParagraphText(currentParagraph, i, desiredTextLanguage);
+                        SetParagraphText(currentParagraph, i+1, desiredTextLanguage);//ЗДЕСЬ запись SetParagraphText! - записываем абзац с пронумерованными предложениями на старое место! проверить, что попадаем на нужное место, а не в предыдущую ячейку
                         totalSentencesCount = totalSentencesCount + countSentencesNumber;
                     }
                 }
@@ -140,7 +140,7 @@ namespace TextSplit
                 currentSentenceNumber = i + 1; //будем нумеровать с первого номера, а не с нулевого
                 string sentenceTextMarks = CreatePartTextMarks(stringToPutMarkBegin, stringToPutMarkEnd, currentChapterNumber, currentSentenceNumber, sentenceTextMarksWithOtherNumbers);//создали базовую маркировку и номер текущего предложения - ¶¶¶¶¶00001¶¶¶-Paragraph-3-of-Chapter-3
                 //сформирована маркировка абзаца, можно искать начало абзацев (пустые строки) и заносить (пустые строки перед главой уже заняты)
-                paragraphSentences[i] = sentenceTextMarks + strCRLF + paragraphSentences[i];
+                paragraphSentences[i] = sentenceTextMarks + strCRLF + paragraphSentences[i] + strCRLF;
                 _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "paragraphSentences[" + i.ToString() +"] --> " + strCRLF + paragraphSentences[i], CurrentClassName, showMessagesLevel);
             }
             return paragraphSentences;
@@ -175,8 +175,9 @@ namespace TextSplit
             
             List<List<int>> allIndexResults = new List<List<int>> { new List<int>(), new List<int>(), new List<int>() };//временный массив для хранения индексов найденных в тексте сепараторов
             //заполнили List индексами найденных сепараторов
-            int allSeparatorsQuantity = StuffListCharWithAllSeparators(textParagraph, charsAllSeparators, allIndexResults, sGroupCount);
-
+            int allSeparatorsQuantity = StuffListCharWithAllSeparators(textParagraph, charsAllSeparators, allIndexResults, sGroupCount);//результат не используем - возвращать что-то другое? например, последняя группа найденных сепараторов
+            
+            //проверяем наличие сепараторов каждой группы, начиная с последней (кавычки окр-закр)
             for (int checkedSeparatorsGroup = sGroupCount - 1; checkedSeparatorsGroup > 0; checkedSeparatorsGroup--)
             {
                 if (allIndexResults[checkedSeparatorsGroup] != null)
@@ -208,11 +209,7 @@ namespace TextSplit
 
 
 
-            int paragraphSentencesCount = paragraphSentences.Length;
-            for (int i = 0; i < paragraphSentencesCount; i++)
-            {
-                _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Sentence[" + i.ToString() + "] -> " + paragraphSentences[i], CurrentClassName, 3);
-            }
+            
 
 
 
@@ -305,10 +302,10 @@ namespace TextSplit
                         "The paragraph length is NOT EQUAL to sentences length sum!" + strCRLF +
                         "textParagraphLengthFromSentences = " + textParagraphLengthFromSentences.ToString(), CurrentClassName, showMessagesLevel);//сюда поставить переменную или метод аварийного сообщения
             }
-            System.Diagnostics.Debug.Assert(textParagraphLengthFromSentences == textParagraphLength, "The paragraph length is NOT EQUAL to sentences length sum!");//можно убрать
+            //System.Diagnostics.Debug.Assert(textParagraphLengthFromSentences == textParagraphLength, "The paragraph length is NOT EQUAL to sentences length sum!");//можно убрать
             return textParagraphLengthFromSentences;//возвращаем вычисленную длину абзаца, как сумму длин предложений - что ничего не потеряли по дороге
         }
-        //сделать простые примеры с точным расположением серараторов
+        //сделать простые примеры с точным расположением серараторов, написать все возможные ситуации обработки сепараторов (FSM)
         public int RemoveSentencesSeparatorsBeetweenQuotes(List<List<int>> allIndexResults, int checkedSeparatorsGroup)
         {//метод вызывется для проверки попадания точек (сепараторов предложений) внутрь кавычек/скобок, тип кавычек - простые или откр-закр определяется checkedSeparatorsGroup
             int removeSeparatorsCount = 0;
