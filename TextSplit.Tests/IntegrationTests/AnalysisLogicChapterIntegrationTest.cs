@@ -14,11 +14,13 @@ namespace TextSplit.Tests
     public class AnalysisLogicChapterIntegrationTest
     {
         [TestMethod] // - marks method as a test
-        [DataRow(".//testBooks//testEndlishTexts_03.txt", "0dde96b87c3fd369826d3061771587df", (int)WhatNeedDoWithFiles.AnalyseText, 0, "97509ac7bb342a814e59684113b74997")]
+        [DataRow(".//testBooks//testEndlishTexts_03.txt", "1a228cf53b80ba5e24499b8d83a44df0", (int)WhatNeedDoWithFiles.AnalyseText, 0, "da07ef8ec9674dec7cea0bc9af3772a2")]
         //(int)WhatNeedDoWithFiles.AnalyseText - включить анализ текста - аналог нажатия кнопки Analysis в OpenForm
+        //1a228cf53b80ba5e24499b8d83a44df0 - исходный текст с градусами вместо пробела после разделителей - для контроля переноса пробела
         //i = 0  - this will be desiredTextLanguage for AnalyseTextBook
         //Actual Hash with Paragraph numbers only (without sentences): <02a6c1080c08c87c95cf95005fb701e7>
         //Actual Hash with Paragraph and Sentences numbers): <97509ac7bb342a814e59684113b74997>
+        //Actual Hash with Paragraph and Sentences numbers (градусы вместо пробела и точку на место кавычек, а не +1 позицию): da07ef8ec9674dec7cea0bc9af3772a2
         public void TestMain_AnalyseTextBook(string _filePath, string expectedHash, int fileToDo, int desiredTextLanguage, string saveTextFileResult)
         {
             bool truePath = File.Exists(_filePath);

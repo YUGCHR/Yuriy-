@@ -161,10 +161,10 @@ namespace TextSplitLibrary
             return 0;
         }
 
-        public string[] GetConstantWhatNot(string WhatNot)
-        {
+        public string[] GetConstantWhatNot(string WhatNot)//сделать три перегрузки - с выдачей разных типов?
+        {//Отличия только типами возвращаемых значений методами недостаточно для перегрузки, но если методы отличаются параметрами, тогда перегружаемые методы могут иметь и различные типы возвращаемых значений
             switch (WhatNot)
-            {
+            {//тогда вариант с FSM - три разных метода с возвратом разных типов и определять, какой вызвать по типу используемой константы
                 case
                 "Sentence":
                     return charsSentenceSeparators;                
