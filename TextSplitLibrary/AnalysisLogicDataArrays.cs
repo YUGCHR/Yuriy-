@@ -35,6 +35,37 @@ namespace TextSplitLibrary
         string[] GetConstantWhatNot(string WhatNot);
     }
 
+    public interface IAnalysisLogicDataConstant
+    {
+        
+    }
+
+    public class AnalysisLogicDataConstant<T> : IAnalysisLogicDataConstant
+    {
+        public T ReturnType { get; set; }
+        public string WordToGetValue { get; set; }
+        public int ConstantLength { get; set; }
+
+        AnalysisLogicDataConstant<int[]> totalDigitsQuantity = new AnalysisLogicDataConstant<int[]> { WordToGetValue = "", ConstantLength = 0 };
+        AnalysisLogicDataConstant<string[]> SentenceSeparators = new AnalysisLogicDataConstant<string[]> { WordToGetValue = "", ConstantLength = 0 };
+
+        public AnalysisLogicDataConstant()
+        {
+            SentenceSeparators.ReturnType = new string[] { ".", "…", "!", "?", ";" };
+            SentenceSeparators.ConstantLength = SentenceSeparators.ReturnType.Length;
+            SentenceSeparators.WordToGetValue = "SentenceSeparators";
+            
+
+            totalDigitsQuantity.ReturnType = new int[] { 3, 5, 5 };
+            totalDigitsQuantity.ConstantLength = totalDigitsQuantity.ReturnType.Length;
+            totalDigitsQuantity.WordToGetValue = "totalDigitsQuantity";
+        }
+
+        
+
+
+    }
+
     public class AnalysisLogicDataArrays : IAnalysisLogicDataArrays
     {
         private readonly IAllBookData _bookData;
@@ -58,6 +89,7 @@ namespace TextSplitLibrary
         readonly private string[] charsSentenceSeparators;
         readonly private string[] charsQuotesSeparator;
         readonly private string[] charsBracketsSeparator;
+        readonly private string[] charsGroupsSeparators;
         readonly private string[] numbersOfGroupsNames; 
 
         private string[] foundSymbolsOfParagraph;
@@ -81,6 +113,9 @@ namespace TextSplitLibrary
             charsSentenceSeparators = new string[] { ".", "…", "!", "?", ";" };//…\u2026 (Horizontal Ellipsis) ⁇\u2047 ⁈\u2048 ⁉\u2049 ‼\u203C
             charsQuotesSeparator = new string[] { "\u0022", "/", "\u02BA", "\u02EE", "\u02DD" };// "\u0022 ʺ\u02BA ˮ\u02EE ˝\u02DD - кавычки и скобки без деления на открывающие и закрывающие
             charsBracketsSeparator = new string[] { "()", "[]", "{}", "«»", "<>" };// - кавычки и скобки открывающие и закрывающие - «\u00AB »\u00BB
+
+            charsGroupsSeparators = new string[] { ".…!?;", "\u0022\u002F\u02BA\u02EE\u02DD", "()[]{}«»<>" };//…\u2026 (Horizontal Ellipsis) (\u002F - /) ⁇\u2047 ⁈\u2048 ⁉\u2049 ‼\u203C
+
             numbersOfGroupsNames = new string[] { "Sentence", "Quotes", "Brackets" }; //номера групп сепараторов для получения их значений в цикле
 
             stringMarksChapterNameBegin = new string[] { "\u00A4\u00A4\u00A4\u00A4\u00A4" };//¤¤¤¤¤ - метка строки перед началом названия главы
@@ -128,6 +163,9 @@ namespace TextSplitLibrary
                 "Brackets":
                     return charsBracketsSeparator.Length;
                 case
+                "Groups":
+                    return charsGroupsSeparators.Length;
+                case
                 "GroupsNumbers":
                     return numbersOfGroupsNames.Length;
                 case
@@ -174,6 +212,9 @@ namespace TextSplitLibrary
                 case
                 "Brackets":
                     return charsBracketsSeparator;
+                case
+                "Groups":
+                    return charsGroupsSeparators;
                 case
                 "GroupsNumbers":
                     return numbersOfGroupsNames;
