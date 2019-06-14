@@ -57,46 +57,100 @@ namespace TextSplit
         {
             int totalSentencesCount = 0;
             int countSentencesNumber = 0;
-
-            List<List<char>> charsAllDelimiters = new List<List<char>> { new List<char>(), new List<char>(), new List<char>() };//временный массив для хранения всех групп разделителей в виде char[] для IndexOfAny            
-            //заполнили List разделителями из констант
-            int sGroupCount = ConstanstListFillCharsDelimiters(charsAllDelimiters);//вернули количество групп разделителей (предложений, кавычки, скобки)
-
-            //выбрать по очереди все абзацы, найти номер главы (а так же предисловие), потом в главе найти номер абзаца, достать абзац, получить и сравнить его номер (со счетчиком) и начать работать с предложениями
+            int sGroupCount = 0;//количество групп разделителей, после наполнения должно быть не 0
+            int currentParagraphIndex = 0;
+            int nextParagraphIndex = 0;
             int paragraphTextLength = GetParagraphTextLength(desiredTextLanguage);//нет, главу искать не будем, сразу ищем абзац - в его номере уже есть номер главы
-            for (int currentParagraphIndex = 0; currentParagraphIndex < paragraphTextLength; currentParagraphIndex++)//перебираем все абзацы текста - тут надо запустить большой FSM и вызывать все методы отсюда
-            {
-                string currentParagraph = GetParagraphText(currentParagraphIndex, desiredTextLanguage);
+            string currentParagraph = null;
+            string currentParagraphToWrite = null;
+            bool foundParagraphMark = false;
+            string sentenceTextMarksWithOtherNumbers = null;
+            bool needCheckNextParagraph = true;
+            //bool noNeedCheckParagraphIsEndNow = false;
 
-                //состояние - есть маркер абзаца или нет, действие если есть - вызов PrepareToDividePagagraphToSentences, если нет - перейти к следующему абзацу
+            List <List<char>> charsAllDelimiters = new List<List<char>> { new List<char>(), new List<char>(), new List<char>() };//временный массив для хранения всех групп разделителей в виде char[] для IndexOfAny            
 
-                bool foundParagraphMark = FindTextPartMarker(currentParagraph, "ParagraphBegin");//проверяем начало абзаца на маркер абзаца, если есть, то надо вызвать подготовку деления абзаца (она возьмет следующий абзац для деления на предложения)
-                if (foundParagraphMark)
+            
+            //стейт-машина - бесконечный цикл while по условию "все сделано, пора выходить"
+            bool sentenceFSMwillWorkWithNExtParagraph = true;//для старта машины присваиваем true;
+            while (sentenceFSMwillWorkWithNExtParagraph)
+            {                
+                //список условий и методов
+                bool needFillConstantList = sGroupCount == 0;//проверяем наполнение константами групп разделителей, должно быть не 0
+                if (needFillConstantList)
                 {
-                    string sentenceTextMarksWithOtherNumbers = FindPagagrapNumberForSentenceNumber(paragraphTextLength, currentParagraph, currentParagraphIndex);
-                    if (sentenceTextMarksWithOtherNumbers != null)//если null, то текст закончился
-                    {
-                        string nextParagraph = GetParagraphText(currentParagraphIndex + 1, desiredTextLanguage);
-                        
-                        string[] paragraphSentences = SelectActionByDelimitersGroupState(nextParagraph, charsAllDelimiters, sGroupCount);////здесь делим текст на предложения! и вызываем селектор методов обработки состояний - согласно найденному состоянию
-
-                        paragraphSentences = EnumerateDividedSentences(sentenceTextMarksWithOtherNumbers, paragraphSentences);//пронумеровали разделенные предложения - еще в том же массиве
-
-                        //здесь предложения уже поделенные и с номерами, теперь слить их опять вместе, чтобы записать на то же самое место (хотя логичнее сделать List с предложениями - или структуру типа базы данных из List)
-                        if (paragraphSentences != null)
-                        {
-                            currentParagraph = string.Join(strCRLF, paragraphSentences);//добавить ли в конце еще один перевод строки?
-                            countSentencesNumber = paragraphSentences.Length;
-                            SetParagraphText(currentParagraph, currentParagraphIndex + 1, desiredTextLanguage);//ЗДЕСЬ запись SetParagraphText! - записываем абзац с пронумерованными предложениями на старое место! проверить, что попадаем на нужное место, а не в предыдущую ячейку
-                            totalSentencesCount = totalSentencesCount + countSentencesNumber;
-                        }
-                    }
+                    _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "sGroupCount == 0 is " + needFillConstantList.ToString() + " - (" + sGroupCount.ToString() + ")", CurrentClassName, showMessagesLevel);
+                    sGroupCount = ConstanstListFillCharsDelimiters(charsAllDelimiters);//заполнили List разделителями из констант, вернули ненулевое количество групп разделителей (предложений, кавычки, скобки)
+                    _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "sGroupCount = " + sGroupCount.ToString(), CurrentClassName, showMessagesLevel);
                 }
+                
+                //needCheckNextParagraph - флаг для методов, которым будет нужно пройти второй раз цикл анализа с тем же абзацем, пока он всегда true
+                if (needCheckNextParagraph)
+                {
+                    nextParagraphIndex = currentParagraphIndex + 1;
+                    currentParagraph = GetParagraphText(currentParagraphIndex, desiredTextLanguage);
+                    foundParagraphMark = FindTextPartMarker(currentParagraph, "ParagraphBegin");//проверяем начало абзаца на маркер абзаца, если есть, то надо вызвать подготовку деления абзаца (она возьмет следующий абзац для деления на предложения)
+                    currentParagraphIndex++;//сразу прибавили счетчик абзаца для получения следующего абзаца - второй раз один и тот же абзац доставать не будем
+                }
+
+                if (foundParagraphMark)//вместо условий тут, можно было проверять это же условие внутри метода - и сразу выходить, если не выполняется (есть ли в этом смысл?)
+                {
+                    sentenceTextMarksWithOtherNumbers = FindPagagrapNumberForSentenceNumber(paragraphTextLength, currentParagraph, nextParagraphIndex);//получили строку типа -Paragraph-3-of-Chapter-3 - удалены марки, но сохранены номера главы и абзаца
+                
+                    string nextParagraph = GetParagraphText(nextParagraphIndex, desiredTextLanguage);
+                    
+                    List<List<int>> allIndexResults = SelectActionByDelimitersGroupState(nextParagraph, charsAllDelimiters, sGroupCount);////здесь делим текст на предложения! и вызываем селектор методов обработки состояний - согласно найденному состоянию
+
+                    int[] foundDelimitersGroups = checkFoundDelimitersGroups(sGroupCount, allIndexResults);//создали массив, в котором указано, сколько найдено разделителей каждой группы
+                    //надо избавиться от foundDelimitersGroups? где-то тут надо определить число проходов соотвественно количеству найденных групп - можно возращать инт самой старшей найденной группы и бегать по кругу, пока оно не станет отрицательным - добавив условие к вызову нужных методов
+                    int[] SentenceDelimitersIndexesArray = FindSentencesDelimitersBeetweenQuotes(nextParagraph, allIndexResults, foundDelimitersGroups);//foundDelimitersGroups может быть 0, 1 или 2 - если два, то потом надо как-то рассмотреть вариант и с 1
+
+                    string[] paragraphSentences = DivideTextToSentencesByDelimiters(nextParagraph, SentenceDelimitersIndexesArray);//разделили текст на предложения согласно оставшимся разделителям
+                    
+
+
+
+                    //здесь предложения уже поделенные и с номерами, теперь слить их опять вместе, чтобы записать на то же самое место (хотя логичнее сделать List с предложениями - или структуру типа базы данных из List)
+                    paragraphSentences = EnumerateDividedSentences(sentenceTextMarksWithOtherNumbers, paragraphSentences);//пронумеровали разделенные предложения - еще в том же массиве
+
+                    currentParagraphToWrite = string.Join(strCRLF, paragraphSentences);//добавить ли в конце еще один перевод строки?
+
+                    countSentencesNumber = paragraphSentences.Length;
+                    SetParagraphText(currentParagraphToWrite, nextParagraphIndex, desiredTextLanguage);//ЗДЕСЬ запись SetParagraphText! - записываем абзац с пронумерованными предложениями на старое место! проверить, что попадаем на нужное место, а не в предыдущую ячейку
+                    totalSentencesCount = totalSentencesCount + countSentencesNumber;                    
+                }
+
+                //сбрасываем (не)нужные флаги для следующего прохода
+                sentenceTextMarksWithOtherNumbers = null;
+                foundParagraphMark = false;
+
+                sentenceFSMwillWorkWithNExtParagraph = currentParagraphIndex < (paragraphTextLength - 1);//-1 - чтобы можно было взять следующий абзац - или проверять в конце цикла
+                //noNeedCheckParagraphIsEndNow = currentParagraphIndex >= (paragraphTextLength-1);//-1 - чтобы можно было взять следующий абзац - или проверять в конце цикла
+                //if (noNeedCheckParagraphIsEndNow)//если больше не нужен новый абзац, стейт-машина заканчивает работу
+                //{
+                //    sentenceFSMstillWork = false;
+                //}
             }
+                
             return totalSentencesCount;
         }
 
-        private int ConstanstListFillCharsDelimiters(List<List<char>> charsAllDelimiters)
+        private int[] checkFoundDelimitersGroups(int sGroupCount, List<List<int>> allIndexResults)
+        {
+            int foundMAxDelimitersGroups = 0;
+            int[] foundDelimitersGroups = new int[sGroupCount];
+            for (int sGroup = 0; sGroup < sGroupCount; sGroup++)
+            {
+                if (allIndexResults[sGroup].Count != 0)
+                {
+                    foundMAxDelimitersGroups = sGroup;//максимальный номер группы разделителей - пока что для совместимости
+                    foundDelimitersGroups[sGroup] = sGroup;//а вообще массив с найденными количествами разделителей по группам - хотя и этого не надо - можно же порыться в allIndexResults - и вообще, создавать дополнительные строки только, если есть соотвествующие группы
+                }
+            }
+            return foundDelimitersGroups;
+        }
+
+        private int ConstanstListFillCharsDelimiters(List<List<char>> charsAllDelimiters)//создавать временный массив каждый раз заново - только те, которые нужны в данный момент?
         {//вариант многоточия из обычных точек надо обрабатывать отдельно - просто проверить, нет ли трех точек подряд
             int sGroupCount = GetConstantWhatNotLength("Groups"); //получили количество групп разделителей - длина массива слов для получения констант разделителей
             string[] numbersOfGroupsNames = GetConstantWhatNot("Groups"); //new string[sGroupCount];            
@@ -105,7 +159,6 @@ namespace TextSplit
             for (int g = 0; g < sGroupCount; g++)
             {
                 string stringCurrentDelimiters = numbersOfGroupsNames[g];
-                _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "stringCurrentDelimiters -> " + stringCurrentDelimiters, CurrentClassName, showMessagesLevel);
                 charsAllDelimiters[g].AddRange(stringCurrentDelimiters.ToCharArray());
                 allDelimitersCount = allDelimitersCount + charsAllDelimiters[g].Count;
             }
@@ -114,16 +167,14 @@ namespace TextSplit
             return sGroupCount;
         }
 
-        public string FindPagagrapNumberForSentenceNumber(int paragraphTextLength, string currentParagraph, int currentParagraphIndex)//когда заменять на FSM, надо позаботиться, чтобы desiredTextLanguage и currentParagraphIndex были доступны в самом низу
-        {
+        public string FindPagagrapNumberForSentenceNumber(int paragraphTextLength, string currentParagraph, int nextParagraphIndex)//когда заменять на FSM, надо позаботиться, чтобы desiredTextLanguage и currentParagraphIndex были доступны в самом низу
+        {            
             int totalDigitsQuantity5 = 5;//для номера абзаца - перенести в AnalysisLogicDataArrays
             int currentParagraphNumber = 0;            
-            if ((currentParagraphIndex + 1) < paragraphTextLength)//на всякий случай проверим, что не уткнемся в конец файла
+            if (nextParagraphIndex < paragraphTextLength)//на всякий случай проверим, что не уткнемся в конец файла
             {
                 //§§§§§00003§§§-Paragraph-of-Chapter-3 - формат номера абзаца такой - взять currentParagraph, убрать позиции по длине ParagraphBegin + totalDigitsQuantity5 + ParagraphEnd, останется -Paragraph-of-Chapter-3
-
                 currentParagraphNumber = FindTextPartNumber(currentParagraph, "ParagraphBegin", totalDigitsQuantity5);//тут уже знаем, что в начале абзаца есть нужный маркер и сразу ищем номер //ищем номер главы, перенести totalDigitsQuantity3 внутрь метода                
-
                 if (currentParagraphNumber > 0) //избегаем предисловия, его как-нибудь потом поделим добавив else
                 {
                     //тут сформируем всю маркировку для предложений, кроме собственно номера предложения - вместо 23 считать количество символов, как указано выше
@@ -132,7 +183,7 @@ namespace TextSplit
                     return sentenceTextMarksWithOtherNumbers;
                 }
             }
-            return null;//сюда попадем, только если закончился общий текст
+            return null;//сюда попадем, если currentParagraphNumber = -1 - это если не найден нужный номер, ну или вообще закончился общий текст
         }
 
         public string[] EnumerateDividedSentences(string sentenceTextMarksWithOtherNumbers, string[] paragraphSentences) //в textParagraph получаем nextParagraph при вызове метода - следующий абзац с текстом после метки номера абзаца в пустой строке
@@ -154,7 +205,7 @@ namespace TextSplit
             }
             return paragraphSentences;
         }
-
+        //надо убрать метод в общий класс AnalysisLogicCultivation и сделать его общим с нумерацией глав/абзаца
         public string CreatePartTextMarks(string stringMarkBegin, string stringMarkEnd, int currentUpperNumber, int enumerateCurrentCount, string sentenceTextMarksWithOtherNumbers)//сделать общим методом с созданием номера параграфа и убрать в дополнения
         {
             int totalDigitsQuantity5 = 5;//для номера предложения используем 5 цифр (до 999, должно хватить) - перенести в AnalysisLogicDataArrays
@@ -176,17 +227,12 @@ namespace TextSplit
             }
         }        
 
-        public string[] SelectActionByDelimitersGroupState(string textParagraph, List<List<char>> charsAllDelimiters, int sGroupCount)//выбираем, какой метод вызвать для обработки состояния
+        public List<List<int>> SelectActionByDelimitersGroupState(string textParagraph, List<List<char>> charsAllDelimiters, int sGroupCount)//выбираем, какой метод вызвать для обработки состояния
         {
             List<List<int>> allIndexResults = new List<List<int>> { new List<int>(), new List<int>(), new List<int>() };//временный массив для хранения индексов найденных в тексте разделителей
-            //заполнили List индексами найденных разделителей
-
-            //int foundMAxDelimitersGroups = ResultListFillDelimitersIndexes(textParagraph, charsAllDelimiters, allIndexResults, sGroupCount);//поиск старшей группы разделителей (кавычек) в тексте
-            int foundMAxDelimitersGroups = 0;
+            //заполнили List индексами найденных разделителей            
             int startFindIndex = 0;
             int[] DelimitersQuantity = new int[sGroupCount];
-            int[] foundDelimitersGroups = new int[sGroupCount];
-
             for (int sGroup = 0; sGroup < sGroupCount; sGroup++)
             {
                 char[] charsCurrentGroupDelimiters = charsAllDelimiters[sGroup].ToArray();
@@ -203,21 +249,9 @@ namespace TextSplit
                         "DelimitersQuantity = " + DelimitersQuantity[sGroup].ToString() + strCRLF +
                         "printCharsCurrentGroupDelimiters --> " + printCharsCurrentGroupDelimiters + strCRLF +
                         "NEW startFindIndex (+ indexResultQuotes) = " + startFindIndex.ToString(), CurrentClassName, showMessagesLevel);
-                }
-                if (DelimitersQuantity[sGroup] > 0)
-                {
-                    foundMAxDelimitersGroups = sGroup;//максимальный номер группы разделителей - пока что для совместимости
-                    foundDelimitersGroups[sGroup] = sGroup;//а вообще массив с найденными количествами разделителей по группам - хотя и этого не надо - можно же порыться в allIndexResults - и вообще, создавать дополнительные строки только, если есть соотвествующие группы
-                }
+                }                
             }
-                //не рассмотрен вариант нахождения и группы 2 и группы 1 - после обработки группы 2 надо вернуться опять сюда
-                if (foundMAxDelimitersGroups < 0)
-            {
-                return null;//была пустая строка - тоже не надо возвращать - будет просто пустой allIndexResults, может, даже не созданный? кстати, тогда FindSentencesDelimitersBeetweenQuotes вообще вызывать и не надо - проходим мимо
-            }            
-                    int[] SentenceDelimitersIndexesArray = FindSentencesDelimitersBeetweenQuotes(textParagraph, allIndexResults, foundDelimitersGroups);//foundDelimitersGroups может быть 0, 1 или 2 - если два, то потом надо как-то рассмотреть вариант и с 1
-                    string[] paragraphSentences = DivideTextToSentencesByDelimiters(textParagraph, SentenceDelimitersIndexesArray);//разделили текст на предложения согласно оставшимся разделителям
-                    return paragraphSentences;            
+            return allIndexResults;                
         }
 
         //сделать простые примеры с точным расположением серараторов, написать все возможные ситуации обработки разделителей (FSM)
@@ -372,6 +406,20 @@ namespace TextSplit
     }
 }
 
+//не рассмотрен вариант нахождения и группы 2 и группы 1 - после обработки группы 2 надо вернуться опять сюда
+//    if (foundMAxDelimitersGroups < 0)
+//{
+//    return null;//была пустая строка - тоже не надо возвращать - будет просто пустой allIndexResults, может, даже не созданный? кстати, тогда FindSentencesDelimitersBeetweenQuotes вообще вызывать и не надо - проходим мимо
+//}            
+//int[] SentenceDelimitersIndexesArray = FindSentencesDelimitersBeetweenQuotes(textParagraph, allIndexResults, foundDelimitersGroups);//foundDelimitersGroups может быть 0, 1 или 2 - если два, то потом надо как-то рассмотреть вариант и с 1
+//string[] paragraphSentences = DivideTextToSentencesByDelimiters(textParagraph, SentenceDelimitersIndexesArray);//разделили текст на предложения согласно оставшимся разделителям
+//return paragraphSentences;            
+//string[] paragraphSentences = SelectActionByDelimitersGroupState(nextParagraph, charsAllDelimiters, sGroupCount);////здесь делим текст на предложения! и вызываем селектор методов обработки состояний - согласно найденному состоянию
+//int foundMAxDelimitersGroups = ResultListFillDelimitersIndexes(textParagraph, charsAllDelimiters, allIndexResults, sGroupCount);//поиск старшей группы разделителей (кавычек) в тексте
+//выбрать по очереди все абзацы, найти номер главы (а так же предисловие), потом в главе найти номер абзаца, достать абзац, получить и сравнить его номер (со счетчиком) и начать работать с предложениями
+//for (int currentParagraphIndex = 0; currentParagraphIndex < paragraphTextLength; currentParagraphIndex++)//перебираем все абзацы текста - тут надо запустить большой FSM и вызывать все методы отсюда
+//string currentParagraph = GetParagraphText(currentParagraphIndex, desiredTextLanguage);
+//состояние - есть маркер абзаца или нет, действие если есть - вызов PrepareToDividePagagraphToSentences, если нет - перейти к следующему абзацу
 //public int ResultListFillDelimitersIndexes(string textParagraph, List<List<char>> charsAllDelimiters, List<List<int>> allIndexResults, int sGroupCount)
 //{             
 //    int startFindIndex = 0;

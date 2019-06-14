@@ -74,9 +74,10 @@ namespace TextSplit
             int totalDigitsQuantity3 = 3;//костыль для поиска номера главы - он из 3-х цифр, как минимум, перенести в AnalysisLogicDataArrays            
 
             int paragraphTextLength = GetParagraphTextLength(desiredTextLanguage);
-            for (int i = 0; i < paragraphTextLength; i++)//перебираем все абзацы текста
+            for (int i = 0; i < (paragraphTextLength - 1); i++)//перебираем все абзацы текста
             {
                 string currentParagraph = GetParagraphText(i, desiredTextLanguage);
+                string nextParagraph = GetParagraphText(i+1, desiredTextLanguage);
                 bool foundChapterMark = FindTextPartMarker(currentParagraph, "ChapterBegin");//проверяем начало абзаца на маркер главы, если есть, то надо найти номер главы и сбросить нумерацию абзацев на 1
                 if (foundChapterMark)
                 {
@@ -86,7 +87,8 @@ namespace TextSplit
                 string paragraphTextMarks = CreateParagraphMarks(currentChapterNumber, enumerateParagraphsCount);
                 //сформирована маркировка абзаца, можно искать начало абзацев (пустые строки) и заносить (пустые строки перед главой уже заняты)
                 bool currentParagraphEmptyResult = string.IsNullOrEmpty(currentParagraph);
-                if (currentParagraphEmptyResult)
+                bool nextParagraphIsNotEmpty = !string.IsNullOrEmpty(nextParagraph);
+                if (currentParagraphEmptyResult && nextParagraphIsNotEmpty)
                 {
                     enumerateParagraphsCount = SetMarkInParagraphText(desiredTextLanguage, paragraphTextMarks, i, enumerateParagraphsCount);//записываем маркировку абзаца в пустую строку и прибавляем счетчик номера абзаца
                     //если в этой строке нашли номер главы, то как в нее можно записать номер абзаца? надо разобраться, что вообще происходит

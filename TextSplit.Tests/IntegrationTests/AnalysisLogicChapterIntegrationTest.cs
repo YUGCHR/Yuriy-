@@ -14,13 +14,15 @@ namespace TextSplit.Tests
     public class AnalysisLogicChapterIntegrationTest
     {
         [TestMethod] // - marks method as a test
-        [DataRow(".//testBooks//testEndlishTexts_03.txt", "1a228cf53b80ba5e24499b8d83a44df0", (int)WhatNeedDoWithFiles.AnalyseText, 0, "da07ef8ec9674dec7cea0bc9af3772a2")]
+        [DataRow(".//testBooks//testEndlishTexts_03.txt", "e7ef272232c4b704f557db114ac7815f", (int)WhatNeedDoWithFiles.AnalyseText, 0, "14759d56a7875bb6f6b5648457d7303c")]
         //(int)WhatNeedDoWithFiles.AnalyseText - включить анализ текста - аналог нажатия кнопки Analysis в OpenForm
         //1a228cf53b80ba5e24499b8d83a44df0 - исходный текст с градусами вместо пробела после разделителей - для контроля переноса пробела
+        //e7ef272232c4b704f557db114ac7815f - исходный текст и добавлено много пустых строк в конце
         //i = 0  - this will be desiredTextLanguage for AnalyseTextBook
         //Actual Hash with Paragraph numbers only (without sentences): <02a6c1080c08c87c95cf95005fb701e7>
         //Actual Hash with Paragraph and Sentences numbers): <97509ac7bb342a814e59684113b74997>
         //Actual Hash with Paragraph and Sentences numbers (градусы вместо пробела и точку на место кавычек, а не +1 позицию): da07ef8ec9674dec7cea0bc9af3772a2
+        //Actual Hash with deleted last Paragraph number - before empty line: 14759d56a7875bb6f6b5648457d7303c
         public void TestMain_AnalyseTextBook(string _filePath, string expectedHash, int fileToDo, int desiredTextLanguage, string saveTextFileResult)
         {
             bool truePath = File.Exists(_filePath);
