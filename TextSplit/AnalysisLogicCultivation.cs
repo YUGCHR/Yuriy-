@@ -13,6 +13,7 @@ namespace TextSplit
         int GetDesiredTextLanguage();
         bool FindTextPartMarker(string currentParagraph, string stringMarkBegin);
         int FindTextPartNumber(string currentParagraph, string stringMarkBegin, int totalDigitsQuantity);
+        string CreatePartTextMarks(string stringMarkBegin, string stringMarkEnd, int currentUpperNumber, int enumerateCurrentCount, string sentenceTextMarksWithOtherNumbers);
         string AddSome00ToIntNumber(string currentNumberToFind, int totalDigitsQuantity);
         //event EventHandler AnalyseInvokeTheMain;
     }
@@ -81,6 +82,32 @@ namespace TextSplit
                 return (int)MethodFindResult.NothingFound;
             }            
         }
+
+        //надо убрать метод в общий класс AnalysisLogicCultivation и сделать его общим с нумерацией глав/абзаца - этот пока для предложений
+        public string CreatePartTextMarks(string stringMarkBegin, string stringMarkEnd, int currentUpperNumber, int enumerateCurrentCount, string sentenceTextMarksWithOtherNumbers)//сделать общим методом с созданием номера параграфа и убрать в дополнения
+        {
+            int totalDigitsQuantity5 = 5;//для номера предложения используем 5 цифр (до 999, должно хватить) - перенести в AnalysisLogicDataArrays
+            string markPartTextBegin = GetConstantWhatNot(stringMarkBegin)[0];
+            string markPartTextEnd = GetConstantWhatNot(stringMarkEnd)[0];
+
+            if (currentUpperNumber < 0)//номера главы еще нет, а текст есть - предисловие
+            {
+                string partTextMark = markPartTextBegin + "Introduction" + markPartTextEnd + "-" + "Sentence" + "-";//создаем маркировку введения/предисловия - пока не будет использовано
+                return partTextMark;
+            }
+            else
+            {
+                string currentPartNumberSrting = enumerateCurrentCount.ToString();
+                string currentPartNumberToFind00 = AddSome00ToIntNumber(currentPartNumberSrting, totalDigitsQuantity5);
+                string partTextMarks = markPartTextBegin + currentPartNumberToFind00 + markPartTextEnd + sentenceTextMarksWithOtherNumbers;//если общий метод, то тут еще прибавить сформированый хвост со старшими номерами
+                _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "READY partTextMarks = " + partTextMarks, CurrentClassName, showMessagesLevel);
+                return partTextMarks;
+            }
+        }
+
+
+
+
 
         public string AddSome00ToIntNumber(string currentNumberToFind, int totalDigitsQuantity)
         {
