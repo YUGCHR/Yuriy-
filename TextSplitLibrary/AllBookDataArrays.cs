@@ -247,5 +247,50 @@ namespace TextSplitLibrary
             symbolsCounts[i] = symbolsCount;
             return (int)MethodFindResult.AllRight;
         }
+
+        //public void NewVersion()//interface IAllBookData
+        //{
+        //    int GetFileToDo(int i);
+        //    int SetFileToDo(int fileToDo, int i);
+        //    int WhatFileNeedToDo(int whatNeedToDo);//возвращает индекс ToDo, в котором найдено значение whatNeedToDo, если не найдено, возвращает -1
+
+        //    int GetFileToSave(int i);
+        //    int SetFileToSave(int fileToSave, int i);
+        //    int WhatFileNeedToSave(int whatNeedToSave);//возвращает индекс FileToSave, в котором найдено значение WhatFileNeedToSave, если не найдено, возвращает -1
+
+        //    //объединенная группа OperationControlCommands
+        //    int OperationControlCommands(string getToDoOrToSave, int i);//перегрузка для Get
+        //    int OperationControlCommands(string setToDoOrToSave, int fileToDo, int i);//перегрузка для Set
+        //    int OperationControlCommands(string setToDoOrToSave, int whatNeedToDo, int i);//перегрузка для whatNeed - может, тут не надо отдельной перегрузки - просто другое значение по другой строке выдавать
+
+
+
+        //    string GetFilePath(int i);
+        //    int SetFilePath(string filePath, int i);
+
+        //    string GetSelectedText(int i);
+        //    int SetSelectedText(string selectedText, int i);
+
+        //    string GetFileContent(int i);
+        //    int SetFileContent(string fileContent, int i);
+
+        //    string GetParagraphText(int paragraphCount, int desiredTextLanguage);//возвращает строку из двумерного списка List
+        //    int GetParagraphTextLength(int desiredTextLanguage);
+        //    int SetParagraphText(string paragraphText, int paragraphCount, int desiredTextLanguage);
+        //    int AddParagraphText(string paragraphText, int desiredTextLanguage);//тоже возвращает количество элементов
+        //    int RemoveAtParagraphText(int paragraphCount, int desiredTextLanguage);//удаляет элемент списка с индексом paragraphCount
+
+        //    string GetChapterName(int chapterCount, int desiredTextLanguage);
+        //    int GetChapterNameLength(int desiredTextLanguage);
+        //    int SetChapterName(string chapterNameWithNumber, int chapterCount, int desiredTextLanguage);
+        //    int AddChapterName(string chapterNameWithNumber, int desiredTextLanguage);
+
+        //    int GetChapterNumber(int chapterCount, int desiredTextLanguage);
+        //    int GetChapterNumberLength(int desiredTextLanguage);
+        //    int AddChapterNumber(int chapterNumberOnly, int desiredTextLanguage);
+
+        //    string GetSymbolsCount(int i);
+        //    int SetSymbolsCount(int symbolsCount, int i);
+        //}
     }    
 }

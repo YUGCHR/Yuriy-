@@ -14,6 +14,7 @@ namespace TextSplit
         bool FindTextPartMarker(string currentParagraph, string stringMarkBegin);
         int FindTextPartNumber(string currentParagraph, string stringMarkBegin, int totalDigitsQuantity);
         string CreatePartTextMarks(string stringMarkBegin, string stringMarkEnd, int currentUpperNumber, int enumerateCurrentCount, string sentenceTextMarksWithOtherNumbers);
+        string CreateParagraphMarks(int currentChapterNumber, int enumerateParagraphsCount);
         string AddSome00ToIntNumber(string currentNumberToFind, int totalDigitsQuantity);
         //event EventHandler AnalyseInvokeTheMain;
     }
@@ -106,7 +107,25 @@ namespace TextSplit
         }
 
 
+        public string CreateParagraphMarks(int currentChapterNumber, int enumerateParagraphsCount)
+        {
+            int totalDigitsQuantity5 = 5;//для номера главы используем 5 цифр (до 999, должно хватить) - перенести в AnalysisLogicDataArrays
+            string markParagraphBegin = GetConstantWhatNot("ParagraphBegin")[0];
+            string markParagraphEnd = GetConstantWhatNot("ParagraphEnd")[0];
 
+            if (currentChapterNumber < 0)//номера главы еще нет, а текст есть - предисловие
+            {
+                string paragraphTextMarks = markParagraphBegin + "Introduction" + markParagraphEnd + "-" + "Paragraph" + "-";//создаем маркировку введения/предисловия
+                return paragraphTextMarks;
+            }
+            else
+            {
+                string currentParagraphNumberSrting = enumerateParagraphsCount.ToString();
+                string currentParagraphNumberToFind00 = AddSome00ToIntNumber(currentParagraphNumberSrting, totalDigitsQuantity5);
+                string paragraphTextMarks = markParagraphBegin + currentParagraphNumberToFind00 + markParagraphEnd + "-Paragraph-of-Chapter-" + currentChapterNumber.ToString();//создали маркировку и номер текущего абзаца - проверяем, что если добавить перевод строки? ничего хорошего - потом не найти маркировку, так как строка теперь начинается не маркой
+                return paragraphTextMarks;
+            }
+        }
 
 
         public string AddSome00ToIntNumber(string currentNumberToFind, int totalDigitsQuantity)

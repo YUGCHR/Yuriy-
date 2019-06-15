@@ -89,6 +89,8 @@ namespace TextSplitLibrary
         readonly private string[] charsSentenceSeparators;
         readonly private string[] charsQuotesSeparator;
         readonly private string[] charsBracketsSeparator;
+        readonly private string[] charsEllipsisToChange1;
+        readonly private string[] charsEllipsisToChange2;
         readonly private string[] charsGroupsSeparators;
         readonly private string[] numbersOfGroupsNames; 
 
@@ -110,12 +112,15 @@ namespace TextSplitLibrary
             baseKeyWordFormsQuantity = 3;
             charsParagraphSeparator = new string[] { "\r\n" };//в строковом массиве - чтобы получать все константы одним методом
 
+            //старый вариант, надо понемногу удалять
             charsSentenceSeparators = new string[] { ".", "…", "!", "?", ";" };//…\u2026 (Horizontal Ellipsis) ⁇\u2047 ⁈\u2048 ⁉\u2049 ‼\u203C
             charsQuotesSeparator = new string[] { "\u0022", "/", "\u02BA", "\u02EE", "\u02DD" };// "\u0022 ʺ\u02BA ˮ\u02EE ˝\u02DD - кавычки и скобки без деления на открывающие и закрывающие
             charsBracketsSeparator = new string[] { "()", "[]", "{}", "«»", "<>" };// - кавычки и скобки открывающие и закрывающие - «\u00AB »\u00BB
 
-            charsGroupsSeparators = new string[] { ".…!?;", "\u0022\u002F\u02BA\u02EE\u02DD", "()[]{}«»<>" };//…\u2026 (Horizontal Ellipsis) (\u002F - /) ⁇\u2047 ⁈\u2048 ⁉\u2049 ‼\u203C
+            charsEllipsisToChange1 = new string[] { "...", "!!!", "!!", "?!!", "?!", "!!?", "!?", "???", "??" };
+            charsEllipsisToChange2 = new string[] { "…", "\u203C", "\u203C", "\u2048", "\u2048", "\u2049", "\u2049", "\u2047", "\u2047" };
 
+            charsGroupsSeparators = new string[] { ".…!?;", "\u0022\u002F\u02BA\u02EE\u02DD", "()[]{}«»<>" };//…\u2026 (Horizontal Ellipsis) (\u002F - /) ⁇\u2047 ⁈\u2048 ⁉\u2049 ‼\u203C
             numbersOfGroupsNames = new string[] { "Sentence", "Quotes", "Brackets" }; //номера групп сепараторов для получения их значений в цикле
 
             stringMarksChapterNameBegin = new string[] { "\u00A4\u00A4\u00A4\u00A4\u00A4" };//¤¤¤¤¤ - метка строки перед началом названия главы
@@ -162,6 +167,10 @@ namespace TextSplitLibrary
                 case
                 "Brackets":
                     return charsBracketsSeparator.Length;
+                case
+                "EllipsisToChange":
+                    //можно прямо тут сравнить длины charsEllipsisToChange1 и charsEllipsisToChange2 и, если сопадают возвращать что-то одно (все равно эту переменную спросят только пару раз за все время)
+                    return charsEllipsisToChange1.Length;//EllipsisToChange                
                 case
                 "Groups":
                     return charsGroupsSeparators.Length;
@@ -212,6 +221,12 @@ namespace TextSplitLibrary
                 case
                 "Brackets":
                     return charsBracketsSeparator;
+                case
+                "EllipsisToChange1":                    
+                    return charsEllipsisToChange1;
+                case
+                "EllipsisToChange2":
+                    return charsEllipsisToChange2;
                 case
                 "Groups":
                     return charsGroupsSeparators;

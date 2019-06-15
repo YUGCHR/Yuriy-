@@ -51,7 +51,10 @@ namespace TextSplit
             int chapterCountNumber = 0;
             
             int desiredTextLanguage = _analysisLogic.GetDesiredTextLanguage();//возвращает номер языка, если на нем есть AnalyseText или AnalyseChapterName
-            if (desiredTextLanguage == (int)MethodFindResult.NothingFound) return desiredTextLanguage.ToString();//типа, нечего анализировать
+            if (desiredTextLanguage == (int)MethodFindResult.NothingFound)
+            {
+                return desiredTextLanguage.ToString();//типа, нечего анализировать
+            }
             _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), strCRLF + "Start desiredTextLanguage = " + desiredTextLanguage.ToString(), CurrentClassName, showMessagesLevel);
 
             if (_bookData.GetFileToDo(desiredTextLanguage) == (int)WhatNeedDoWithFiles.AnalyseText)//если первоначальный анализ текста, без подсказки пользователя о названии глав, ищем главы самостоятельно

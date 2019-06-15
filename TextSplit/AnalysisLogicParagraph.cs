@@ -30,24 +30,17 @@ namespace TextSplit
         readonly private int showMessagesLevel;
         readonly private string strCRLF;
         
-        //private readonly int charsParagraphSeparatorLength;
-
         int GetParagraphTextLength(int desiredTextLanguage) => _bookData.GetParagraphTextLength(desiredTextLanguage);
         string GetParagraphText(int paragraphCount, int desiredTextLanguage) => _bookData.GetParagraphText(paragraphCount, desiredTextLanguage);
         int SetParagraphText(string paragraphText, int paragraphCount, int desiredTextLanguage) => _bookData.SetParagraphText(paragraphText, paragraphCount, desiredTextLanguage);
+
         bool FindTextPartMarker(string currentParagraph, string stringMarkBegin) => _analysisLogic.FindTextPartMarker(currentParagraph, stringMarkBegin);
         int FindTextPartNumber(string currentParagraph, string stringMarkBegin, int totalDigitsQuantity) => _analysisLogic.FindTextPartNumber(currentParagraph, stringMarkBegin, totalDigitsQuantity);
-
-        //int GetCharsSeparatorLength(string ParagraphOrSentence) => _arrayAnalysis.GetConstantWhatNotLength(ParagraphOrSentence);
-        //string[] GetCharsSeparator(string ParagraphOrSentence) => _arrayAnalysis.GetConstantWhatNot(ParagraphOrSentence);
+        string CreateParagraphMarks(int currentChapterNumber, int enumerateParagraphsCount) => _analysisLogic.CreateParagraphMarks(currentChapterNumber, enumerateParagraphsCount);
+        string AddSome00ToIntNumber(string currentChapterNumberToFind, int totalDigitsQuantity) => _analysisLogic.AddSome00ToIntNumber(currentChapterNumberToFind, totalDigitsQuantity);
 
         int GetConstantWhatNotLength(string WhatNot) => _arrayAnalysis.GetConstantWhatNotLength(WhatNot);
         string[] GetConstantWhatNot(string WhatNot) => _arrayAnalysis.GetConstantWhatNot(WhatNot);
-
-        //int PrepareToDividePagagraphToSentences(int desiredTextLanguage, string currentParagraph, int currentChapterNumber, int currentParagraphNumber, int i) => 
-        //    _sentenceAnalyser.PrepareToDividePagagraphToSentences(desiredTextLanguage, currentParagraph, currentChapterNumber, currentParagraphNumber, i);
-
-        string AddSome00ToIntNumber(string currentChapterNumberToFind, int totalDigitsQuantity) => _analysisLogic.AddSome00ToIntNumber(currentChapterNumberToFind, totalDigitsQuantity);
 
         //public event EventHandler AnalyseInvokeTheMain;
 
@@ -107,34 +100,36 @@ namespace TextSplit
             return enumerateParagraphsInChapterCount;
         }
 
-        public string CreateParagraphMarks(int currentChapterNumber, int enumerateParagraphsCount)
-        {
-            int totalDigitsQuantity5 = 5;//для номера главы используем 5 цифр (до 999, должно хватить) - перенести в AnalysisLogicDataArrays
-            string markParagraphBegin = GetConstantWhatNot("ParagraphBegin")[0];
-            string markParagraphEnd = GetConstantWhatNot("ParagraphEnd")[0];
-
-            if (currentChapterNumber < 0)//номера главы еще нет, а текст есть - предисловие
-            {
-                string paragraphTextMarks = markParagraphBegin + "Introduction" + markParagraphEnd + "-" + "Paragraph" + "-";//создаем маркировку введения/предисловия
-                return paragraphTextMarks;
-            }
-            else
-            {
-                string currentParagraphNumberSrting = enumerateParagraphsCount.ToString();
-                string currentParagraphNumberToFind00 = AddSome00ToIntNumber(currentParagraphNumberSrting, totalDigitsQuantity5);
-                string paragraphTextMarks = markParagraphBegin + currentParagraphNumberToFind00 + markParagraphEnd + "-Paragraph-of-Chapter-" + currentChapterNumber.ToString();//создали маркировку и номер текущего абзаца - проверяем, что если добавить перевод строки? ничего хорошего - потом не найти маркировку, так как строка теперь начинается не маркой
-                return paragraphTextMarks;
-            }
-        }
-
         public int PortionBookTextOnParagraphs(int desiredTextLanguage)//делит текст на абзацы по EOL, сохраняет в List в AllBookData
         {
-            int charsParagraphSeparatorLength = GetConstantWhatNotLength("Paragraph");
-            string[] charsParagraphSeparatorInString = new string[charsParagraphSeparatorLength];
-            charsParagraphSeparatorInString = GetConstantWhatNot("Paragraph");
+            int charsParagraphSeparatorLength = GetConstantWhatNotLength("Paragraph");            
+            string[] charsParagraphSeparatorInString = GetConstantWhatNot("Paragraph");
             char[] charsParagraphSeparator = charsParagraphSeparatorInString[0].ToCharArray();
 
             string textToAnalyse = _bookData.GetFileContent(desiredTextLanguage);
+
+            //тут заменим все многоточия фирменным символом, а также другие составные знаки
+            int changedEllipsisVariationCount = 0;
+            int charsEllipsisToChangeLength = GetConstantWhatNotLength("EllipsisToChange");
+            string[] charsEllipsisToChange1 = GetConstantWhatNot("EllipsisToChange1");
+            string[] charsEllipsisToChange2 = GetConstantWhatNot("EllipsisToChange2");
+
+            for (int ellipsisVariationToChange = 0; ellipsisVariationToChange < charsEllipsisToChangeLength; ellipsisVariationToChange++)
+            {
+                int ellipsisVariationIndexFound = textToAnalyse.IndexOf(charsEllipsisToChange1[ellipsisVariationToChange]);
+                bool ellipsisVariationFound = ellipsisVariationIndexFound > 0;
+
+                if (ellipsisVariationFound)
+                {
+                    string textToAnalyseEllipsisChanged = textToAnalyse.Replace(charsEllipsisToChange1[ellipsisVariationToChange], charsEllipsisToChange2[ellipsisVariationToChange]);//Возвращает новую строку, в которой все вхождения заданной строки(1) в текущем экземпляре заменены другой строкой(2)
+                    textToAnalyse = textToAnalyseEllipsisChanged;//освобождаем переменную для следующего прохода
+                    changedEllipsisVariationCount++;
+                }
+
+            }
+
+            _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Found and changed Ellipsis Variation Count = " + changedEllipsisVariationCount.ToString(), CurrentClassName, 3);
+
             string[] TextOnParagraphsPortioned = textToAnalyse.Split(charsParagraphSeparator);//portioned all book content in the ParagraphsArray via EOL
             //потом тут можно написать свой метод деления на абзацы (или этот пусть делит по одному сепаратору)
             int textOnParagraphsPortionedLength = TextOnParagraphsPortioned.Length;
@@ -223,6 +218,10 @@ namespace TextSplit
         }
     }
 }
+//int GetCharsSeparatorLength(string ParagraphOrSentence) => _arrayAnalysis.GetConstantWhatNotLength(ParagraphOrSentence);
+//string[] GetCharsSeparator(string ParagraphOrSentence) => _arrayAnalysis.GetConstantWhatNot(ParagraphOrSentence);
+//int PrepareToDividePagagraphToSentences(int desiredTextLanguage, string currentParagraph, int currentChapterNumber, int currentParagraphNumber, int i) => 
+//    _sentenceAnalyser.PrepareToDividePagagraphToSentences(desiredTextLanguage, currentParagraph, currentChapterNumber, currentParagraphNumber, i);
 //public int FindParagraphTextNumber(string userSelectedText, int desiredTextLanguage, int startParagraphTextNumber)
 //{
 //    int paragraphTextLength = _bookData.GetParagraphTextLength(desiredTextLanguage);

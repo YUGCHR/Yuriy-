@@ -89,7 +89,7 @@ namespace TextSplit
                         }
                     }
                     int[] SentenceDelimitersIndexesArray = RemoveNegativeSentenceDelimitersIndexes(allIndexResults);//сжали ветку массива с точками - удалили отрицательный и сохранили в обычный временный массив
-                    string[] paragraphSentences = DivideTextToSentencesByDelimiters(nextParagraph, SentenceDelimitersIndexesArray);//разделили текст на предложения согласно оставшимся разделителям
+                    string[] paragraphSentences = DivideTextToSentencesByDelimiters(nextParagraph, charsAllDelimiters, SentenceDelimitersIndexesArray);//разделили текст на предложения согласно оставшимся разделителям
 
                     //string sentenceTextMarks = CreatePartTextMarks(stringToPutMarkBegin, stringToPutMarkEnd, currentChapterNumber, currentSentenceNumber, sentenceTextMarksWithOtherNumbers);//создали базовую маркировку и номер текущего предложения - ¶¶¶¶¶00001¶¶¶-Paragraph-3-of-Chapter-3
                     paragraphSentences = EnumerateDividedSentences(sentenceTextMarksWithOtherNumbers, paragraphSentences);//пронумеровали разделенные предложения - еще в том же массиве
@@ -116,50 +116,6 @@ namespace TextSplit
             }
             int[] SentenceDelimitersIndexesArray = allIndexResults[0].ToArray();
             return SentenceDelimitersIndexesArray;
-        }
-
-        //сделать простые примеры с точным расположением серараторов, написать все возможные ситуации обработки разделителей (FSM)
-        public List<List<int>> FindSentencesDelimitersBeetweenQuotes(string textParagraph, List<List<int>> allIndexResults, int currentQuotesGroup)//метод вызывется для проверки попадания точек (разделителей предложений) внутрь кавычек/скобок, тип кавычек - простые или откр-закр определяется checkedDelimitersGroup
-        {            
-            int SentenceDelimitersIndexesCount = allIndexResults[0].Count();            
-            int currentOFAllIndexResultsCount = allIndexResults[currentQuotesGroup].Count();//получили общее количество разделителей указанной в checkedDelimitersGroup группы
-            //проверяем наличие разделителей нулевой группы (.?!;) между парами кавычек/скобок и при наличии таковых - удаляем (с осторожностью на правых краях)
-            for (int currentNumberQuotesPair = 0; currentNumberQuotesPair < currentOFAllIndexResultsCount - 1; currentNumberQuotesPair = currentNumberQuotesPair + 2)//выбираем номер по порядку пары кавычек из общего количества кавычек, точнее выбираем номер открывающей кавычки и перекакиваем через одну в следюущем цикле
-            {
-                int startIndexQuotes = allIndexResults[currentQuotesGroup][currentNumberQuotesPair];//получаем индекс открывающей кавычки текущей по порядку пары
-                int finishIndexQuotes = allIndexResults[currentQuotesGroup][currentNumberQuotesPair + 1];//получаем индекс закрывающей                
-                //positiveCurrentIndexOfDotPosition = 0;
-                for (int forCurrentIndexOfDotPosition = 0; forCurrentIndexOfDotPosition < SentenceDelimitersIndexesCount; forCurrentIndexOfDotPosition++)//достаем в цикле все индексы разделителей предложений и проверяем их на попадание в диапазон между кавычками
-                {
-                    int currentRestDelimitersIndex = 0;
-                    int maxShiftLastDotBeforeRightQuote = 3;//параметр сдвига правой точки за закрывающую кавычку, здесь взять максимальный (и получить его из констант), но потом надо рассмотреть все случаи - 1. точка перед самой кавычкой, 2. пробел между ними 3. больше знаков - например многоточие 
-                    int currentIndexOfDotPosition = allIndexResults[0][forCurrentIndexOfDotPosition];
-
-                    //варианты для switch - расстояние от точки до кавычки - 1 символ, 2, 3, 4, 5 или больше (5 - это многоточие из точек и пробел между ним и кавычками)             
-
-                    bool dotAfterLeftQuote1 = currentIndexOfDotPosition > startIndexQuotes;//сначала смотрим, находится ли точка после левой кавычки
-                    bool dotBeforeRightQuote2 = currentIndexOfDotPosition < finishIndexQuotes;//потом смотрим, находится ли точка до правой кавычки                    
-                    int rightQuoteZone = finishIndexQuotes - maxShiftLastDotBeforeRightQuote;//вычисляем границу критической зоны правой кавычки (отступ потом будет менять в маленьком цикле - или отдадим методу со switch)
-                    bool dotInTheQuoteZone3 = currentIndexOfDotPosition > rightQuoteZone;//и главный выбор - попадает ли точка в защитную зону правой кавычки - где ее надо спасать и переносить правее кавычки
-                    bool dotBeforeQuoteZone3 = !dotInTheQuoteZone3;//соответственно - не попадает под защиту (но возможно попадает между кавычками)
-                    bool dotNearRightQuoteNeedSave23 = dotBeforeRightQuote2 && dotInTheQuoteZone3;//проверка, что точка в зоне, но не правее правой кавычки (условие dotAfterLeftQuote1 лишнее)
-                    bool dotBetweenQuotesNeedDelete1not3 = dotAfterLeftQuote1 && dotBeforeQuoteZone3;//не попадает под защиту, но попадает между кавычками - будет удалена (условие dotBeforeRightQuote2 лишнее)
-
-                    if (dotBetweenQuotesNeedDelete1not3)
-                    {//попадает до зоны кавычки - делаем индекс отрицательным для последующего удаления из массива
-                        allIndexResults[0][forCurrentIndexOfDotPosition] = allIndexResults[0][forCurrentIndexOfDotPosition] * -1;//попадает до зоны кавычки - делаем индекс отрицательным для последующего удаления из массива
-                        currentRestDelimitersIndex = -1;
-                    }
-
-                    if (dotNearRightQuoteNeedSave23)
-                    {//попадает в зону кавычки, тут потом рассмотрим разные варианты расстояний до кавычки (когда пройдет старый тест)
-                        allIndexResults[0][forCurrentIndexOfDotPosition] = finishIndexQuotes;// + 1; переносим точку на место кавычки (возможно +1, но не факт)
-                        currentRestDelimitersIndex = finishIndexQuotes;
-                    }
-                    currentRestDelimitersIndex = currentIndexOfDotPosition; //индекс точки не попадает между кавычек никаким образом - ничего не делаем, возвращаем исходный индекс
-                }
-            }            
-            return allIndexResults;
         }
 
         private int FoundMaxDelimitersGroupNumber(int sGroupCount, List<List<int>> allIndexResults)
@@ -258,40 +214,134 @@ namespace TextSplit
             return evenQuotesCount;
         }
 
-        public string[] DivideTextToSentencesByDelimiters(string textParagraph, int[] SentenceDelimitersIndexesArray)//разобраться с константами и почему не совпадает по сумме часть предложений
+        //сделать простые примеры с точным расположением серараторов, написать все возможные ситуации обработки разделителей (FSM)
+        public List<List<int>> FindSentencesDelimitersBeetweenQuotes(string textParagraph, List<List<int>> allIndexResults, int currentQuotesGroup)//метод вызывется для проверки попадания точек (разделителей предложений) внутрь кавычек/скобок, тип кавычек - простые или откр-закр определяется checkedDelimitersGroup
         {
-            int SentenceDelimitersIndexesArrayLength = SentenceDelimitersIndexesArray.Length;
-            string[] paragraphSentences = new string[SentenceDelimitersIndexesArrayLength];//временный массив для хранения свежеподеленных предложений
-            int textParagraphLength = textParagraph.Length;
-            int textParagraphLengthFromSentences = 1;// - по дороге похоже потерялся пробел на границе предложений, но это не выход
-            int startIndexSentence = 0;
-            int lengthSentence = 0;
-            int checkLengthOfLastSentence = 0; //сдвинем все разделители на 1 вправо, чтобы не терялись точки - но последний сдвигать нельзя, проверяем длину и отрезаем
-
-            for (int i = 0; i < SentenceDelimitersIndexesArrayLength; i++)
+            int SentenceDelimitersIndexesCount = allIndexResults[0].Count();
+            int currentOFAllIndexResultsCount = allIndexResults[currentQuotesGroup].Count();//получили общее количество разделителей указанной в checkedDelimitersGroup группы
+            //проверяем наличие разделителей нулевой группы (.?!;) между парами кавычек/скобок и при наличии таковых - удаляем (с осторожностью на правых краях)
+            for (int currentNumberQuotesPair = 0; currentNumberQuotesPair < currentOFAllIndexResultsCount - 1; currentNumberQuotesPair += 2)//выбираем номер по порядку пары кавычек из общего количества кавычек, точнее выбираем номер открывающей кавычки и перекакиваем через одну в следюущем цикле
             {
-                lengthSentence = SentenceDelimitersIndexesArray[i] - startIndexSentence + 2;//где-то здесь теряются точки в конце предложений, попробуем поставить +1 (но нет, наверное, надо не здесь, а сдвинуть индекс разделительа на 1 вверх)
-                checkLengthOfLastSentence = startIndexSentence + lengthSentence;
-                bool exceptionWillCome = checkLengthOfLastSentence >= textParagraphLength;
+                int startIndexQuotes = allIndexResults[currentQuotesGroup][currentNumberQuotesPair];//получаем индекс открывающей кавычки текущей по порядку пары
+                int finishIndexQuotes = allIndexResults[currentQuotesGroup][currentNumberQuotesPair + 1];//получаем индекс закрывающей                
+                //тут вообще-то можно было посчитать какой по счету индекс точки попадает в диапазон и не прогонять весь массив точек - но это на будущее
+                for (int forCurrentDotPositionIndex = 0; forCurrentDotPositionIndex < SentenceDelimitersIndexesCount; forCurrentDotPositionIndex++)//достаем в цикле все индексы разделителей предложений и проверяем их на попадание в диапазон между кавычками
+                {                    
+                    int maxShiftLastDotBeforeRightQuote = 3;//параметр сдвига правой точки за закрывающую кавычку, здесь взять максимальный (и получить его из констант), но потом надо рассмотреть все случаи - 1. точка перед самой кавычкой, 2. пробел между ними 3. больше знаков - например многоточие 
+                    int currentDotPosition = allIndexResults[0][forCurrentDotPositionIndex];
+                    int rightQuoteZone = finishIndexQuotes - maxShiftLastDotBeforeRightQuote;//вычисляем границу критической зоны правой кавычки (отступ потом будет менять в маленьком цикле - или отдадим методу со switch)                    
 
-                _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "startIndexSentence = " + startIndexSentence.ToString() + strCRLF +
-                    "lengthSentence = " + lengthSentence.ToString() + strCRLF +
-                    "chechLengthLastSentence = " + checkLengthOfLastSentence.ToString() + strCRLF +
-                    "textParagraphLength = " + textParagraphLength.ToString() + strCRLF +
-                    "exceptionWillCome = " + exceptionWillCome.ToString(), CurrentClassName, showMessagesLevel);
+                    bool dotAfterLeftQuote1 = currentDotPosition > startIndexQuotes;//сначала смотрим, находится ли точка после левой кавычки
+                    bool dotBeforeRightQuote2 = currentDotPosition < finishIndexQuotes;//потом смотрим, находится ли точка до правой кавычки
+                    bool dotInTheQuoteZone3 = currentDotPosition > rightQuoteZone;//и главный выбор - попадает ли точка в защитную зону правой кавычки - где ее надо спасать и переносить правее кавычки
+                    bool dotBeforeQuoteZone3 = !dotInTheQuoteZone3;//соответственно - не попадает под защиту (но возможно попадает между кавычками)
+                    bool dotNearRightQuoteNeedSave23 = dotBeforeRightQuote2 && dotInTheQuoteZone3;//проверка, что точка в зоне, но не правее правой кавычки (условие dotAfterLeftQuote1 лишнее)
+                    bool dotBetweenQuotesNeedDelete1not3 = dotAfterLeftQuote1 && dotBeforeQuoteZone3;//не попадает под защиту, но попадает между кавычками - будет удалена (условие dotBeforeRightQuote2 лишнее)
 
-                if (exceptionWillCome)
-                {
-                    lengthSentence = textParagraphLength - startIndexSentence;
+                    if (dotBetweenQuotesNeedDelete1not3)
+                    {//попадает до зоны кавычки - делаем индекс отрицательным для последующего удаления из массива
+                        allIndexResults[0][forCurrentDotPositionIndex] = allIndexResults[0][forCurrentDotPositionIndex] * -1;//попадает до зоны кавычки - делаем индекс отрицательным для последующего удаления из массива                                                                                                                                 
+                    }
+
+                    if (dotNearRightQuoteNeedSave23)
+                    {
+                        allIndexResults[0][forCurrentDotPositionIndex] = finishIndexQuotes;// + 1; переносим точку на место кавычки (возможно +1, но не факт) - нет, никаких +1 не надо
+                    }                    
                 }
-                paragraphSentences[i] = textParagraph.Substring(startIndexSentence, lengthSentence);//string Substring (int startIndex, int length)
-                startIndexSentence += lengthSentence;
-                textParagraphLengthFromSentences += lengthSentence;
+            }
+            return allIndexResults;
+        }
 
-                _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "textParagraph - " + textParagraph + strCRLF +
-                    "textParagraphLength = " + textParagraphLength.ToString() + strCRLF +
-                    "paragraphSentences[" + i.ToString() + "] - " + paragraphSentences[i] + strCRLF +
-                    "textParagraphLengthFromSentences = " + textParagraphLengthFromSentences.ToString(), CurrentClassName, showMessagesLevel);
+        private bool IsCurrentSymbolDelimiter(char[] charsSentenceDelimiters, char currentSymbol)
+        {
+            bool currentSymbolIsDelimiter = false;
+            foreach (char delimiter in charsSentenceDelimiters)
+            {                
+                currentSymbolIsDelimiter = currentSymbol == delimiter;
+                if (currentSymbolIsDelimiter)
+                {
+                    return currentSymbolIsDelimiter;
+                }                
+            }
+            return currentSymbolIsDelimiter;
+        }
+
+        public string[] DivideTextToSentencesByDelimiters(string textParagraph, List<List<char>> charsAllDelimiters, int[] sentenceDelimitersIndexesArray)//разобраться с константами и почему не совпадает по сумме часть предложений
+        {
+            char[] charsSentenceDelimiters = charsAllDelimiters[0].ToArray();//создали массив точек
+            int sentenceDelimitersIndexesCount = sentenceDelimitersIndexesArray.Length;
+            string[] paragraphSentences = new string[sentenceDelimitersIndexesCount];//временный массив для хранения свежеподеленных предложений
+            int textParagraphLength = textParagraph.Length;
+            int textParagraphLengthFromSentences = 0;// было 1, но с 0 нет никакой разницы (она только для первого предложения, а там и так все сейчас неладно)
+            int startIndexSentence = 0;
+
+            for (int i = 0; i < sentenceDelimitersIndexesCount; i++)
+            {
+                //прежде всего рассмотрим положение текущей точки - что после нее (надо смотреть, что перед ней?)
+                //все непонятки можно записать в освободившийся массив ChapterNumber - кстати, их все надо чистить перед анализом следующего языка/текста
+                //или можно завести аналогичный цифровой массив ParagraghNumber
+
+
+                //вставляет пустые предложения и вроде даже какие-то глотает, хэш текста - 9628dcb7e84a589eabb98590b96b4613, предложений - 528
+
+                bool currentSymbolIsUpper = false;
+                bool lastSentenceDelimiterFound = i == (sentenceDelimitersIndexesCount - 1);
+                if (!lastSentenceDelimiterFound)//если последний проход, то поиск следующего предложения не нужен
+                {
+                    //currentSymbolIsUpper = false;
+                    int currentSentenceDelimiterIndex = sentenceDelimitersIndexesArray[i];
+                    char currentSymbol = textParagraph[currentSentenceDelimiterIndex];
+                    bool currentSymbolIsDelimiter = IsCurrentSymbolDelimiter(charsSentenceDelimiters, currentSymbol);
+
+                    if (!currentSymbolIsDelimiter)
+                    {
+                        _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "textParagraph = " + textParagraph + strCRLF +
+                            "currentSymbol = " + currentSymbol.ToString() + strCRLF +
+                            "currentSentenceDelimiterIndex = " + currentSentenceDelimiterIndex.ToString(), CurrentClassName, showMessagesLevel);
+                    }
+
+                    bool currentSymbolIsLetterOrDigit = false;
+                    while (!currentSymbolIsLetterOrDigit)//пока не нашли букву или цифру после точки - ищем ее
+                    {
+                        currentSentenceDelimiterIndex++;
+                        currentSymbolIsLetterOrDigit = Char.IsLetterOrDigit(textParagraph, currentSentenceDelimiterIndex);//Показывает, относится ли символ в указанной позиции в указанной строке к категории букв или десятичных цифр.
+                    }
+
+                    //вышли с указателем на букву/цифру currentSentenceDelimiterIndex
+                    currentSymbol = textParagraph[currentSentenceDelimiterIndex];
+                    _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "currentSymbol = " + currentSymbol.ToString() + strCRLF +
+                        "currentSentenceDelimiterIndex = " + currentSentenceDelimiterIndex.ToString() + strCRLF +
+                        "currentSymbolIsLetterOrDigit = " + currentSymbolIsLetterOrDigit.ToString(), CurrentClassName, showMessagesLevel);
+
+                    currentSymbolIsUpper = Char.IsUpper(textParagraph, currentSentenceDelimiterIndex);//Показывает, относится ли указанный символ в указанной позиции в указанной строке к категории букв верхнего регистра.
+                }
+                if (currentSymbolIsUpper || lastSentenceDelimiterFound)//если нашли новое предложение с большой буквы - делим (или если последнее предложение и уже не искали следующее)
+                {
+
+                    int lengthSentence = sentenceDelimitersIndexesArray[i] - startIndexSentence + 2;//надо +2, потому что иначе теряется пробел после точки 
+                    int checkLengthOfLastSentence = startIndexSentence + lengthSentence;
+                    bool exceptionWillCome = checkLengthOfLastSentence >= textParagraphLength;
+
+                    _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "startIndexSentence = " + startIndexSentence.ToString() + strCRLF +
+                        "lengthSentence = " + lengthSentence.ToString() + strCRLF +
+                        "chechLengthLastSentence = " + checkLengthOfLastSentence.ToString() + strCRLF +
+                        "textParagraphLength = " + textParagraphLength.ToString() + strCRLF +
+                        "exceptionWillCome = " + exceptionWillCome.ToString(), CurrentClassName, showMessagesLevel);
+
+                    if (exceptionWillCome)
+                    {
+                        lengthSentence = textParagraphLength - startIndexSentence;//так точнее делит последнее предложение абзаца
+                        //lengthSentence -= 1;//если последнее предложение абзаца, то уменьшаем длину раздела на 1 - вдруг там нет пробела после точки (можно впрямую проверить по длине абзаца)
+                    }
+                    paragraphSentences[i] = textParagraph.Substring(startIndexSentence, lengthSentence);//string Substring (int startIndex, int length)
+                    startIndexSentence += lengthSentence;
+                    textParagraphLengthFromSentences += lengthSentence;
+
+                    _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "textParagraph - " + textParagraph + strCRLF +
+                        "textParagraphLength = " + textParagraphLength.ToString() + strCRLF +
+                        "paragraphSentences[" + i.ToString() + "] - " + paragraphSentences[i] + strCRLF +
+                        "textParagraphLengthFromSentences = " + textParagraphLengthFromSentences.ToString(), CurrentClassName, showMessagesLevel);
+                }
             }
             textParagraphLengthFromSentences -= 1; //вычитаем единицу, которую не удалось прибавить к последнему предложению
             if (textParagraphLengthFromSentences != textParagraphLength)
@@ -343,6 +393,58 @@ namespace TextSplit
     }
 }
 
+//попадает в зону кавычки, тут потом рассмотрим разные варианты расстояний до кавычки (когда пройдет старый тест)
+//варианты для switch - расстояние от точки до кавычки - 1 символ, 2, 3, 4, 5 или больше (5 - это многоточие из точек и пробел между ним и кавычками)
+//начинаем поиск точки со значения maxShiftLastDotBeforeRightQuote = 5 - вот, куда двигаться, влево от кавычки или наоборот?
+//сразу же можно доставать реальные символы во временный массив - отталкиваясь от индекса правой кавычки
+//
+//сначала проверяем, есть ли в следующей позиции (после текущей позиции, с которой сюда попали) еще точки - сюда мы попали с самой левой точкой, так что двигаемся вправо, пока очередной индекс не превысит кавычку
+//someDotsInQuoteZone[0] = 10;//в первой ячейке есть точка по умолчанию - с ней мы попали сюда, нет, это не так - эта точка в произвольном месте
+//заполнили массив (индексы - позиции в тексте в защитной зоне правой кавычки слева-направо) метками найденных точек (10 - заменить на enum), но нет
+
+//int[] someDotsIndexInQuoteZone = new int[maxShiftLastDotBeforeRightQuote];
+//int totalDotsCountInZone = 0;
+//for (int shiftFromQuote = 1; shiftFromQuote < maxShiftLastDotBeforeRightQuote; shiftFromQuote++)//проверили следующие maxShiftLastDotBeforeRightQuote индексов в allIndexResults[0] - которые попадают в зону кавычки, сохранили в массиве
+//{
+//    int shiftDotPositionIndex = forCurrentDotPositionIndex + shiftFromQuote;//достали следующий индекс массива точки, проверим, где она
+//    bool nextIndexIsExist = shiftDotPositionIndex < SentenceDelimitersIndexesCount;
+//    if (nextIndexIsExist)
+//    {
+//        int shiftDotPosition = allIndexResults[0][shiftDotPositionIndex];//достали значение индекса положения точки
+//        bool currentDotIsBeforeRightQuote = shiftDotPosition < finishIndexQuotes;//сравнили положение точки с правой кавычкой - что она тоже не выходит за правую кавычку
+//        if (currentDotIsBeforeRightQuote)
+//        {
+//            someDotsIndexInQuoteZone[shiftFromQuote] = shiftDotPosition;
+//            allIndexResults[0][shiftDotPositionIndex] = allIndexResults[0][shiftDotPositionIndex] * -1;
+//            totalDotsCountInZone++;
+//        }
+//    }
+//}
+//if (totalDotsCountInZone > 1)//одна точка там точно есть, а если больше, то это или многоточие или сдвоенные знаки (типа ?!)
+//{
+//    int totalDotsCountInZone1 = totalDotsCountInZone - 1;
+//    forCurrentDotPositionIndex += totalDotsCountInZone1;
+//    _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Current textParagraph has ELLIPSIS - " + strCRLF +
+//        textParagraph + strCRLF +
+//        "First Dot with the Index = " + forCurrentDotPositionIndex.ToString() + strCRLF +
+//        "First Dot is in the Position = " + currentDotPosition.ToString() + strCRLF +
+//        "Total Dots Quantity = " + totalDotsCountInZone.ToString(), CurrentClassName, showMessagesLevel);
+//}
+//for (int shiftFromQuote = 1; shiftFromQuote < maxShiftLastDotBeforeRightQuote; shiftFromQuote++)//проверяем остальные позиции - что там есть
+//{
+
+//    //если попадает, то смотрим на значение индекса - положение точки
+//    //достанем реальный символ
+//    int currentSymbolIndex = finishIndexQuotes - shiftFromQuote;
+//    char currentSymbol = textParagraph[currentSymbolIndex];
+//}
+//positiveCurrentIndexOfDotPosition = 0;
+//int currentRestDelimitersIndex = 0;
+//currentRestDelimitersIndex = -1;
+//currentRestDelimitersIndex = currentIndexOfDotPosition; //индекс точки не попадает между кавычек никаким образом - ничего не делаем, возвращаем исходный индекс
+//сдвинем все разделители на 1 вправо, чтобы не терялись точки - но последний сдвигать нельзя, проверяем длину и отрезаем
+// - по дороге похоже потерялся пробел на границе предложений, но это не выход
+//(где-то здесь теряются точки в конце предложений, попробуем поставить +1 (но нет, наверное, надо не здесь, а сдвинуть индекс разделителя на 1 вверх))
 //bool dotAfterLeftButBeforeRightQuote12 = dotAfterLeftQuote1 && dotBeforeRightQuote2;//суммарное условие - точка между кавычками (но не нужное, потом удалить)
 //int nextParagraphIndex = 0;
 //string currentParagraph = null;
