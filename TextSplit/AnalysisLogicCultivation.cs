@@ -113,16 +113,24 @@ namespace TextSplit
             string markParagraphBegin = GetConstantWhatNot("ParagraphBegin")[0];
             string markParagraphEnd = GetConstantWhatNot("ParagraphEnd")[0];
 
+
+
+            _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "currentChapterNumber = " + currentChapterNumber.ToString() + strCRLF +
+                    "enumerateParagraphsCount = " + enumerateParagraphsCount.ToString(), CurrentClassName, 3);
+
+
             if (currentChapterNumber < 0)//номера главы еще нет, а текст есть - предисловие
             {
-                string paragraphTextMarks = markParagraphBegin + "Introduction" + markParagraphEnd + "-" + "Paragraph" + "-";//создаем маркировку введения/предисловия
+                string currentParagraphNumberSrting = enumerateParagraphsCount.ToString();
+                string currentParagraphNumberToFind01 = AddSome00ToIntNumber(currentParagraphNumberSrting, totalDigitsQuantity5);
+                string paragraphTextMarks = markParagraphBegin + currentParagraphNumberToFind01 + markParagraphEnd + "-" + "Paragraph-Introductn-" + "-";//создаем маркировку введения/предисловия
                 return paragraphTextMarks;
             }
             else
             {
                 string currentParagraphNumberSrting = enumerateParagraphsCount.ToString();
-                string currentParagraphNumberToFind00 = AddSome00ToIntNumber(currentParagraphNumberSrting, totalDigitsQuantity5);
-                string paragraphTextMarks = markParagraphBegin + currentParagraphNumberToFind00 + markParagraphEnd + "-Paragraph-of-Chapter-" + currentChapterNumber.ToString();//создали маркировку и номер текущего абзаца - проверяем, что если добавить перевод строки? ничего хорошего - потом не найти маркировку, так как строка теперь начинается не маркой
+                string currentParagraphNumberToFind01 = AddSome00ToIntNumber(currentParagraphNumberSrting, totalDigitsQuantity5);
+                string paragraphTextMarks = markParagraphBegin + currentParagraphNumberToFind01 + markParagraphEnd + "-Paragraph-of-Chapter-" + currentChapterNumber.ToString();//создали маркировку и номер текущего абзаца - проверяем, что если добавить перевод строки? ничего хорошего - потом не найти маркировку, так как строка теперь начинается не маркой
                 return paragraphTextMarks;
             }
         }

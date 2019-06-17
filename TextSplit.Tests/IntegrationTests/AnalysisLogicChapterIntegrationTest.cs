@@ -14,11 +14,13 @@ namespace TextSplit.Tests
     public class AnalysisLogicChapterIntegrationTest
     {
         [TestMethod] // - marks method as a test
-        [DataRow(".//testBooks//testEndlishTexts_03.txt", "a18db99a01a8f7a08085ea28968edd31", (int)WhatNeedDoWithFiles.AnalyseText, 0, "371e4f92ba1a86fa08838fec6396e32c")]
+        [DataRow(".//testBooks//testEndlishTexts_03.txt", "5fb0cd088e35fddcc38ae26fe8841fb6", (int)WhatNeedDoWithFiles.AnalyseText, 0, "6cd5975bad068b17460cea84586349b4")]
         //(int)WhatNeedDoWithFiles.AnalyseText - включить анализ текста - аналог нажатия кнопки Analysis в OpenForm
         //1a228cf53b80ba5e24499b8d83a44df0 - в исходный текст поставлены градусы вместо пробела после разделителей - для контроля переноса пробела
         //e7ef272232c4b704f557db114ac7815f - в исходный текст добавлено много пустых строк в конце
         //a18db99a01a8f7a08085ea28968edd31 - в исходный текст добавлены скобки для всех [Maximilian Andreyevich]
+        //94eeb3deba4dd515562a1687007bb86f - A Fire Upon the Deep started to test
+        //5fb0cd088e35fddcc38ae26fe8841fb6 - опять M&M но без нулевой главы, нумерация с 01
         //i = 0  - this will be desiredTextLanguage for AnalyseTextBook
         //Actual Hash with Paragraph numbers only (without sentences): <02a6c1080c08c87c95cf95005fb701e7>
         //Actual Hash with Paragraph and Sentences numbers): <97509ac7bb342a814e59684113b74997>
@@ -26,6 +28,9 @@ namespace TextSplit.Tests
         //Actual Hash with deleted last Paragraph number - before empty line: 14759d56a7875bb6f6b5648457d7303c
         //Actual Hash with []: 9ea145f9d9a7702f48c64eba6a5e8407 - должно быть 544 предложения, Excel проверил
         //Actual Hash with …: 371e4f92ba1a86fa08838fec6396e32c - должно быть 528 предложений
+        //Actual Hash with Char.IsUpper: 9628dcb7e84a589eabb98590b96b4613 - должно быть 528 предложений
+        //Actual Hash with exceptionWillCome: a7d2bea324bfac674eb345fbd0a9da84 - предложений все равно 528
+        //Actual Hash with end-of-psragraph check: 6cd5975bad068b17460cea84586349b4 - предложение 528
         public void TestMain_AnalyseTextBook(string _filePath, string expectedHash, int fileToDo, int desiredTextLanguage, string saveTextFileResult)
         {
             bool truePath = File.Exists(_filePath);
@@ -112,19 +117,19 @@ namespace TextSplit.Tests
             int normalizeEmptyParagraphsResult = paragraphAnalyser.normalizeEmptyParagraphs(desiredTextLanguage);
             int paragraphTextLength = bookData.GetParagraphTextLength(desiredTextLanguage);
             
-            int[] chapterNameIsDigitsOnly = new int[paragraphTextLength];
+            int[] allDigitsInParagraphs = new int[paragraphTextLength];
 
             for (int i = 0; i < paragraphTextLength; i++)
             {
                 string currentParagraph = bookData.GetParagraphText(i, desiredTextLanguage);                
-                chapterAnalyser.FirstTenGroupsChecked(currentParagraph, chapterNameIsDigitsOnly, i, desiredTextLanguage);
+                chapterAnalyser.FirstTenGroupsChecked(currentParagraph, allDigitsInParagraphs, i, desiredTextLanguage);
             }
             
-            int increasedChapterNumbers = chapterAnalyser.IsChapterNumbersIncreased(chapterNameIsDigitsOnly, desiredTextLanguage);
+            int[] chapterNameIsDigitsOnly = chapterAnalyser.IsChapterNumbersIncreased(allDigitsInParagraphs, desiredTextLanguage);
             
             string keyWordFounfForm = chapterAnalyser.KeyWordFormFound(desiredTextLanguage);
 
-            var result = chapterAnalyser.TextBookDivideOnChapter(chapterNameIsDigitsOnly, increasedChapterNumbers, keyWordFounfForm, desiredTextLanguage);
+            var result = chapterAnalyser.TextBookDivideOnChapter(allDigitsInParagraphs, chapterNameIsDigitsOnly, keyWordFounfForm, desiredTextLanguage);
             Assert.AreEqual(lastFoundChapterNumberInMarkFormat, result);
         }
 
@@ -135,7 +140,7 @@ namespace TextSplit.Tests
 
             string pasHash = manager.GetMd5Hash(fileContent);
 
-            Trace.WriteLine("Hash = " + pasHash);//печать хэша файла для изменения на правильный после корректировки файла
+            Trace.WriteLine("Hash = " + pasHash);//вывод хэша файла для изменения на правильный после корректировки файла
             bool trueHash = pasHash == expectedHash;
             Assert.IsTrue(trueHash, "test file has been changed");
         }

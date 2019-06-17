@@ -117,8 +117,8 @@ namespace TextSplitLibrary
             charsQuotesSeparator = new string[] { "\u0022", "/", "\u02BA", "\u02EE", "\u02DD" };// "\u0022 ʺ\u02BA ˮ\u02EE ˝\u02DD - кавычки и скобки без деления на открывающие и закрывающие
             charsBracketsSeparator = new string[] { "()", "[]", "{}", "«»", "<>" };// - кавычки и скобки открывающие и закрывающие - «\u00AB »\u00BB
 
-            charsEllipsisToChange1 = new string[] { "...", "!!!", "!!", "?!!", "?!", "!!?", "!?", "???", "??" };
-            charsEllipsisToChange2 = new string[] { "…", "\u203C", "\u203C", "\u2048", "\u2048", "\u2049", "\u2049", "\u2047", "\u2047" };
+            charsEllipsisToChange1 = new string[] { "“”", "...", "!!!", "!!", "?!!", "?!", "!!?", "!?", "???", "??" };
+            charsEllipsisToChange2 = new string[] { "«»", "…", "\u203C", "\u203C", "\u2048", "\u2048", "\u2049", "\u2049", "\u2047", "\u2047" };
 
             charsGroupsSeparators = new string[] { ".…!?;", "\u0022\u002F\u02BA\u02EE\u02DD", "()[]{}«»<>" };//…\u2026 (Horizontal Ellipsis) (\u002F - /) ⁇\u2047 ⁈\u2048 ⁉\u2049 ‼\u203C
             numbersOfGroupsNames = new string[] { "Sentence", "Quotes", "Brackets" }; //номера групп сепараторов для получения их значений в цикле

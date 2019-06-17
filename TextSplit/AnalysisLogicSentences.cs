@@ -27,8 +27,13 @@ namespace TextSplit
         readonly private int showMessagesLevel;
         readonly private string strCRLF;
 
+        //новые методы из _bookData
+        string GetStringContent(int desiredTextLanguage, string nameOfStringNeed, int indexCount) => _bookData.GetStringContent(desiredTextLanguage, nameOfStringNeed, indexCount);
+
+
+        //старые методы из _bookData
         int GetParagraphTextLength(int desiredTextLanguage) => _bookData.GetParagraphTextLength(desiredTextLanguage);
-        string GetParagraphText(int paragraphCount, int desiredTextLanguage) => _bookData.GetParagraphText(paragraphCount, desiredTextLanguage);
+        //string GetParagraphText(int paragraphCount, int desiredTextLanguage) => _bookData.GetParagraphText(paragraphCount, desiredTextLanguage);
         int SetParagraphText(string paragraphText, int paragraphCount, int desiredTextLanguage) => _bookData.SetParagraphText(paragraphText, paragraphCount, desiredTextLanguage);
 
         bool FindTextPartMarker(string currentParagraph, string stringMarkBegin) => _analysisLogic.FindTextPartMarker(currentParagraph, stringMarkBegin);
@@ -68,14 +73,16 @@ namespace TextSplit
             while (sentenceFSMwillWorkWithNExtParagraph)//список условий и методов
             {
                 int nextParagraphIndex = currentParagraphIndex + 1;
-                string currentParagraph = GetParagraphText(currentParagraphIndex, desiredTextLanguage);
+                string currentParagraph = GetStringContent(desiredTextLanguage, "GetParagraphText", currentParagraphIndex);
+                //string currentParagraph = GetParagraphText(currentParagraphIndex, desiredTextLanguage);
                 //метод FindTextPartMarker находится в AnalysisLogicCultivation
                 bool foundParagraphMark = FindTextPartMarker(currentParagraph, "ParagraphBegin");//проверяем начало абзаца на маркер абзаца, если есть, то надо вызвать подготовку деления абзаца (она возьмет следующий абзац для деления на предложения)
                 currentParagraphIndex++;//сразу прибавили счетчик абзаца для получения следующего абзаца в следующем цикле
                 if (foundParagraphMark)
                 {
                     string sentenceTextMarksWithOtherNumbers = FindPagagrapNumberForSentenceNumber(paragraphTextLength, currentParagraph, nextParagraphIndex);//получили строку типа -Paragraph-3-of-Chapter-3 - удалены марки, но сохранены номера главы и абзаца
-                    string nextParagraph = GetParagraphText(nextParagraphIndex, desiredTextLanguage);//достаем следующий абзац только при необходимости - когда точно знаем, что там текст, который надо делить
+                    string nextParagraph = GetStringContent(desiredTextLanguage, "GetParagraphText", nextParagraphIndex);
+                    //string nextParagraph = GetParagraphText(nextParagraphIndex, desiredTextLanguage);//достаем следующий абзац только при необходимости - когда точно знаем, что там текст, который надо делить
                     List<List<int>> allIndexResults = FoundAllDelimitersGroupsInParagraph(nextParagraph, charsAllDelimiters, sGroupCount);//собрали все разделители по группам в массив, каждая группа в своей ветке
 
                     int foundMAxDelimitersGroups = FoundMaxDelimitersGroupNumber(sGroupCount, allIndexResults);//создали массив, в котором указано, сколько найдено разделителей каждой группы - изменим, теперь отдаем значение старшей найденной группы (и добавить в тестовый текст скобок)                    
@@ -89,7 +96,7 @@ namespace TextSplit
                         }
                     }
                     int[] SentenceDelimitersIndexesArray = RemoveNegativeSentenceDelimitersIndexes(allIndexResults);//сжали ветку массива с точками - удалили отрицательный и сохранили в обычный временный массив
-                    string[] paragraphSentences = DivideTextToSentencesByDelimiters(nextParagraph, charsAllDelimiters, SentenceDelimitersIndexesArray);//разделили текст на предложения согласно оставшимся разделителям
+                    string[] paragraphSentences = DivideTextToSentencesByDelimiters(nextParagraph, SentenceDelimitersIndexesArray);//разделили текст на предложения согласно оставшимся разделителям
 
                     //string sentenceTextMarks = CreatePartTextMarks(stringToPutMarkBegin, stringToPutMarkEnd, currentChapterNumber, currentSentenceNumber, sentenceTextMarksWithOtherNumbers);//создали базовую маркировку и номер текущего предложения - ¶¶¶¶¶00001¶¶¶-Paragraph-3-of-Chapter-3
                     paragraphSentences = EnumerateDividedSentences(sentenceTextMarksWithOtherNumbers, paragraphSentences);//пронумеровали разделенные предложения - еще в том же массиве
@@ -266,92 +273,65 @@ namespace TextSplit
             return currentSymbolIsDelimiter;
         }
 
-        public string[] DivideTextToSentencesByDelimiters(string textParagraph, List<List<char>> charsAllDelimiters, int[] sentenceDelimitersIndexesArray)//разобраться с константами и почему не совпадает по сумме часть предложений
+        //все непонятки можно записать в освободившийся массив ChapterNumber - кстати, их все надо чистить перед анализом следующего языка/текста - или можно завести аналогичный цифровой массив ParagraghNumber
+        public string[] DivideTextToSentencesByDelimiters(string textParagraph, int[] sentenceDelimitersIndexesArray)//разобраться с константами и почему не совпадает по сумме часть предложений
         {
-            char[] charsSentenceDelimiters = charsAllDelimiters[0].ToArray();//создали массив точек
-            int sentenceDelimitersIndexesCount = sentenceDelimitersIndexesArray.Length;
-            string[] paragraphSentences = new string[sentenceDelimitersIndexesCount];//временный массив для хранения свежеподеленных предложений
             int textParagraphLength = textParagraph.Length;
+            int sentenceDelimitersIndexesCount = sentenceDelimitersIndexesArray.Length;
+            //bool isSentenceWithoutDot = sentenceDelimitersIndexesCount == 0 && textParagraphLength != 0;
+            //if (isSentenceWithoutDot)
+            //{
+            //    _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "textParagraph = " + textParagraph + strCRLF +
+            //        "The Sentence is Without Dot!" + strCRLF +
+            //        "textParagraphLength = " + textParagraphLength.ToString() + strCRLF +
+            //        "sentenceDelimitersIndexesCount = " + sentenceDelimitersIndexesCount.ToString(), CurrentClassName, 3);
+
+            //    sentenceDelimitersIndexesCount = 1;
+            //    sentenceDelimitersIndexesArray = new int[1];
+            //    sentenceDelimitersIndexesArray[0] = textParagraphLength - 1;
+            //}
+            string[] paragraphSentences = new string[sentenceDelimitersIndexesCount];//временный массив для хранения свежеподеленных предложений            
             int textParagraphLengthFromSentences = 0;// было 1, но с 0 нет никакой разницы (она только для первого предложения, а там и так все сейчас неладно)
             int startIndexSentence = 0;
 
             for (int i = 0; i < sentenceDelimitersIndexesCount; i++)
             {
-                //прежде всего рассмотрим положение текущей точки - что после нее (надо смотреть, что перед ней?)
-                //все непонятки можно записать в освободившийся массив ChapterNumber - кстати, их все надо чистить перед анализом следующего языка/текста
-                //или можно завести аналогичный цифровой массив ParagraghNumber
-
-
-                //вставляет пустые предложения и вроде даже какие-то глотает, хэш текста - 9628dcb7e84a589eabb98590b96b4613, предложений - 528
-
+                int lengthSentence = 0;
+                int currentSentenceDelimiterIndex = sentenceDelimitersIndexesArray[i];
                 bool currentSymbolIsUpper = false;
-                bool lastSentenceDelimiterFound = i == (sentenceDelimitersIndexesCount - 1);
-                if (!lastSentenceDelimiterFound)//если последний проход, то поиск следующего предложения не нужен
+                bool lastSentenceDelimiterFound = i == (sentenceDelimitersIndexesCount - 1);//текущее предложение - последнее                
+
+                if (!lastSentenceDelimiterFound)//если последнее предложение, то поиск следующего не нужен
                 {
-                    //currentSymbolIsUpper = false;
-                    int currentSentenceDelimiterIndex = sentenceDelimitersIndexesArray[i];
-                    char currentSymbol = textParagraph[currentSentenceDelimiterIndex];
-                    bool currentSymbolIsDelimiter = IsCurrentSymbolDelimiter(charsSentenceDelimiters, currentSymbol);
-
-                    if (!currentSymbolIsDelimiter)
-                    {
-                        _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "textParagraph = " + textParagraph + strCRLF +
-                            "currentSymbol = " + currentSymbol.ToString() + strCRLF +
-                            "currentSentenceDelimiterIndex = " + currentSentenceDelimiterIndex.ToString(), CurrentClassName, showMessagesLevel);
-                    }
-
                     bool currentSymbolIsLetterOrDigit = false;
+                    bool keepToSearch = false;
+                    //bool tryToFindLetterOrDigitTillDeathDoUsPart = !currentSymbolIsLetterOrDigit || !stopToSearch;
                     while (!currentSymbolIsLetterOrDigit)//пока не нашли букву или цифру после точки - ищем ее
                     {
                         currentSentenceDelimiterIndex++;
-                        currentSymbolIsLetterOrDigit = Char.IsLetterOrDigit(textParagraph, currentSentenceDelimiterIndex);//Показывает, относится ли символ в указанной позиции в указанной строке к категории букв или десятичных цифр.
-                    }
-
-                    //вышли с указателем на букву/цифру currentSentenceDelimiterIndex
-                    currentSymbol = textParagraph[currentSentenceDelimiterIndex];
-                    _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "currentSymbol = " + currentSymbol.ToString() + strCRLF +
-                        "currentSentenceDelimiterIndex = " + currentSentenceDelimiterIndex.ToString() + strCRLF +
-                        "currentSymbolIsLetterOrDigit = " + currentSymbolIsLetterOrDigit.ToString(), CurrentClassName, showMessagesLevel);
-
+                        keepToSearch = currentSentenceDelimiterIndex + 1 < textParagraphLength;
+                        if (keepToSearch)//продолжать поиск, пока индекс позиции не выходит за пределы длины абзаца
+                        {
+                            currentSymbolIsLetterOrDigit = Char.IsLetterOrDigit(textParagraph, currentSentenceDelimiterIndex);//Показывает, относится ли символ в указанной позиции в указанной строке к категории букв или десятичных цифр.
+                        }
+                    }//на самом деле, если не найдется буква или цифра после точки, то тут и останемся - надо хотя бы диагностику какую-то приделать по концу абзаца, что ли - вот он внезапно и закончился - приделали проверку
                     currentSymbolIsUpper = Char.IsUpper(textParagraph, currentSentenceDelimiterIndex);//Показывает, относится ли указанный символ в указанной позиции в указанной строке к категории букв верхнего регистра.
                 }
-                if (currentSymbolIsUpper || lastSentenceDelimiterFound)//если нашли новое предложение с большой буквы - делим (или если последнее предложение и уже не искали следующее)
+                if (currentSymbolIsUpper)//если нашли новое предложение с большой буквы - делим (или если последнее предложение и уже не искали следующее)
                 {
-
-                    int lengthSentence = sentenceDelimitersIndexesArray[i] - startIndexSentence + 2;//надо +2, потому что иначе теряется пробел после точки 
-                    int checkLengthOfLastSentence = startIndexSentence + lengthSentence;
-                    bool exceptionWillCome = checkLengthOfLastSentence >= textParagraphLength;
-
-                    _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "startIndexSentence = " + startIndexSentence.ToString() + strCRLF +
-                        "lengthSentence = " + lengthSentence.ToString() + strCRLF +
-                        "chechLengthLastSentence = " + checkLengthOfLastSentence.ToString() + strCRLF +
-                        "textParagraphLength = " + textParagraphLength.ToString() + strCRLF +
-                        "exceptionWillCome = " + exceptionWillCome.ToString(), CurrentClassName, showMessagesLevel);
-
-                    if (exceptionWillCome)
-                    {
-                        lengthSentence = textParagraphLength - startIndexSentence;//так точнее делит последнее предложение абзаца
-                        //lengthSentence -= 1;//если последнее предложение абзаца, то уменьшаем длину раздела на 1 - вдруг там нет пробела после точки (можно впрямую проверить по длине абзаца)
-                    }
-                    paragraphSentences[i] = textParagraph.Substring(startIndexSentence, lengthSentence);//string Substring (int startIndex, int length)
-                    startIndexSentence += lengthSentence;
-                    textParagraphLengthFromSentences += lengthSentence;
-
-                    _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "textParagraph - " + textParagraph + strCRLF +
-                        "textParagraphLength = " + textParagraphLength.ToString() + strCRLF +
-                        "paragraphSentences[" + i.ToString() + "] - " + paragraphSentences[i] + strCRLF +
-                        "textParagraphLengthFromSentences = " + textParagraphLengthFromSentences.ToString(), CurrentClassName, showMessagesLevel);
+                    lengthSentence = sentenceDelimitersIndexesArray[i] - startIndexSentence + 2;//надо +2, потому что иначе теряется пробел после точки                    
                 }
+                if (lastSentenceDelimiterFound)
+                {
+                    lengthSentence = textParagraphLength - startIndexSentence;//так точнее делит последнее предложение абзаца - оказывается, есть вариант, когда последнее предложение без точки - он его захватывает                        
+                }
+                //получается, что если не нашли большую букву и не последнее предложение, но все равно как-то пытаемся делить? этот вопрос надо осветить
+                paragraphSentences[i] = textParagraph.Substring(startIndexSentence, lengthSentence);//string Substring (int startIndex, int length)
+                    startIndexSentence += lengthSentence;
+                    textParagraphLengthFromSentences += lengthSentence;                
             }
-            textParagraphLengthFromSentences -= 1; //вычитаем единицу, которую не удалось прибавить к последнему предложению
-            if (textParagraphLengthFromSentences != textParagraphLength)
-            {
-                _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "textParagraphLength = " + textParagraphLength.ToString() + strCRLF +
-                        "The paragraph length is NOT EQUAL to sentences length sum!" + strCRLF +
-                        "textParagraphLengthFromSentences = " + textParagraphLengthFromSentences.ToString(), CurrentClassName, showMessagesLevel);//сюда поставить переменную или метод аварийного сообщения
-            }            
             return paragraphSentences;
-        }
+        }        
 
         public string[] EnumerateDividedSentences(string sentenceTextMarksWithOtherNumbers, string[] paragraphSentences) //в textParagraph получаем nextParagraph при вызове метода - следующий абзац с текстом после метки номера абзаца в пустой строке
         {
@@ -393,6 +373,64 @@ namespace TextSplit
     }
 }
 
+//char[] charsSentenceDelimiters = charsAllDelimiters[0].ToArray();//создали массив точек List<List<char>> charsAllDelimiters,
+//вставляет пустые предложения и вроде даже какие-то глотает, хэш текста - 9628dcb7e84a589eabb98590b96b4613, предложений - 528
+//bool lengthSentenceIsPositive = lengthSentence < startIndexSentence;
+//if (lengthSentenceIsPositive)
+//{
+//}
+//else
+//{
+//    _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "textParagraphLength = " + textParagraphLength.ToString() + strCRLF +
+//        "The Sentence length or start index is WRONG and CANNOT be used!" + strCRLF +
+//        "startIndexSentence = " + startIndexSentence.ToString() + strCRLF +
+//        "lengthSentence = " + lengthSentence.ToString(), CurrentClassName, 3);
+//}
+//bool upperCharFoundOrLastSentence = currentSymbolIsUpper;// || lastSentenceDelimiterFound;//новое предложение с большой буквы или если последнее предложение (не надо искать следующее)
+//textParagraphLengthFromSentences -= 1; //вычитаем единицу, которую не удалось прибавить к последнему предложению
+//int paragraphLengthNotEqualCount = 0;
+//bool paragraphLengthNotEqual = textParagraphLengthFromSentences != textParagraphLength;
+//if (paragraphLengthNotEqual)
+//{
+//    paragraphLengthNotEqualCount++;//так просто не сосчитать несовпадающие предложения, надо вынести переменную далеко наверх - или в AnalysisLogicDataArrays
+//    int showMessagesTemp = 3;
+
+//    if (paragraphLengthNotEqualCount > 5) showMessagesTemp = 0;//если несовпадающих предложений много, перестаем их показывать
+
+//    _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "textParagraphLength = " + textParagraphLength.ToString() + strCRLF +
+//            "The paragraph length is NOT EQUAL to sentences length sum!" + strCRLF +
+//            "textParagraphLengthFromSentences = " + textParagraphLengthFromSentences.ToString(), CurrentClassName, showMessagesTemp);//сюда поставить переменную или метод аварийного сообщения
+//}
+//_msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "paragraphLengthNotEqualCount = " + paragraphLengthNotEqualCount.ToString(), CurrentClassName, 3);
+//int checkLengthOfLastSentence = startIndexSentence + lengthSentence;
+//bool exceptionWillCome = checkLengthOfLastSentence >= textParagraphLength;
+//if (exceptionWillCome)
+//lengthSentence -= 1;//если последнее предложение абзаца, то уменьшаем длину раздела на 1 - вдруг там нет пробела после точки (можно впрямую проверить по длине абзаца)
+//currentSymbolIsUpper = false;
+//прежде всего рассмотрим положение текущей точки - что после нее (надо смотреть, что перед ней?)
+//char currentSymbol = textParagraph[currentSentenceDelimiterIndex];
+//bool currentSymbolIsDelimiter = IsCurrentSymbolDelimiter(charsSentenceDelimiters, currentSymbol);
+
+//if (!currentSymbolIsDelimiter)
+//{
+//    _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "textParagraph = " + textParagraph + strCRLF +
+//        "currentSymbol = " + currentSymbol.ToString() + strCRLF +
+//        "currentSentenceDelimiterIndex = " + currentSentenceDelimiterIndex.ToString(), CurrentClassName, showMessagesLevel);
+//}
+//вышли с указателем на букву/цифру currentSentenceDelimiterIndex
+//currentSymbol = textParagraph[currentSentenceDelimiterIndex];
+//_msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "currentSymbol = " + currentSymbol.ToString() + strCRLF +
+//    "currentSentenceDelimiterIndex = " + currentSentenceDelimiterIndex.ToString() + strCRLF +
+//    "currentSymbolIsLetterOrDigit = " + currentSymbolIsLetterOrDigit.ToString(), CurrentClassName, showMessagesLevel);
+//_msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "startIndexSentence = " + startIndexSentence.ToString() + strCRLF +
+//    "lengthSentence = " + lengthSentence.ToString() + strCRLF +
+//    "chechLengthLastSentence = " + checkLengthOfLastSentence.ToString() + strCRLF +
+//    "textParagraphLength = " + textParagraphLength.ToString() + strCRLF +
+//    "exceptionWillCome = " + exceptionWillCome.ToString(), CurrentClassName, showMessagesLevel);
+//_msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "textParagraph - " + textParagraph + strCRLF +
+//    "textParagraphLength = " + textParagraphLength.ToString() + strCRLF +
+//    "paragraphSentences[" + i.ToString() + "] - " + paragraphSentences[i] + strCRLF +
+//    "textParagraphLengthFromSentences = " + textParagraphLengthFromSentences.ToString(), CurrentClassName, showMessagesLevel);
 //попадает в зону кавычки, тут потом рассмотрим разные варианты расстояний до кавычки (когда пройдет старый тест)
 //варианты для switch - расстояние от точки до кавычки - 1 символ, 2, 3, 4, 5 или больше (5 - это многоточие из точек и пробел между ним и кавычками)
 //начинаем поиск точки со значения maxShiftLastDotBeforeRightQuote = 5 - вот, куда двигаться, влево от кавычки или наоборот?

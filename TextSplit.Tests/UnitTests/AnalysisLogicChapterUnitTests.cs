@@ -145,9 +145,9 @@ namespace TextSplit.Tests
 
         [TestMethod]
         [DataRow(22, new int[] { 1, 2, 3, 808, 4, 5, 6, 34, 7, 8, 9, 10, 11, 112, 12, 75, 13, 14, 15, 16, 17, 18, 19, 33, 4, 5, 6, 20, 21, 22 })]
-        public void Test05_IsChapterNumbersIncreased(int countNumber, int[] chapterNameIsDigitsOnly)
+        public void Test05_IsChapterNumbersIncreased(int countNumber, int[] allDigitsInParagraphs)
         {
-            int paragraphTextLength = chapterNameIsDigitsOnly.Length;
+            int paragraphTextLength = allDigitsInParagraphs.Length;
             IAllBookData bookData = new AllBookDataArrays();
             IFileManager manager = new FileManager(bookData);
 
@@ -165,7 +165,10 @@ namespace TextSplit.Tests
 
             //Trace.WriteLine("Input: " + currentParagraph + "   countNumber = " + countNumber.ToString() + "   wordNumber = " + wordNumber.ToString());
 
-            int resultCountNumber = target.IsChapterNumbersIncreased(chapterNameIsDigitsOnly, desiredTextLanguage);
+            int[] chapterNameIsDigitsOnly = target.IsChapterNumbersIncreased(allDigitsInParagraphs, desiredTextLanguage);
+
+            int lastValueIndex = chapterNameIsDigitsOnly.Length - 1;
+            int resultCountNumber = chapterNameIsDigitsOnly[lastValueIndex];
 
             Assert.AreEqual(countNumber, resultCountNumber, "countNumber is not Equal");
         }

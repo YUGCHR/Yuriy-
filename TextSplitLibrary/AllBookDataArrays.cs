@@ -10,6 +10,7 @@ namespace TextSplitLibrary
 {
     public interface IAllBookData
     {
+        string GetStringContent(int desiredTextLanguage, string nameOfStringNeed, int indexCount);
         int GetFileToDo(int i);
         int SetFileToDo(int fileToDo, int i);
         int WhatFileNeedToDo(int whatNeedToDo);//возвращает индекс ToDo, в котором найдено значение whatNeedToDo, если не найдено, возвращает -1
@@ -33,8 +34,8 @@ namespace TextSplitLibrary
         int AddParagraphText(string paragraphText, int desiredTextLanguage);//тоже возвращает количество элементов
         int RemoveAtParagraphText(int paragraphCount, int desiredTextLanguage);//удаляет элемент списка с индексом paragraphCount
 
-        string GetChapterName(int chapterCount, int desiredTextLanguage);
-        int GetChapterNameLength(int desiredTextLanguage);
+        //string GetChapterName(int chapterCount, int desiredTextLanguage);
+        //int GetChapterNameLength(int desiredTextLanguage);
         int SetChapterName(string chapterNameWithNumber, int chapterCount, int desiredTextLanguage);
         int AddChapterName(string chapterNameWithNumber, int desiredTextLanguage);
 
@@ -73,6 +74,7 @@ namespace TextSplitLibrary
             filesToDo = new int[filesQuantity];
             filesToSave = new int[filesQuantity];
             symbolsCounts = new int[filesQuantity];
+
             filesPath = new string[filesQuantity];
             selectedTexts = new string[filesQuantity];
             filesContents = new string[filesQuantity];
@@ -82,6 +84,7 @@ namespace TextSplitLibrary
             
             chaptersNamesWithNumbers.Add(new List<string>());
             chaptersNamesWithNumbers.Add(new List<string>());
+
             chaptersNamesNumbersOnly.Add(new List<int>());
             chaptersNamesNumbersOnly.Add(new List<int>());
         }
@@ -125,8 +128,46 @@ namespace TextSplitLibrary
             }
             return (int)MethodFindResult.NothingFound;
         }
+        //группа выдачи string
+
+        public string GetStringContent(string nameOfStringNeed, int indexCount)
+        {
+            int desiredTextLanguage = -1;
+            string result = GetStringContent(desiredTextLanguage, nameOfStringNeed, indexCount);
+            return result;
+        }
+
+        public string GetStringContent(int desiredTextLanguage, string nameOfStringNeed, int indexCount)
+        {
+            switch (nameOfStringNeed)
+            {
+                case
+                "GetFilePath":
+                    return filesPath[indexCount];
+                case
+                "GetSelectedText":
+                    return selectedTexts[indexCount];
+                case
+                "GetFileContent":
+                    return filesContents[indexCount];
+                case
+                "GetParagraphText":
+                    if (desiredTextLanguage < 0) return null;//а еще лучше поставить Assert
+                    return paragraphsTexts[desiredTextLanguage][indexCount];
+                case
+                "GetChapterName":
+                    if (desiredTextLanguage < 0) return null;
+                    if (chaptersNamesWithNumbers[desiredTextLanguage][indexCount] != null) return chaptersNamesWithNumbers[desiredTextLanguage][indexCount];//при замене метода обратить внимание, что desiredTextLanguage и indexCount в старом вызове стоят наоборот!
+                    return null;
+                case
+                "GetSymbolsCount":
+                    return symbolsCounts[indexCount].ToString();                
+            }
+            return null;
+        }
+
         //группа массива filesPath
-        public string GetFilePath(int i)
+        public string GetFilePath(int i)//перенесен в GetStringContent
         {
             return filesPath[i];
         }
@@ -137,7 +178,7 @@ namespace TextSplitLibrary
             return (int)MethodFindResult.AllRight;
         }
         //группа массива selectedTexts
-        public string GetSelectedText(int i)
+        public string GetSelectedText(int i)//перенесен в GetStringContent
         {
             return selectedTexts[i];
         }
@@ -148,7 +189,7 @@ namespace TextSplitLibrary
             return (int)MethodFindResult.AllRight;
         }
         //группа массива filesContents
-        public string GetFileContent(int i)
+        public string GetFileContent(int i)//перенесен в GetStringContent
         {
             return filesContents[i];
         }
@@ -159,7 +200,7 @@ namespace TextSplitLibrary
             return (int)MethodFindResult.AllRight;
         }
         //группа массива Абзац текста - paragraphsTexts
-        public string GetParagraphText(int paragraphCount, int desiredTextLanguage)
+        public string GetParagraphText(int paragraphCount, int desiredTextLanguage)//перенесен в GetStringContent
         {
             return paragraphsTexts[desiredTextLanguage][paragraphCount];            
         }
@@ -197,16 +238,16 @@ namespace TextSplitLibrary
             return paragraphsTexts[desiredTextLanguage].Count;//получение и возврат новой длины списка
         }
         //группа массива Главы имя - chaptersNamesWithNumbers
-        public string GetChapterName(int chapterCount, int desiredTextLanguage)
-        {
-            if (chaptersNamesWithNumbers[desiredTextLanguage][chapterCount] != null) return chaptersNamesWithNumbers[desiredTextLanguage][chapterCount];
-            return null;
-        }
+        //public string GetChapterName(int chapterCount, int desiredTextLanguage)//перенесен в GetStringContent
+        //{
+        //    //if (chaptersNamesWithNumbers[desiredTextLanguage][chapterCount] != null) return chaptersNamesWithNumbers[desiredTextLanguage][chapterCount];
+        //    return null;
+        //}
 
-        public int GetChapterNameLength(int desiredTextLanguage)
-        {
-            return chaptersNamesWithNumbers[desiredTextLanguage].Count;
-        }
+        //public int GetChapterNameLength(int desiredTextLanguage)
+        //{
+        //    return chaptersNamesWithNumbers[desiredTextLanguage].Count;
+        //}
 
         public int SetChapterName(string chapterNameWithNumber, int chapterCount, int desiredTextLanguage)
         {
@@ -237,7 +278,7 @@ namespace TextSplitLibrary
             return chaptersNamesNumbersOnly[desiredTextLanguage].Count;
         }
         //группа массива подсчета символов
-        public string GetSymbolsCount(int i)
+        public string GetSymbolsCount(int i)//перенесен в GetStringContent
         {
             return symbolsCounts[i].ToString();
         }
