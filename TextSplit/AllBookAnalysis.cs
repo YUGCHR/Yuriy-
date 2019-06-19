@@ -24,6 +24,17 @@ namespace TextSplit
         private readonly IAnalysisLogicParagraph _paragraphAnalyser;
         private readonly IAnalysisLogicSentences _sentenceAnalyser;
 
+        //новые методы из _bookData
+        int GetIntContent(int desiredTextLanguage, string needOperationName) => _bookData.GetIntContent(desiredTextLanguage, needOperationName);//перегрузка для получения длины двуязычных динамических массивов
+        int GetIntContent(string needOperationName, string stringToSet, int indexCount) => _bookData.GetIntContent(needOperationName, stringToSet, indexCount);//перегрузка для записи обычных массивов
+        int GetIntContent(int desiredTextLanguage, string needOperationName, string stringToSet, int indexCount) => _bookData.GetIntContent(desiredTextLanguage, needOperationName, stringToSet, indexCount);
+
+        string GetStringContent(string nameOfStringNeed, int indexCount) => _bookData.GetStringContent(nameOfStringNeed, indexCount);
+        string GetStringContent(int desiredTextLanguage, string nameOfStringNeed, int indexCount) => _bookData.GetStringContent(desiredTextLanguage, nameOfStringNeed, indexCount);
+
+
+        //старые методы из _bookData
+
         int GetParagraphTextLength(int desiredTextLanguage) => _bookData.GetParagraphTextLength(desiredTextLanguage);
         string GetParagraphText(int paragraphCount, int desiredTextLanguage) => _bookData.GetParagraphText(paragraphCount, desiredTextLanguage);
 
@@ -80,7 +91,7 @@ namespace TextSplit
 
 
 
-                int paragraphTextLength = GetParagraphTextLength(desiredTextLanguage);
+                int paragraphTextLength = GetIntContent(desiredTextLanguage, "GetParagraphTextLength");
                 for (int i = 0; i < paragraphTextLength; i++)//перебираем все абзацы текста
                 {
                     string currentParagraph = GetParagraphText(i, desiredTextLanguage);

@@ -9,6 +9,7 @@ namespace TextSplitLibrary
     public static class DeclarationConstants
     {
         public const int FilesQuantity = 3; //the length of the all Files___ arrays (except FilesToDo)
+        public const int LanguagesQuantity = 2; //the length of the all Files___ arrays (except FilesToDo)
         public const int ToDoQuantity = FilesQuantity + 1; //the length of the FilesToDo array (+1 for BreakpointManager)
         public const int FilesQuantityPlus = FilesQuantity + 1; //the length of the FilesToDo array (+1 for BreakpointManager)
         public const int ResultFileNumber = FilesQuantity - 1;

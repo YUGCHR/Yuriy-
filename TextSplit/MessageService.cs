@@ -50,6 +50,23 @@ namespace TextSplit
             }            
         }
 
+        public void ShowTrace(string tracePointName, string[] tracePointValue, string tracePointPlace, int showLevel)
+        {
+            if (showLevel != 0)
+            {
+                if (showLevel > 0)
+                {
+                    //string[] tracePointArray = { tracePointName, tracePointValue };
+                    string tracePointMessage = String.Join(" - \r\n ", tracePointValue);
+                    MessageBox.Show("\r\n - " + tracePointName + "\r\n - " + tracePointPlace + "\r\n - ", tracePointMessage, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
+                {
+                    _manager.AppendContent(tracePointName, tracePointValue, tracePointPlace);
+                }
+            }
+        }
+
         public string SaveTracedToFile(string tracedFileNameAddition, string tracedFileContent)
         {
             int i = 0;

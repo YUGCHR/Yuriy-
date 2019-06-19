@@ -31,9 +31,20 @@ namespace TextSplitLibrary
 
         //int GetCharsParagraphSeparatorLength();
         //string[] GetCharsParagraphSeparator(int index);
-        int GetConstantWhatNotLength(string WhatNot);
-        string[] GetConstantWhatNot(string WhatNot);
+        int GetIntConstant(string needConstantnName);
+        string[] GetStringArrConstant(string needConstantnName);
     }
+
+
+
+
+
+
+
+
+
+
+
 
     public interface IAnalysisLogicDataConstant
     {
@@ -63,8 +74,22 @@ namespace TextSplitLibrary
 
         
 
-
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public class AnalysisLogicDataArrays : IAnalysisLogicDataArrays
     {
@@ -74,13 +99,16 @@ namespace TextSplitLibrary
         readonly private int showMessagesLevel;
         readonly private int showMessagesLocal;
         readonly private string strCRLF;
+        readonly private int chapterNumberTotalDigits;
+        readonly private int paragraptNumberTotalDigits;
+        readonly private int sentenceNumberTotalDigits;
 
         private string[] foundWordsOfParagraph;
         readonly private string[,] chapterNamesSamples;//два следующих массива собираются заменить этот двумерный
         readonly private string[] chapterNamesSamplesLanguage0;
         readonly private string[] chapterNamesSamplesLanguage1;
-        readonly private string[] stringMarksChapterNameBegin;
-        readonly private string[] stringMarksChapterNameEnd;
+        readonly private string[] chapterMark;
+        readonly private string[] stringMarksChapterEnd;
         readonly private string[] stringMarksParagraphBegin;
         readonly private string[] stringMarksParagraphEnd;
         readonly private string[] stringMarksSentenceBegin;
@@ -92,13 +120,14 @@ namespace TextSplitLibrary
         readonly private string[] charsEllipsisToChange1;
         readonly private string[] charsEllipsisToChange2;
         readonly private string[] charsGroupsSeparators;
-        readonly private string[] numbersOfGroupsNames; 
+        readonly private string[] numbersOfGroupsNames;
+        readonly private string[] allDigits;
 
         private string[] foundSymbolsOfParagraph;
         private int[,] chapterNamesVersionsCount;
         private int[] chapterSymbolsVersionsCount;
         private char[] foundCharsSeparator;
-        private readonly int baseKeyWordFormsQuantity;
+        private readonly int baseKeyWordFormsCount;
 
         public AnalysisLogicDataArrays(IAllBookData bookData, IMessageService msgService)
         {
@@ -109,7 +138,10 @@ namespace TextSplitLibrary
             strCRLF = DeclarationConstants.StrCRLF;
             showMessagesLocal = showMessagesLevel;
             showMessagesLocal = 3; //локальные печати класса выводятся на экран
-            baseKeyWordFormsQuantity = 3;
+            baseKeyWordFormsCount = 3;
+            chapterNumberTotalDigits = 3;
+            paragraptNumberTotalDigits = 5;
+            sentenceNumberTotalDigits = 5;
             charsParagraphSeparator = new string[] { "\r\n" };//в строковом массиве - чтобы получать все константы одним методом
 
             //старый вариант, надо понемногу удалять
@@ -123,8 +155,10 @@ namespace TextSplitLibrary
             charsGroupsSeparators = new string[] { ".…!?;", "\u0022\u002F\u02BA\u02EE\u02DD", "()[]{}«»<>" };//…\u2026 (Horizontal Ellipsis) (\u002F - /) ⁇\u2047 ⁈\u2048 ⁉\u2049 ‼\u203C
             numbersOfGroupsNames = new string[] { "Sentence", "Quotes", "Brackets" }; //номера групп сепараторов для получения их значений в цикле
 
-            stringMarksChapterNameBegin = new string[] { "\u00A4\u00A4\u00A4\u00A4\u00A4" };//¤¤¤¤¤ - метка строки перед началом названия главы
-            stringMarksChapterNameEnd = new string[] { "\u00A4\u00A4\u00A4" };//¤¤¤ - метка строки после названия главы, еще \u007E - ~
+            allDigits = new string[] { "0123456789" };
+
+            chapterMark = new string[] { "\u00A4\u00A4\u00A4\u00A4\u00A4", "\u00A4\u00A4\u00A4" };//¤¤¤¤¤ - метка строки перед началом названия главы, ¤¤¤ - метка строки после названия главы, еще \u007E - ~
+            stringMarksChapterEnd = new string[] { "\u00A4\u00A4\u00A4" };//¤¤¤ - метка строки после названия главы, еще \u007E - ~
             stringMarksParagraphBegin = new string[] { "\u00A7\u00A7\u00A7\u00A7\u00A7" };//§§§§§ - метка строки перед началом абзаца
             stringMarksParagraphEnd = new string[] { "\u00A7\u00A7\u00A7" };//§§§ - метка строки после абзаца
             stringMarksSentenceBegin = new string[] { "\u00B6\u00B6\u00B6\u00B6\u00B6" };//¶¶¶¶¶ - метка строки перед началом предложния
@@ -132,10 +166,10 @@ namespace TextSplitLibrary
 
             chapterNamesSamples = new string[,]//а номера глав бывают буквами!
             { { "chapter", "paragraph", "section", "subhead", "part" },
-                { "Глава ", "Параграф " , "Раздел ", "Подраздел ", "Часть " }, };//можно разделить на два отдельных массива и тоже передавать через метод сепараторов - выбирая потом язык (прибавляя цифру языка к строке выбора)
+                { "глава", "параграф" , "раздел", "подраздел", "часть" }, };//можно разделить на два отдельных массива и тоже передавать через метод сепараторов - выбирая потом язык (прибавляя цифру языка к строке выбора)
 
             chapterNamesSamplesLanguage0 = new string[] { "chapter", "paragraph", "section", "subhead", "part" };
-            chapterNamesSamplesLanguage1 = new string[] { "Глава ", "Параграф " , "Раздел ", "Подраздел ", "Часть " };
+            chapterNamesSamplesLanguage1 = new string[] { "глава", "параграф", "абзац", "история", "сказание", "раздел", "подраздел", "часть" };
 
             foundWordsOfParagraph = new string[10];//временное хранение найденных первых десяти слов абзаца
             foundSymbolsOfParagraph = new string[10];//временное хранение найденных групп спецсимволов перед ключевым словом главы
@@ -154,9 +188,9 @@ namespace TextSplitLibrary
             return chapterNamesSamples[desiredTextLanguage, i];
         }
 
-        public int GetConstantWhatNotLength(string WhatNot)//хорошо бы проверить, что не null
+        public int GetIntConstant(string needConstantnName)//хорошо бы проверить, что не null
         {
-            switch (WhatNot)
+            switch (needConstantnName)
             {
                 case
                 "Sentence":
@@ -181,36 +215,39 @@ namespace TextSplitLibrary
                 "Paragraph":
                     return charsParagraphSeparator.Length;
                 case
-                "ChapterBegin":
-                    return stringMarksChapterNameBegin.Length;
+                "ChapterMark":
+                    return chapterMark.Length;
                 case
-                "ChapterEnd":
-                    return stringMarksChapterNameEnd.Length;
+                "ChapterTotalDigits":
+                    return chapterNumberTotalDigits;
                 case
                 "ParagraphBegin":
                     return stringMarksParagraphBegin.Length;
                 case
-                "ParagraphEnd":
-                    return stringMarksParagraphEnd.Length;
+                "ParagraphEnd"://заменить на ParagraphTotalDigits
+                    return stringMarksParagraphEnd.Length;//заменить на paragraptNumberTotalDigits
                 case
                 "SentenceBegin":
                     return stringMarksSentenceBegin.Length;
                 case
-                "SentenceEnd":
-                    return stringMarksSentenceEnd.Length;
+                "SentenceEnd"://заменить на SentenceTotalDigits
+                    return stringMarksSentenceEnd.Length;//заменить на sentenceNumberTotalDigits
                 case                    
                 "NamesSamples0":
                     return chapterNamesSamplesLanguage0.Length;
                 case                    
                 "NamesSamples1":
                     return chapterNamesSamplesLanguage1.Length;
+                case
+                "baseKeyWordFormsCount":
+                    return baseKeyWordFormsCount;
             }
             return 0;
         }
 
-        public string[] GetConstantWhatNot(string WhatNot)//сделать три перегрузки - с выдачей разных типов?
+        public string[] GetStringArrConstant(string needConstantnName)//сделать три перегрузки - с выдачей разных типов?
         {//Отличия только типами возвращаемых значений методами недостаточно для перегрузки, но если методы отличаются параметрами, тогда перегружаемые методы могут иметь и различные типы возвращаемых значений
-            switch (WhatNot)
+            switch (needConstantnName)
             {//тогда вариант с FSM - три разных метода с возвратом разных типов и определять, какой вызвать по типу используемой константы
                 case
                 "Sentence":
@@ -234,14 +271,17 @@ namespace TextSplitLibrary
                 "GroupsNumbers":
                     return numbersOfGroupsNames;
                 case
+                "AllDigitsIn0":
+                    return allDigits;
+                case
                 "Paragraph":
                     return charsParagraphSeparator;
                 case
-                "ChapterBegin":
-                    return stringMarksChapterNameBegin;
+                "ChapterMark":
+                    return chapterMark;
                 case
-                "ChapterEnd":
-                    return stringMarksChapterNameEnd;
+                "Free1":
+                    return stringMarksChapterEnd;
                 case
                 "ParagraphBegin":
                     return stringMarksParagraphBegin;
@@ -266,7 +306,7 @@ namespace TextSplitLibrary
 
         public int GetBaseKeyWordFormsQuantity()
         {
-            return baseKeyWordFormsQuantity;
+            return baseKeyWordFormsCount;
         }
 
         public int SetFoundWordsOfParagraph(string wordOfParagraph, int i)

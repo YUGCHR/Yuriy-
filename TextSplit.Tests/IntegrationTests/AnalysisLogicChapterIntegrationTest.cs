@@ -58,80 +58,80 @@ namespace TextSplit.Tests
             Assert.AreEqual(saveTextFileResult, result);
         }
 
-        [TestMethod] // - marks method as a test
-        [DataRow(".//testBooks//testEndlishTexts_03.txt", "e97f0953ea502433e5bc53607a89f6e8", 0, "¤¤¤¤¤051¤¤¤-Chapter-")]
-        public void TestMain_AnalysisLogicChapter(string _filePath, string expectedHash, int desiredTextLanguage, string lastFoundChapterNumberInMarkFormat)
-        {
-            bool truePath = File.Exists(_filePath);
-            Assert.IsTrue(truePath, "test file not found");
+        //[TestMethod] // - marks method as a test
+        //[DataRow(".//testBooks//testEndlishTexts_03.txt", "e97f0953ea502433e5bc53607a89f6e8", 0, "¤¤¤¤¤051¤¤¤-Chapter-")]
+        //public void TestMain_AnalysisLogicChapter(string _filePath, string expectedHash, int desiredTextLanguage, string lastFoundChapterNumberInMarkFormat)
+        //{
+        //    bool truePath = File.Exists(_filePath);
+        //    Assert.IsTrue(truePath, "test file not found");
 
-            IAllBookData bookData = new AllBookDataArrays();
-            IFileManager manager = new FileManager(bookData);
+        //    IAllBookData bookData = new AllBookDataArrays();
+        //    IFileManager manager = new FileManager(bookData);
 
-            //IMessageService msgService = Mock.Of<IMessageService>();// - вывод на печать отключить
-            IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)            
-            IAnalysisLogicDataArrays arrayAnalysis = new AnalysisLogicDataArrays(bookData, msgService);
-            IAnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService, arrayAnalysis);
-            IAnalysisLogicSentences sentenceAnalyser = new AnalysisLogicSentences(bookData, msgService, analysisLogic, arrayAnalysis);
-            IAnalysisLogicParagraph paragraphAnalyser = new AnalysisLogicParagraph(bookData, msgService, analysisLogic, arrayAnalysis);
-            IAnalysisLogicChapter chapterAnalyser = new AnalysisLogicChapter(bookData, msgService, analysisLogic, arrayAnalysis);
+        //    //IMessageService msgService = Mock.Of<IMessageService>();// - вывод на печать отключить
+        //    IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)            
+        //    IAnalysisLogicDataArrays arrayAnalysis = new AnalysisLogicDataArrays(bookData, msgService);
+        //    IAnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService, arrayAnalysis);
+        //    IAnalysisLogicSentences sentenceAnalyser = new AnalysisLogicSentences(bookData, msgService, analysisLogic, arrayAnalysis);
+        //    IAnalysisLogicParagraph paragraphAnalyser = new AnalysisLogicParagraph(bookData, msgService, analysisLogic, arrayAnalysis);
+        //    IAnalysisLogicChapter chapterAnalyser = new AnalysisLogicChapter(bookData, msgService, analysisLogic, arrayAnalysis);
 
-            bookData.SetFilePath(_filePath, desiredTextLanguage);
-            string fileContent = manager.GetContent(desiredTextLanguage);
+        //    bookData.SetFilePath(_filePath, desiredTextLanguage);
+        //    string fileContent = manager.GetContent(desiredTextLanguage);
 
-            CheckMd5Hash(fileContent, expectedHash);//проверка неизменности тестового текстового файла
-            
-            bookData.SetFileContent(fileContent, desiredTextLanguage);
-            int portionBookTextResult = paragraphAnalyser.PortionBookTextOnParagraphs(desiredTextLanguage);
-            int normalizeEmptyParagraphsResult = paragraphAnalyser.normalizeEmptyParagraphs(desiredTextLanguage);
+        //    CheckMd5Hash(fileContent, expectedHash);//проверка неизменности тестового текстового файла
 
-            var result = chapterAnalyser.ChapterNameAnalysis(desiredTextLanguage);
-            Assert.AreEqual(lastFoundChapterNumberInMarkFormat, result);
-        }
+        //    bookData.SetFileContent(fileContent, desiredTextLanguage);
+        //    int portionBookTextResult = paragraphAnalyser.PortionBookTextOnParagraphs(desiredTextLanguage);
+        //    int normalizeEmptyParagraphsResult = paragraphAnalyser.normalizeEmptyParagraphs(desiredTextLanguage);
 
-        [TestMethod] // - marks method as a test
-        [DataRow(".//testBooks//testEndlishTexts_03.txt", "e97f0953ea502433e5bc53607a89f6e8", 0, "¤¤¤¤¤051¤¤¤-Chapter-")]
-        public void TestUnit_TextBookDivideOnChapter(string _filePath, string expectedHash, int desiredTextLanguage, string lastFoundChapterNumberInMarkFormat)
-        {            
-            bool truePath = File.Exists(_filePath);
-            Assert.IsTrue(truePath, "test file not found");
+        //    var result = chapterAnalyser.ChapterNameAnalysis(desiredTextLanguage);
+        //    Assert.AreEqual(lastFoundChapterNumberInMarkFormat, result);
+        //}
 
-            IAllBookData bookData = new AllBookDataArrays();
-            IFileManager manager = new FileManager(bookData);
+        //[TestMethod] // - marks method as a test
+        //[DataRow(".//testBooks//testEndlishTexts_03.txt", "e97f0953ea502433e5bc53607a89f6e8", 0, "¤¤¤¤¤051¤¤¤-Chapter-")]
+        //public void TestUnit_TextBookDivideOnChapter(string _filePath, string expectedHash, int desiredTextLanguage, string lastFoundChapterNumberInMarkFormat)
+        //{            
+        //    bool truePath = File.Exists(_filePath);
+        //    Assert.IsTrue(truePath, "test file not found");
 
-            //IMessageService msgService = Mock.Of<IMessageService>();// - вывод на печать отключить
-            IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)            
-            IAnalysisLogicDataArrays arrayAnalysis = new AnalysisLogicDataArrays(bookData, msgService);
-            IAnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService, arrayAnalysis);
-            IAnalysisLogicSentences sentenceAnalyser = new AnalysisLogicSentences(bookData, msgService, analysisLogic, arrayAnalysis);
-            IAnalysisLogicParagraph paragraphAnalyser = new AnalysisLogicParagraph(bookData, msgService, analysisLogic, arrayAnalysis);
-            AnalysisLogicChapter chapterAnalyser = new AnalysisLogicChapter(bookData, msgService, analysisLogic, arrayAnalysis);//используется класс, а не интерфейс - часть методов внутренние
+        //    IAllBookData bookData = new AllBookDataArrays();
+        //    IFileManager manager = new FileManager(bookData);
 
-            bookData.SetFilePath(_filePath, desiredTextLanguage);
-            string fileContent = manager.GetContent(desiredTextLanguage);
+        //    //IMessageService msgService = Mock.Of<IMessageService>();// - вывод на печать отключить
+        //    IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)            
+        //    IAnalysisLogicDataArrays arrayAnalysis = new AnalysisLogicDataArrays(bookData, msgService);
+        //    IAnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService, arrayAnalysis);
+        //    IAnalysisLogicSentences sentenceAnalyser = new AnalysisLogicSentences(bookData, msgService, analysisLogic, arrayAnalysis);
+        //    IAnalysisLogicParagraph paragraphAnalyser = new AnalysisLogicParagraph(bookData, msgService, analysisLogic, arrayAnalysis);
+        //    AnalysisLogicChapter chapterAnalyser = new AnalysisLogicChapter(bookData, msgService, analysisLogic, arrayAnalysis);//используется класс, а не интерфейс - часть методов внутренние
 
-            CheckMd5Hash(fileContent, expectedHash);//проверка неизменности тестового текстового файла
+        //    bookData.SetFilePath(_filePath, desiredTextLanguage);
+        //    string fileContent = manager.GetContent(desiredTextLanguage);
 
-            bookData.SetFileContent(fileContent, desiredTextLanguage);
-            int portionBookTextResult = paragraphAnalyser.PortionBookTextOnParagraphs(desiredTextLanguage);
-            int normalizeEmptyParagraphsResult = paragraphAnalyser.normalizeEmptyParagraphs(desiredTextLanguage);
-            int paragraphTextLength = bookData.GetParagraphTextLength(desiredTextLanguage);
-            
-            int[] allDigitsInParagraphs = new int[paragraphTextLength];
+        //    CheckMd5Hash(fileContent, expectedHash);//проверка неизменности тестового текстового файла
 
-            for (int i = 0; i < paragraphTextLength; i++)
-            {
-                string currentParagraph = bookData.GetParagraphText(i, desiredTextLanguage);                
-                chapterAnalyser.FirstTenGroupsChecked(currentParagraph, allDigitsInParagraphs, i, desiredTextLanguage);
-            }
-            
-            int[] chapterNameIsDigitsOnly = chapterAnalyser.IsChapterNumbersIncreased(allDigitsInParagraphs, desiredTextLanguage);
-            
-            string keyWordFounfForm = chapterAnalyser.KeyWordFormFound(desiredTextLanguage);
+        //    bookData.SetFileContent(fileContent, desiredTextLanguage);
+        //    int portionBookTextResult = paragraphAnalyser.PortionBookTextOnParagraphs(desiredTextLanguage);
+        //    int normalizeEmptyParagraphsResult = paragraphAnalyser.normalizeEmptyParagraphs(desiredTextLanguage);
+        //    int paragraphTextLength = bookData.GetParagraphTextLength(desiredTextLanguage);
 
-            var result = chapterAnalyser.TextBookDivideOnChapter(allDigitsInParagraphs, chapterNameIsDigitsOnly, keyWordFounfForm, desiredTextLanguage);
-            Assert.AreEqual(lastFoundChapterNumberInMarkFormat, result);
-        }
+        //    int[] allDigitsInParagraphs = new int[paragraphTextLength];
+
+        //    for (int i = 0; i < paragraphTextLength; i++)
+        //    {
+        //        string currentParagraph = bookData.GetParagraphText(i, desiredTextLanguage);                
+        //        chapterAnalyser.FirstTenGroupsChecked(currentParagraph, allDigitsInParagraphs, i, desiredTextLanguage);
+        //    }
+
+        //    int[] chapterNameIsDigitsOnly = chapterAnalyser.IsChaptersNumbersIncreased(allDigitsInParagraphs);
+
+        //    string keyWordFounfForm = chapterAnalyser.KeyWordFormFound(desiredTextLanguage, ChapterNumberParagraphsIndexes, chapterNameIsDigitsOnly);
+
+        //    var result = chapterAnalyser.TextBookDivideOnChapter(allDigitsInParagraphs, chapterNameIsDigitsOnly, keyWordFounfForm, desiredTextLanguage);
+        //    Assert.AreEqual(lastFoundChapterNumberInMarkFormat, result);
+        //}
 
         public static void CheckMd5Hash(string fileContent, string expectedHash)
         {

@@ -29,7 +29,21 @@ namespace TextSplit
         readonly private int filesQuantity;
         readonly private int showMessagesLevel;
         readonly private string strCRLF;
-        
+
+        //новые методы из _bookData
+        int GetIntContent(int desiredTextLanguage, string needOperationName) => _bookData.GetIntContent(desiredTextLanguage, needOperationName);//перегрузка для получения длины двуязычных динамических массивов
+        int GetIntContent(string needOperationName, string stringToSet, int indexCount) => _bookData.GetIntContent(needOperationName, stringToSet, indexCount);//перегрузка для записи обычных массивов
+        int GetIntContent(int desiredTextLanguage, string needOperationName, string stringToSet, int indexCount) => _bookData.GetIntContent(desiredTextLanguage, needOperationName, stringToSet, indexCount);
+
+        string GetStringContent(string nameOfStringNeed, int indexCount) => _bookData.GetStringContent(nameOfStringNeed, indexCount);
+        string GetStringContent(int desiredTextLanguage, string nameOfStringNeed, int indexCount) => _bookData.GetStringContent(desiredTextLanguage, nameOfStringNeed, indexCount);
+
+
+        //старые методы из _bookData
+
+
+
+
         int GetParagraphTextLength(int desiredTextLanguage) => _bookData.GetParagraphTextLength(desiredTextLanguage);
         string GetParagraphText(int paragraphCount, int desiredTextLanguage) => _bookData.GetParagraphText(paragraphCount, desiredTextLanguage);
         int SetParagraphText(string paragraphText, int paragraphCount, int desiredTextLanguage) => _bookData.SetParagraphText(paragraphText, paragraphCount, desiredTextLanguage);
@@ -39,8 +53,8 @@ namespace TextSplit
         string CreateParagraphMarks(int currentChapterNumber, int enumerateParagraphsCount) => _analysisLogic.CreateParagraphMarks(currentChapterNumber, enumerateParagraphsCount);
         string AddSome00ToIntNumber(string currentChapterNumberToFind, int totalDigitsQuantity) => _analysisLogic.AddSome00ToIntNumber(currentChapterNumberToFind, totalDigitsQuantity);
 
-        int GetConstantWhatNotLength(string WhatNot) => _arrayAnalysis.GetConstantWhatNotLength(WhatNot);
-        string[] GetConstantWhatNot(string WhatNot) => _arrayAnalysis.GetConstantWhatNot(WhatNot);
+        int GetConstantWhatNotLength(string WhatNot) => _arrayAnalysis.GetIntConstant(WhatNot);
+        string[] GetConstantWhatNot(string WhatNot) => _arrayAnalysis.GetStringArrConstant(WhatNot);
 
         //public event EventHandler AnalyseInvokeTheMain;
 

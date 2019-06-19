@@ -28,6 +28,11 @@ namespace TextSplit
         readonly private string strCRLF;
 
         //новые методы из _bookData
+        int GetIntContent(int desiredTextLanguage, string needOperationName) => _bookData.GetIntContent(desiredTextLanguage, needOperationName);//перегрузка для получения длины двуязычных динамических массивов
+        int GetIntContent(string needOperationName, string stringToSet, int indexCount) => _bookData.GetIntContent(needOperationName, stringToSet, indexCount);//перегрузка для записи обычных массивов
+        int GetIntContent(int desiredTextLanguage, string needOperationName, string stringToSet, int indexCount) => _bookData.GetIntContent(desiredTextLanguage, needOperationName, stringToSet, indexCount);
+
+        string GetStringContent(string nameOfStringNeed, int indexCount) => _bookData.GetStringContent(nameOfStringNeed, indexCount);        
         string GetStringContent(int desiredTextLanguage, string nameOfStringNeed, int indexCount) => _bookData.GetStringContent(desiredTextLanguage, nameOfStringNeed, indexCount);
 
 
@@ -40,8 +45,8 @@ namespace TextSplit
         int FindTextPartNumber(string currentParagraph, string stringMarkBegin, int totalDigitsQuantity) => _analysisLogic.FindTextPartNumber(currentParagraph, stringMarkBegin, totalDigitsQuantity);
         string CreatePartTextMarks(string stringMarkBegin, string stringMarkEnd, int currentUpperNumber, int enumerateCurrentCount, string sentenceTextMarksWithOtherNumbers) => _analysisLogic.CreatePartTextMarks(stringMarkBegin, stringMarkEnd, currentUpperNumber, enumerateCurrentCount, sentenceTextMarksWithOtherNumbers);
 
-        int GetConstantWhatNotLength(string ParagraphOrSentence) => _arrayAnalysis.GetConstantWhatNotLength(ParagraphOrSentence);
-        string[] GetConstantWhatNot(string ParagraphOrSentence) => _arrayAnalysis.GetConstantWhatNot(ParagraphOrSentence);
+        int GetConstantWhatNotLength(string ParagraphOrSentence) => _arrayAnalysis.GetIntConstant(ParagraphOrSentence);
+        string[] GetConstantWhatNot(string ParagraphOrSentence) => _arrayAnalysis.GetStringArrConstant(ParagraphOrSentence);
 
         string AddSome00ToIntNumber(string currentChapterNumberToFind, int totalDigitsQuantity) => _analysisLogic.AddSome00ToIntNumber(currentChapterNumberToFind, totalDigitsQuantity);
 
@@ -63,7 +68,7 @@ namespace TextSplit
         {
             int totalSentencesCount = 0;            
             int currentParagraphIndex = 0;            
-            int paragraphTextLength = GetParagraphTextLength(desiredTextLanguage);//нет, главу искать не будем, сразу ищем абзац - в его номере уже есть номер главы
+            int paragraphTextLength = GetIntContent(desiredTextLanguage, "GetParagraphTextLength");//нет, главу искать не будем, сразу ищем абзац - в его номере уже есть номер главы
             List<List<char>> charsAllDelimiters = new List<List<char>> { new List<char>(), new List<char>(), new List<char>() };//временный массив для хранения всех групп разделителей в виде char[] для IndexOfAny
 
             int sGroupCount = ConstanstListFillCharsDelimiters(charsAllDelimiters);//заполнили List разделителями из констант, вернули ненулевое количество групп разделителей (предложений, кавычки, скобки)

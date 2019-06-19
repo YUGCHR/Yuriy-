@@ -28,8 +28,8 @@ namespace TextSplit
         readonly private int showMessagesLevel;
         readonly private string strCRLF;
 
-        int GetConstantWhatNotLength(string WhatNot) => _arrayAnalysis.GetConstantWhatNotLength(WhatNot);
-        string[] GetConstantWhatNot(string WhatNot) => _arrayAnalysis.GetConstantWhatNot(WhatNot);
+        int GetConstantWhatNotLength(string WhatNot) => _arrayAnalysis.GetIntConstant(WhatNot);
+        string[] GetConstantWhatNot(string WhatNot) => _arrayAnalysis.GetStringArrConstant(WhatNot);
 
         public AnalysisLogicCultivation(IAllBookData bookData, IMessageService msgService, IAnalysisLogicDataArrays arrayAnalysis)
         {
