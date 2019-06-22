@@ -16,23 +16,14 @@ namespace TextSplit
     {
         private readonly IAllBookData _bookData;
         private readonly IMessageService _msgService;
-        private readonly IAnalysisLogicCultivation _analysisLogic;
-        
+        private readonly IAnalysisLogicCultivation _analysisLogic;        
 
         delegate bool IsOrNotEqual(char x);
         delegate bool DoElseConditions(string x, int i, int j);
 
         delegate string TransduceWord(string baseKeyWord);
 
-        int GetIntContent(int desiredTextLanguage, string needOperationName) => _bookData.GetIntContent(desiredTextLanguage, needOperationName);//перегрузка для получения длины двуязычных динамических массивов
-        int GetIntContent(string needOperationName, string stringToSet, int indexCount) => _bookData.GetIntContent(needOperationName, stringToSet, indexCount);//перегрузка для записи обычных массивов
-        int GetIntContent(int desiredTextLanguage, string needOperationName, string stringToSet, int indexCount) => _bookData.GetIntContent(desiredTextLanguage, needOperationName, stringToSet, indexCount);
-
-        string GetStringContent(string nameOfStringNeed, int indexCount) => _bookData.GetStringContent(nameOfStringNeed, indexCount);
-        string GetStringContent(int desiredTextLanguage, string nameOfStringNeed, int indexCount) => _bookData.GetStringContent(desiredTextLanguage, nameOfStringNeed, indexCount);
-
-        string AddSome00ToIntNumber(string currentChapterNumberToFind, int chapterTotalDigits) =>_analysisLogic.AddSome00ToIntNumber(currentChapterNumberToFind, chapterTotalDigits);        
-
+        
         public AnalysisLogicChapter(IAllBookData bookData, IMessageService msgService, IAnalysisLogicCultivation analysisLogic)
         {
             _bookData = bookData;
@@ -55,7 +46,7 @@ namespace TextSplit
             
             int chapterNameIsDigitsOnlyLength = chapterNameIsDigitsOnly.Length;
             int ChapterNumberParagraphsIndexesLength = ChapterNumberParagraphsIndexes.Length;
-            int paragraphTextLength = GetIntContent(desiredTextLanguage, "GetParagraphTextLength");
+            int paragraphTextLength = _bookData.GetIntContent(desiredTextLanguage, "GetParagraphTextLength");
 
             _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "ChapterNumberParagraphsIndexesLength = " + ChapterNumberParagraphsIndexesLength.ToString() + DConst.StrCRLF +                
                 "ChapterNumberParagraphsIndexes[0] = " + ChapterNumberParagraphsIndexes[0].ToString() + DConst.StrCRLF +
@@ -78,7 +69,6 @@ namespace TextSplit
             return ChapterNumberParagraphsIndexes;
         }
 
-
         //метод 4
         //используя ключевое слово, формируем метку номера главы - можно (нужно) вынести этот массив в AnalysisLogicCultivation (там уже есть 2 похожих, потом попробовать объединить в один)
         public string TextBookDivideOnChapter(int desiredTextLanguage, int[] ChapterNumberParagraphsIndexes, int[] chapterNameIsDigitsOnly, string keyWordFoundForm)//разделили текст на главы - перед каждой главой поставили специальную метку вида ¤¤¤¤¤KeyWord-NNN-¤¤¤, где KeyWord - в той же форме, в какой в тексте, а NNN - три цифры номера главы с лидирующими нулями
@@ -90,12 +80,12 @@ namespace TextSplit
             bool isFirstChapterNumberNot0 = firstChapterNumber > 0;
             if(isFirstChapterNumberNot0)
             {
-                string currentChapterNumberToFind000 = AddSome00ToIntNumber("0", DConst.chapterNumberTotalDigits);//получим строку номера для нулевой главы
+                string currentChapterNumberToFind000 = _analysisLogic.AddSome00ToIntNumber("0", DConst.chapterNumberTotalDigits);//получим строку номера для нулевой главы
                 //запишем маркировку нулевой главы прямо в первый абзац, добавив строку в начале текста
                 string chapterTextMarks = DConst.beginChapterMark + currentChapterNumberToFind000 + DConst.endChapterMark + "-" + keyWordFoundForm + "-";//¤¤¤¤¤000¤¤¤-Chapter-                                                                                                                                           
-                string currentParagraph = GetStringContent(desiredTextLanguage, "GetParagraphText", 0);//достаем самый первый абзац
+                string currentParagraph = _bookData.GetStringContent(desiredTextLanguage, "GetParagraphText", 0);//достаем самый первый абзац
                 chapterTextMarks += DConst.StrCRLF + currentParagraph;//дописываем маркировку главы к названию главы, добавив строку для нее 
-                int setParagraphResult = GetIntContent(desiredTextLanguage, "SetParagraphText", chapterTextMarks, 0);//записываем обратно в самый первый абзац
+                int setParagraphResult = _bookData.GetIntContent(desiredTextLanguage, "SetParagraphText", chapterTextMarks, 0);//записываем обратно в самый первый абзац
                 _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "CurrentParagraph -- > " + currentParagraph + DConst.StrCRLF +
                         "chapterTextMarks " + chapterTextMarks, CurrentClassName, DConst.ShowMessagesLevel);
             }
@@ -106,7 +96,7 @@ namespace TextSplit
                 int currentParagraphChapterNumberIndex = ChapterNumberParagraphsIndexes[chapterNumberIndex];
                 int currentChapterNumber = chapterNameIsDigitsOnly[chapterNumberIndex] - 1;
                 string currentChapterNumberString = currentChapterNumber.ToString();
-                string currentParagraph = GetStringContent(desiredTextLanguage, "GetParagraphText", currentParagraphChapterNumberIndex);
+                string currentParagraph = _bookData.GetStringContent(desiredTextLanguage, "GetParagraphText", currentParagraphChapterNumberIndex);
 
                 //контрольная проверка номера главы
                 int startIndexOf = 0;
@@ -123,18 +113,18 @@ namespace TextSplit
                         "chapterNumberIndex = " + chapterNumberIndex.ToString(), CurrentClassName, 3);
                 }
 
-                string currentChapterNumberToFind000 = AddSome00ToIntNumber(currentChapterNumberString, DConst.chapterNumberTotalDigits);
+                string currentChapterNumberToFind000 = _analysisLogic.AddSome00ToIntNumber(currentChapterNumberString, DConst.chapterNumberTotalDigits);
                 if (currentChapterNumberToFind000 == null)
                 {
                     return null;//лучше поставить Assert - и можно прямо в AddSome00ToIntNumber?
                 }                
                 
-                string chapterTextMarks = DConst.beginChapterMark + currentChapterNumberToFind000 + DConst.endChapterMark + "-" + keyWordFoundForm + "-";//¤¤¤¤¤001¤¤¤-Chapter-
+                string chapterTextMarks = DConst.beginChapterMark + currentChapterNumberToFind000 + DConst.endChapterMark + "-" + keyWordFoundForm;//¤¤¤¤¤001¤¤¤-Chapter-
                                                                                                                                                          
-                chapterTextMarks += DConst.StrCRLF + currentParagraph;//дописываем маркировку главы к названию главы, добавив строку для нее 
-                int setParagraphResult = GetIntContent(desiredTextLanguage, "SetParagraphText", chapterTextMarks, currentParagraphChapterNumberIndex);//int GetIntContent(desiredTextLanguage, SetParagraphText, stringToSet, indexCount) надо писать в индекс[i] из массива индексов, а не в сам i - currentParagraphChapterNumberIndex
+                chapterTextMarks += DConst.StrCRLF + currentParagraph + DConst.StrCRLF;//дописываем маркировку главы к названию главы, добавив строку для нее 
+                int setParagraphResult = _bookData.GetIntContent(desiredTextLanguage, "SetParagraphText", chapterTextMarks, currentParagraphChapterNumberIndex);//int GetIntContent(desiredTextLanguage, SetParagraphText, stringToSet, indexCount) надо писать в индекс[i] из массива индексов, а не в сам i - currentParagraphChapterNumberIndex
                 //проверять setParagraphResult - но сначала сделать его осмысленным в самом методе записи
-                string newCurrentParagraph = GetStringContent(desiredTextLanguage, "GetParagraphText", currentParagraphChapterNumberIndex);
+                string newCurrentParagraph = _bookData.GetStringContent(desiredTextLanguage, "GetParagraphText", currentParagraphChapterNumberIndex);
 
                 _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "CurrentParagraph with i = " + currentParagraphChapterNumberIndex.ToString() + "  -- > " + currentParagraph + DConst.StrCRLF +
                         "chapterTextMarks - " + chapterTextMarks + DConst.StrCRLF +
@@ -174,7 +164,7 @@ namespace TextSplit
             for (int c = 0; c < chapterNameIsDigitsOnlyLength; c++)
             {
                 int currentParagraphIndex = ChapterNumberParagraphsIndexes[c];//достаем припрятанные индексы абзацев с номерами глав
-                string currentParagraph = GetStringContent(desiredTextLanguage, "GetParagraphText", currentParagraphIndex);
+                string currentParagraph = _bookData.GetStringContent(desiredTextLanguage, "GetParagraphText", currentParagraphIndex);
                 int currentChapterNumber = chapterNameIsDigitsOnly[c] - 1;
                 string currentChapterNumberString = currentChapterNumber.ToString();
                 int findChapterNameSpace = currentParagraph.Length - startIndexOf;
@@ -226,13 +216,12 @@ namespace TextSplit
                 }
             }            
             return keyWordFoundForm;
-        }
-        
+        }        
 
         public int[] CollectAllDigitsInParagraphs(int desiredTextLanguage)
         {//метод 1 - фактически вместо FirstTenGroupsChecked - 
 
-            int paragraphTextLength = GetIntContent(desiredTextLanguage, "GetParagraphTextLength"); // это вместо _bookData.GetParagraphTextLength(desiredTextLanguage);
+            int paragraphTextLength = _bookData.GetIntContent(desiredTextLanguage, "GetParagraphTextLength"); // это вместо _bookData.GetParagraphTextLength(desiredTextLanguage);
             _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "paragraphTextLength = " + paragraphTextLength.ToString(), CurrentClassName, DConst.ShowMessagesLevel);
             
             int[] allDigitsInParagraphs = new int[paragraphTextLength];            
@@ -241,7 +230,7 @@ namespace TextSplit
             //выбираем в цикле каждый абзац по очереди
             for (int currentIndex = 0; currentIndex < paragraphTextLength; currentIndex++)//далее рассмотреть, можно ли убрать цикл из мейна в метод
             {
-                string currentParagraph = GetStringContent(desiredTextLanguage, "GetParagraphText", currentIndex);//_bookData.GetParagraphText(i, desiredTextLanguage);                
+                string currentParagraph = _bookData.GetStringContent(desiredTextLanguage, "GetParagraphText", currentIndex);//_bookData.GetParagraphText(i, desiredTextLanguage);                
                 int startIndexOfAny = 0;
                 int findChapterNameSpace = 256;//чтобы не рыться в большом абзаце, проверяем только первые сколько-то символов (количество установить в переменной в AnalysisLogicDataArrays)
                 int currentParagraphLength = currentParagraph.Length;
@@ -447,6 +436,12 @@ namespace TextSplit
     }
 }
 
+//int GetIntContent(int desiredTextLanguage, string needOperationName) => _bookData.GetIntContent(desiredTextLanguage, needOperationName);//перегрузка для получения длины двуязычных динамических массивов
+//int GetIntContent(string needOperationName, string stringToSet, int indexCount) => _bookData.GetIntContent(needOperationName, stringToSet, indexCount);//перегрузка для записи обычных массивов
+//int GetIntContent(int desiredTextLanguage, string needOperationName, string stringToSet, int indexCount) => _bookData.GetIntContent(desiredTextLanguage, needOperationName, stringToSet, indexCount);
+//string GetStringContent(string nameOfStringNeed, int indexCount) => _bookData.GetStringContent(nameOfStringNeed, indexCount);
+//string GetStringContent(int desiredTextLanguage, string nameOfStringNeed, int indexCount) => _bookData.GetStringContent(desiredTextLanguage, nameOfStringNeed, indexCount);
+//string AddSome00ToIntNumber(string currentChapterNumberToFind, int chapterTotalDigits) =>_analysisLogic.AddSome00ToIntNumber(currentChapterNumberToFind, chapterTotalDigits);        
 //достанем метки начала и конца номера главы
 //string[] allChapterMarks = GetStringArrConstant("ChapterMark");
 //string beginChapterMark = allChapterMarks[0];

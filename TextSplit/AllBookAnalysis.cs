@@ -22,23 +22,10 @@ namespace TextSplit
         private readonly IAnalysisLogicCultivation _analysisLogic;
         private readonly IAnalysisLogicChapter _chapterAnalysis;
         private readonly IAnalysisLogicParagraph _paragraphAnalyser;
-        private readonly IAnalysisLogicSentences _sentenceAnalyser;
-
-        //новые методы из _bookData
-        int GetIntContent(int desiredTextLanguage, string needOperationName) => _bookData.GetIntContent(desiredTextLanguage, needOperationName);//перегрузка для получения длины двуязычных динамических массивов
-        int GetIntContent(string needOperationName, string stringToSet, int indexCount) => _bookData.GetIntContent(needOperationName, stringToSet, indexCount);//перегрузка для записи обычных массивов
-        int GetIntContent(int desiredTextLanguage, string needOperationName, string stringToSet, int indexCount) => _bookData.GetIntContent(desiredTextLanguage, needOperationName, stringToSet, indexCount);
-
-        string GetStringContent(string nameOfStringNeed, int indexCount) => _bookData.GetStringContent(nameOfStringNeed, indexCount);
-        string GetStringContent(int desiredTextLanguage, string nameOfStringNeed, int indexCount) => _bookData.GetStringContent(desiredTextLanguage, nameOfStringNeed, indexCount);
-
-
-        //старые методы из _bookData
-
-        int GetParagraphTextLength(int desiredTextLanguage) => _bookData.GetParagraphTextLength(desiredTextLanguage);
-        string GetParagraphText(int paragraphCount, int desiredTextLanguage) => _bookData.GetParagraphText(paragraphCount, desiredTextLanguage);            
+        private readonly IAnalysisLogicSentences _sentenceAnalyser;          
 
         public event EventHandler AnalyseInvokeTheMain;
+
 
         public AllBookAnalysis(IAllBookData bookData, IMessageService msgService, IAnalysisLogicCultivation analysisLogic, IAnalysisLogicChapter chapterAnalysis, IAnalysisLogicParagraph paragraphAnalysis, IAnalysisLogicSentences sentenceAnalyser)
         {
@@ -52,9 +39,6 @@ namespace TextSplit
 
         public string AnalyseTextBook() // типа Main в логике анализа текста
         {
-            //string lastFoundChapterNumberInMarkFormat = "";
-            //int chapterCountNumber = 0;
-            
             int desiredTextLanguage = _analysisLogic.GetDesiredTextLanguage();//возвращает номер языка, если на нем есть AnalyseText или AnalyseChapterName
             if (desiredTextLanguage == (int)MethodFindResult.NothingFound)
             {
@@ -65,58 +49,24 @@ namespace TextSplit
             if (_bookData.GetFileToDo(desiredTextLanguage) == (int)WhatNeedDoWithFiles.AnalyseText)//если первоначальный анализ текста, без подсказки пользователя о названии глав, ищем главы самостоятельно
             {
                 int portionBookTextResult = _paragraphAnalyser.PortionBookTextOnParagraphs(desiredTextLanguage);//возвращает количество строк с текстом
-                int paragraphTextLength = GetIntContent(desiredTextLanguage, "GetParagraphTextLength");
+                int paragraphTextLength = _bookData.GetIntContent(desiredTextLanguage, "GetParagraphTextLength");
                 int allEmptyParagraphsCount = paragraphTextLength - portionBookTextResult;
 
                 _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), DConst.StrCRLF + "Total TEXTs Paragraphs count = " + portionBookTextResult.ToString() + DConst.StrCRLF +
                     "Total ANY paragraphs count = " + paragraphTextLength.ToString() + DConst.StrCRLF +
                     "Total EMPTY paragraphs count = " + allEmptyParagraphsCount.ToString(), CurrentClassName, DConst.ShowMessagesLevel);
 
-                //int normalizeEmptyParagraphsResult = _paragraphAnalyser.NormalizeEmptyParagraphs(desiredTextLanguage);//удаляем лишние пустые строки, оставляя только одну, результат - количество удаленных пустых строк                
-
                 int[] ChapterNumberParagraphsIndexes = _chapterAnalysis.ChapterNameAnalysis(desiredTextLanguage);//находим название и номера, расставляем метки глав в тексте
 
-                //string firstParagraph = GetStringContent(desiredTextLanguage, "GetParagraphText", 0);//достаем самый первый абзац
-                //int ChapterNumberParagraphsIndexesLength = ChapterNumberParagraphsIndexes.Length;
-                //int lastChapterNumberParagraphsIndex = ChapterNumberParagraphsIndexes[ChapterNumberParagraphsIndexesLength - 1];
-                //int chapterNumber1ParagraphsIndex = ChapterNumberParagraphsIndexes[0];
-                //string lastChapterNameParagraph = GetStringContent(desiredTextLanguage, "GetParagraphText", lastChapterNumberParagraphsIndex);//достаем абзац с последним номером главы
-                //string chapterName1Paragraph = GetStringContent(desiredTextLanguage, "GetParagraphText", chapterNumber1ParagraphsIndex);//достаем абзац с последним номером главы
-                //_msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Paragraph 0 -- > " + firstParagraph + DConst.StrCRLF +
-                //    "Paragraph 1 -- > " + chapterName1Paragraph + DConst.StrCRLF +
-                //    "Paragraph with last chapter -- > " + lastChapterNameParagraph, CurrentClassName, 3);
-
-
-
-
-
-
                 int enumerateParagraphsCount = _paragraphAnalyser.MarkAndEnumerateParagraphs(desiredTextLanguage, ChapterNumberParagraphsIndexes);//тут раставляем метки и номера абзацев - lastFoundChapterNumberInMarkFormat - не особо нужен
-                //затем - предложений
-
-                //тут писать вызов разделения на предложения - посмотреть минимум параметров для вызова - desiredTextLanguage
+                
                 int countSentencesNumber = _sentenceAnalyser.DividePagagraphToSentencesAndEnumerate(desiredTextLanguage);
-
-
-
-                paragraphTextLength = GetIntContent(desiredTextLanguage, "GetParagraphTextLength");
-                for (int i = 0; i < paragraphTextLength; i++)//перебираем все абзацы текста
-                {
-                    string currentParagraph = GetParagraphText(i, desiredTextLanguage);
-                    
-                        _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Paragraph[" + i.ToString() + "] -> " + currentParagraph, CurrentClassName, DConst.ShowMessagesLevel);
-                    
-                }
-
-
-
-
 
                 StringBuilder appendFileContent = new StringBuilder();//тут сохраняем весь текст в файл для контрольной печати - убрать метод в дополнения
                 //int paragraphTextLength = GetParagraphTextLength(desiredTextLanguage);
                 for (int i = 0; i < paragraphTextLength; i++)
                 {
-                    string currentParagraph = GetParagraphText(i, desiredTextLanguage);
+                    string currentParagraph = _bookData.GetParagraphText(i, desiredTextLanguage);
                     _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "CurrentParagraph [" + i.ToString() + "] -- > " + currentParagraph, CurrentClassName, DConst.ShowMessagesLevel);
                     appendFileContent = appendFileContent.AppendLine(currentParagraph); // was + DConst.StrCRLF);                    
                 }
@@ -132,16 +82,12 @@ namespace TextSplit
                 _bookData.SetFileToDo((int)WhatNeedDoWithFiles.SelectChapterName, desiredTextLanguage);//сообщаем Main, что надо поменять название на кнопке на Select
                     _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), DConst.StrCRLF +
                         "AnalyseInvokeTheMain with desiredTextLanguage = " + desiredTextLanguage.ToString(), CurrentClassName, DConst.ShowMessagesLevel);
+
                     if (AnalyseInvokeTheMain != null) AnalyseInvokeTheMain(this, EventArgs.Empty);//пошли узнавать у пользователя, как маркируются главы
                 
                 return hashSavedFile;
             }
-            //if (_bookData.GetFileToDo(desiredTextLanguage) == (int)WhatNeedDoWithFiles.AnalyseChapterName) //анализ названия главы с полученной подсказкой от пользователя
-            //{//если получена подсказка от пользователя - текст названия главы, то изучаем полученный выбранный текст
-            //    chapterCountNumber = _chapterAnalyser.UserSelectedChapterNameAnalysis(desiredTextLanguage);
-            //    _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), DConst.StrCRLF + "Found Chapters count = " + lastFoundChapterNumberInMarkFormat, CurrentClassName, 3);
-            //    return chapterCountNumber;
-            //}
+            
             return desiredTextLanguage.ToString();//типа, нечего анализировать
         }        
 

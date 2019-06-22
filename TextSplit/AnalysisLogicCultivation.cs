@@ -11,7 +11,7 @@ namespace TextSplit
     public interface IAnalysisLogicCultivation
     {
         int GetDesiredTextLanguage();        
-        int FindTextPartNumber(string currentParagraph, string stringMarkBegin, int totalDigitsQuantity);        
+        //int FindTextPartNumber(string currentParagraph, string stringMarkBegin, int totalDigitsQuantity);        
         string AddSome00ToIntNumber(string currentNumberToFind, int totalDigitsQuantity);       
     }
 
@@ -47,27 +47,6 @@ namespace TextSplit
             }
             return desiredTextLanguage;
         }
-        
-        public int FindTextPartNumber(string currentParagraph, string symbolsMarkBegin, int totalDigitsQuantity)
-        {
-            //найти и выделить номер главы
-            int currentPartNumber = -1;//чтобы не спутать с нулевым индексом на выходе, -1 - ничего нет (совсем ничего)            
-            int symbolsMarkBeginLength = symbolsMarkBegin.Length;
-            bool partNumberFound = Int32.TryParse(currentParagraph.Substring(symbolsMarkBeginLength, totalDigitsQuantity), out currentPartNumber);//вместо 3 взять totalDigitsQuantity для главы
-            if (partNumberFound)
-            {
-                return currentPartNumber;
-            }
-            else
-            {
-                //что-то пошло не так, остановиться - System.Diagnostics.Debug.Assert(partNumberFound, "Stop here - partNumberFound did not find!");
-                _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "STOP HERE - currentPartNumber did not find in currentParagraph!" + strCRLF +
-                    "currentParagraph = " + currentParagraph + " -->" + strCRLF +
-                    "symbolsMarkBegin --> " + symbolsMarkBegin + strCRLF +                                
-                    "totalDigitsQuantity = " + totalDigitsQuantity.ToString(), CurrentClassName, 3);                
-                return (int)MethodFindResult.NothingFound;
-            }            
-        }      
 
         public string AddSome00ToIntNumber(string currentNumberToFind, int totalDigitsQuantity)
         {

@@ -308,7 +308,7 @@ namespace TextSplit.Tests
             IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)
 
             //Mock<IAllBookData> bookDataMock = new Mock<IAllBookData>();
-            IAnalysisConstantArrays arrayAnalysis = new AnalysisConstantArrays(bookData, msgService);
+            IAnalysisConstantArrays arrayAnalysis = new noneAnalysisConstantArrays(bookData, msgService);
             IAnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService);
             //IAnalysisLogicDataArrays arrayAnalysis = new AnalysisLogicDataArrays(bookData, msgService);
             Trace.WriteLine("currentNumberToFind: " + currentNumberToFind);
@@ -355,7 +355,7 @@ namespace TextSplit.Tests
             IAllBookData bookData = new AllBookDataArrays();
             IFileManager manager = new FileManager(bookData);
             IMessageService msgService = new MessageService(manager);
-            IAnalysisConstantArrays arrayAnalysis = new AnalysisConstantArrays(bookData, msgService);
+            IAnalysisConstantArrays arrayAnalysis = new noneAnalysisConstantArrays(bookData, msgService);
 
             int sGroupCount = arrayAnalysis.GetIntConstant("Groups");
             string[] numbersOfGroupsNames = arrayAnalysis.GetStringArrConstant("Groups");            

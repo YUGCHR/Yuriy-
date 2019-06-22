@@ -14,13 +14,14 @@ namespace TextSplit.Tests
     public class AnalysisLogicChapterIntegrationTest
     {
         [TestMethod] // - marks method as a test
-        [DataRow(".//testBooks//testEndlishTexts_03.txt", "5fb0cd088e35fddcc38ae26fe8841fb6", (int)WhatNeedDoWithFiles.AnalyseText, 0, "b279e5a5300b1dcc589aa3180c112aae")]
+        [DataRow(".//testBooks//testEndlishTexts_03.txt", "66eca5b84108553ce10daa89eb3b2b63", (int)WhatNeedDoWithFiles.AnalyseText, 0, "979c69b0fd8820f16dddb7ce36ee2d70")]
         //(int)WhatNeedDoWithFiles.AnalyseText - включить анализ текста - аналог нажатия кнопки Analysis в OpenForm
         //1a228cf53b80ba5e24499b8d83a44df0 - в исходный текст поставлены градусы вместо пробела после разделителей - для контроля переноса пробела
         //e7ef272232c4b704f557db114ac7815f - в исходный текст добавлено много пустых строк в конце
         //a18db99a01a8f7a08085ea28968edd31 - в исходный текст добавлены скобки для всех [Maximilian Andreyevich]
         //94eeb3deba4dd515562a1687007bb86f - A Fire Upon the Deep started to test
         //5fb0cd088e35fddcc38ae26fe8841fb6 - опять M&M но без нулевой главы, нумерация с 01
+        //66eca5b84108553ce10daa89eb3b2b63 - добавил немного градусов на стыке предложения
         //i = 0  - this will be desiredTextLanguage for AnalyseTextBook
         //Actual Hash with Paragraph numbers only (without sentences): <02a6c1080c08c87c95cf95005fb701e7>
         //Actual Hash with Paragraph and Sentences numbers): <97509ac7bb342a814e59684113b74997>
@@ -32,7 +33,8 @@ namespace TextSplit.Tests
         //Actual Hash with exceptionWillCome: a7d2bea324bfac674eb345fbd0a9da84 - предложений все равно 528
         //Actual Hash with end-of-paragraph check: 6cd5975bad068b17460cea84586349b4 - предложение 528
         //Actual Hash with paragraph only: 75b859aafcbca4d1630d2244a29886a2
-        //Actual Hash with Paragraph and Sentences numbers: b279e5a5300b1dcc589aa3180c112aae
+        //Actual Hash with Paragraph and Sentences numbers: f3c7983a6f7956d9b41f8f0b4824d540 - начали добавляться предложения без точки в конце - предложений 537
+        //Actual Hash with RIGHT DIVIDED Paragraph and Sentences numbers:979c69b0fd8820f16dddb7ce36ee2d70 - и стало 464 предложений
 
         public void TestMain_AnalyseTextBook(string _filePath, string expectedHash, int fileToDo, int desiredTextLanguage, string saveTextFileResult)
         {

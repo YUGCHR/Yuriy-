@@ -32,8 +32,9 @@ namespace TextSplitLibrary
         public static string[] charsEllipsisToChange2 = new string[] { "«»", "…", "\u203C", "\u203C", "\u2048", "\u2048", "\u2049", "\u2049", "\u2047", "\u2047" };
         public static char[] charsParagraphSeparator = new char[] { '\r', '\n' };
         public static string[] charsGroupsSeparators = new string[] { ".…!?;", "\u0022\u002F\u02BA\u02EE\u02DD", "()[]{}«»<>" };//…\u2026 (Horizontal Ellipsis) (\u002F - /) ⁇\u2047 ⁈\u2048 ⁉\u2049 ‼\u203C
+        public static int AllDelimitersCount = charsGroupsSeparators[0].Length + charsGroupsSeparators[1].Length + charsGroupsSeparators[2].Length;
         public static string[] numbersOfGroupsNames = new string[] { "Sentence", "Quotes", "Brackets" }; //номера групп сепараторов для получения их значений в цикле
-      
+        
         public static char[] AllDigits = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
 
         public static string beginChapterMark = "\u00A4\u00A4\u00A4\u00A4\u00A4";//¤¤¤¤¤ - метка строки перед началом названия главы, ¤¤¤ - метка строки после названия главы, еще \u007E - ~

@@ -43,7 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AllBookDataArrays.cs" />
-    <Compile Include="AnalysisConstantArrays.cs" />
+    <Compile Include="noneAnalysisConstantArrays.cs" />
     <Compile Include="sampleAnalysisDataConstant.cs" />
     <Compile Include="DConst.cs" />
     <Compile Include="FileManager.cs" />
