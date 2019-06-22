@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace TextSplitLibrary
 {
-    public static class DeclarationConstants
+    public static class DConst
     {
+        #region GlobalConstant
         public const int FilesQuantity = 3; //the length of the all Files___ arrays (except FilesToDo)
         public const int LanguagesQuantity = 2; //the length of the all Files___ arrays (except FilesToDo)
         public const int ToDoQuantity = FilesQuantity + 1; //the length of the FilesToDo array (+1 for BreakpointManager)
@@ -19,6 +20,36 @@ namespace TextSplitLibrary
         public const string StrCRLF = "\r\n";
         public const string ResultFileName = "sampleResultTextDoc";
         public const int ShowMessagesLevel = 0;//0 - no messages, 1 - Trace messages, 2 - Value messages, -1 - Print mesaages...
+        #endregion
+
+        #region AnalysisConstantArrays
+        public const int baseKeyWordFormsCount = 3;
+        public const int chapterNumberTotalDigits = 3;
+        public const int paragraptNumberTotalDigits = 5;
+        public const int sentenceNumberTotalDigits = 5;       
+
+        public static string[] charsEllipsisToChange1 = new string[] { "“”", "...", "!!!", "!!", "?!!", "?!", "!!?", "!?", "???", "??" };
+        public static string[] charsEllipsisToChange2 = new string[] { "«»", "…", "\u203C", "\u203C", "\u2048", "\u2048", "\u2049", "\u2049", "\u2047", "\u2047" };
+        public static char[] charsParagraphSeparator = new char[] { '\r', '\n' };
+        public static string[] charsGroupsSeparators = new string[] { ".…!?;", "\u0022\u002F\u02BA\u02EE\u02DD", "()[]{}«»<>" };//…\u2026 (Horizontal Ellipsis) (\u002F - /) ⁇\u2047 ⁈\u2048 ⁉\u2049 ‼\u203C
+        public static string[] numbersOfGroupsNames = new string[] { "Sentence", "Quotes", "Brackets" }; //номера групп сепараторов для получения их значений в цикле
+      
+        public static char[] AllDigits = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
+
+        public static string beginChapterMark = "\u00A4\u00A4\u00A4\u00A4\u00A4";//¤¤¤¤¤ - метка строки перед началом названия главы, ¤¤¤ - метка строки после названия главы, еще \u007E - ~
+        public static string endChapterMark = "\u00A4\u00A4\u00A4";
+        public static string beginParagraphMark = "\u00A7\u00A7\u00A7\u00A7\u00A7";//§§§§§ - метка строки перед началом абзаца, §§§ - метка строки после абзаца
+        public static string endParagraphMark = "\u00A7\u00A7\u00A7";
+        public static string beginSentenceMark = "\u00B6\u00B6\u00B6\u00B6\u00B6";//¶¶¶¶¶ - метка строки перед началом предложния, ¶¶¶ - метка строки после конца предложения
+        public static string endSentenceMark = "\u00B6\u00B6\u00B6";
+
+        public static string[,] chapterNamesSamples = new string[,]//а номера глав бывают буквами!
+            { { "chapter", "paragraph", "section", "subhead", "part" },
+                { "глава", "параграф" , "раздел", "подраздел", "часть" }, };//можно разделить на два отдельных массива и тоже передавать через метод сепараторов - выбирая потом язык (прибавляя цифру языка к строке выбора)
+        
+        public static string[] paragraphMarkNameLanguage = new string[] { "Paragraph", "Абзац" };//название абзаца в маркировке абзаца
+        public static string[] SentenceMarkNameLanguage = new string[] { "Sentence", "Предложение" };//название предложения в маркировке предложения
+        #endregion
 
         //Database structure and constants
         //0 - Languages - cannot insert records (ID, ID_Language, nvchar10 Language_name)
@@ -27,6 +58,20 @@ namespace TextSplitLibrary
         //3 - Sentences - Columns - ID, ID_Language, ID_Chapter, ID_Paragraph, int Sentence, ntext Sentence_name
         public static readonly string[] DataBaseTableNames = new string[] { "Languages", "Chapters", "Paragraphs", "Sentences" };
     }
+
+    public enum DesiredTextLanguage : int
+    {
+        English = 0,
+        Russian = 1,        
+        NothingFound = -1
+    };
+
+    public enum PiecesEdgesMarks : int
+    {
+        Begin = 0,
+        End = 1,
+        NothingFound = -1
+    };
 
     public enum MethodFindResult : int {
         English = 0,

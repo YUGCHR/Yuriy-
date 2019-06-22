@@ -30,9 +30,9 @@ namespace TextSplit
 
         public LoadTextToDataBase(IAllBookData book, IDataBaseAccessor data, IMessageService service)
         {
-            strCRLF = DeclarationConstants.StrCRLF;
-            showMessagesLevel = DeclarationConstants.ShowMessagesLevel;
-            filesQuantity = DeclarationConstants.FilesQuantity;
+            strCRLF = DConst.StrCRLF;
+            showMessagesLevel = DConst.ShowMessagesLevel;
+            filesQuantity = DConst.FilesQuantity;
 
             _book = book;
             _messageService = service;

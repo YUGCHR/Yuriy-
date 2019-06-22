@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace TextSplitLibrary
 {
-    public interface IAnalysisLogicDataArrays
+    public interface IAnalysisConstantArrays
     {
         int SetFoundWordsOfParagraph(string wordOfParagraph, int i);
         string GetFoundWordsOfParagraph(int i);
@@ -35,63 +35,7 @@ namespace TextSplitLibrary
         string[] GetStringArrConstant(string needConstantnName);
     }
 
-
-
-
-
-
-
-
-
-
-
-
-    public interface IAnalysisLogicDataConstant
-    {
-        
-    }
-
-    public class AnalysisLogicDataConstant<T> : IAnalysisLogicDataConstant
-    {
-        public T ReturnType { get; set; }
-        public string WordToGetValue { get; set; }
-        public int ConstantLength { get; set; }
-
-        AnalysisLogicDataConstant<int[]> totalDigitsQuantity = new AnalysisLogicDataConstant<int[]> { WordToGetValue = "", ConstantLength = 0 };
-        AnalysisLogicDataConstant<string[]> SentenceSeparators = new AnalysisLogicDataConstant<string[]> { WordToGetValue = "", ConstantLength = 0 };
-
-        public AnalysisLogicDataConstant()
-        {
-            SentenceSeparators.ReturnType = new string[] { ".", "…", "!", "?", ";" };
-            SentenceSeparators.ConstantLength = SentenceSeparators.ReturnType.Length;
-            SentenceSeparators.WordToGetValue = "SentenceSeparators";
-            
-
-            totalDigitsQuantity.ReturnType = new int[] { 3, 5, 5 };
-            totalDigitsQuantity.ConstantLength = totalDigitsQuantity.ReturnType.Length;
-            totalDigitsQuantity.WordToGetValue = "totalDigitsQuantity";
-        }
-
-        
-
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    public class AnalysisLogicDataArrays : IAnalysisLogicDataArrays
+    public class AnalysisConstantArrays : IAnalysisConstantArrays
     {
         private readonly IAllBookData _bookData;
         private readonly IMessageService _msgService;
@@ -107,12 +51,15 @@ namespace TextSplitLibrary
         readonly private string[,] chapterNamesSamples;//два следующих массива собираются заменить этот двумерный
         readonly private string[] chapterNamesSamplesLanguage0;
         readonly private string[] chapterNamesSamplesLanguage1;
+        readonly private string[] paragraphMarkNameLanguage0;
+        readonly private string[] paragraphMarkNameLanguage1;
+        readonly private string[] sentenceMarkNameLanguage0;
+        readonly private string[] sentenceMarkNameLanguage1;
+
         readonly private string[] chapterMark;
-        readonly private string[] stringMarksChapterEnd;
-        readonly private string[] stringMarksParagraphBegin;
-        readonly private string[] stringMarksParagraphEnd;
-        readonly private string[] stringMarksSentenceBegin;
-        readonly private string[] stringMarksSentenceEnd;
+        readonly private string[] paragraphMark;
+        readonly private string[] sentenceMark;
+
         readonly private string[] charsParagraphSeparator;
         readonly private string[] charsSentenceSeparators;
         readonly private string[] charsQuotesSeparator;
@@ -129,13 +76,13 @@ namespace TextSplitLibrary
         private char[] foundCharsSeparator;
         private readonly int baseKeyWordFormsCount;
 
-        public AnalysisLogicDataArrays(IAllBookData bookData, IMessageService msgService)
+        public AnalysisConstantArrays(IAllBookData bookData, IMessageService msgService)
         {
             _bookData = bookData;
             _msgService = msgService;
 
-            showMessagesLevel = DeclarationConstants.ShowMessagesLevel;
-            strCRLF = DeclarationConstants.StrCRLF;
+            showMessagesLevel = DConst.ShowMessagesLevel;
+            strCRLF = DConst.StrCRLF;
             showMessagesLocal = showMessagesLevel;
             showMessagesLocal = 3; //локальные печати класса выводятся на экран
             baseKeyWordFormsCount = 3;
@@ -158,11 +105,8 @@ namespace TextSplitLibrary
             allDigits = new string[] { "0123456789" };
 
             chapterMark = new string[] { "\u00A4\u00A4\u00A4\u00A4\u00A4", "\u00A4\u00A4\u00A4" };//¤¤¤¤¤ - метка строки перед началом названия главы, ¤¤¤ - метка строки после названия главы, еще \u007E - ~
-            stringMarksChapterEnd = new string[] { "\u00A4\u00A4\u00A4" };//¤¤¤ - метка строки после названия главы, еще \u007E - ~
-            stringMarksParagraphBegin = new string[] { "\u00A7\u00A7\u00A7\u00A7\u00A7" };//§§§§§ - метка строки перед началом абзаца
-            stringMarksParagraphEnd = new string[] { "\u00A7\u00A7\u00A7" };//§§§ - метка строки после абзаца
-            stringMarksSentenceBegin = new string[] { "\u00B6\u00B6\u00B6\u00B6\u00B6" };//¶¶¶¶¶ - метка строки перед началом предложния
-            stringMarksSentenceEnd = new string[] { "\u00B6\u00B6\u00B6" };//¶¶¶ - метка строки после конца предложения            
+            paragraphMark = new string[] { "\u00A7\u00A7\u00A7\u00A7\u00A7", "\u00A7\u00A7\u00A7" };//§§§§§ - метка строки перед началом абзаца, §§§ - метка строки после абзаца
+            sentenceMark = new string[] { "\u00B6\u00B6\u00B6\u00B6\u00B6", "\u00B6\u00B6\u00B6" };//¶¶¶¶¶ - метка строки перед началом предложния, ¶¶¶ - метка строки после конца предложения
 
             chapterNamesSamples = new string[,]//а номера глав бывают буквами!
             { { "chapter", "paragraph", "section", "subhead", "part" },
@@ -170,6 +114,10 @@ namespace TextSplitLibrary
 
             chapterNamesSamplesLanguage0 = new string[] { "chapter", "paragraph", "section", "subhead", "part" };
             chapterNamesSamplesLanguage1 = new string[] { "глава", "параграф", "абзац", "история", "сказание", "раздел", "подраздел", "часть" };
+            paragraphMarkNameLanguage0 = new string[] { "Paragraph" };//название абзаца в маркировке абзаца (сделать такое же для второго языка)
+            paragraphMarkNameLanguage1 = new string[] { "Абзац" };//название абзаца в маркировке абзаца
+            sentenceMarkNameLanguage0 = new string[] { "Sentence" };//название абзаца в маркировке абзаца (сделать такое же для второго языка)
+            sentenceMarkNameLanguage1 = new string[] { "Предложение" };//название абзаца в маркировке абзаца (сделать такое же для второго языка)
 
             foundWordsOfParagraph = new string[10];//временное хранение найденных первых десяти слов абзаца
             foundSymbolsOfParagraph = new string[10];//временное хранение найденных групп спецсимволов перед ключевым словом главы
@@ -212,7 +160,7 @@ namespace TextSplitLibrary
                 "GroupsNumbers":
                     return numbersOfGroupsNames.Length;
                 case
-                "Paragraph":
+                "ParagraphSeparator":
                     return charsParagraphSeparator.Length;
                 case
                 "ChapterMark":
@@ -221,17 +169,17 @@ namespace TextSplitLibrary
                 "ChapterTotalDigits":
                     return chapterNumberTotalDigits;
                 case
-                "ParagraphBegin":
-                    return stringMarksParagraphBegin.Length;
+                "ParagraphMark":
+                    return paragraphMark.Length;
                 case
-                "ParagraphEnd"://заменить на ParagraphTotalDigits
-                    return stringMarksParagraphEnd.Length;//заменить на paragraptNumberTotalDigits
+                "ParagraphTotalDigits":
+                    return paragraptNumberTotalDigits;
                 case
-                "SentenceBegin":
-                    return stringMarksSentenceBegin.Length;
+                "SentenceMark":
+                    return sentenceMark.Length;
                 case
-                "SentenceEnd"://заменить на SentenceTotalDigits
-                    return stringMarksSentenceEnd.Length;//заменить на sentenceNumberTotalDigits
+                "SentenceTotalDigits"://заменить на SentenceTotalDigits
+                    return sentenceNumberTotalDigits; ;//заменить на sentenceNumberTotalDigits
                 case                    
                 "NamesSamples0":
                     return chapterNamesSamplesLanguage0.Length;
@@ -274,26 +222,32 @@ namespace TextSplitLibrary
                 "AllDigitsIn0":
                     return allDigits;
                 case
-                "Paragraph":
+                "ParagraphSeparator":
                     return charsParagraphSeparator;
                 case
                 "ChapterMark":
                     return chapterMark;
                 case
                 "Free1":
-                    return stringMarksChapterEnd;
+                    return chapterMark;
                 case
-                "ParagraphBegin":
-                    return stringMarksParagraphBegin;
+                "ParagraphMark":
+                    return paragraphMark;
                 case
-                "ParagraphEnd":
-                    return stringMarksParagraphEnd;
+                "Paragraph0":
+                    return paragraphMarkNameLanguage0;
                 case
-                "SentenceBegin":
-                    return stringMarksSentenceBegin;
+                "Paragraph1":
+                    return paragraphMarkNameLanguage1;
                 case
-                "SentenceEnd":
-                    return stringMarksSentenceEnd;
+                "SentenceMark":
+                    return sentenceMark;
+                case
+                "Sentence0":
+                    return sentenceMarkNameLanguage0;
+                case
+                "Sentence1":
+                    return sentenceMarkNameLanguage1;
                 case                    
                 "NamesSamples0":
                     return chapterNamesSamplesLanguage0;

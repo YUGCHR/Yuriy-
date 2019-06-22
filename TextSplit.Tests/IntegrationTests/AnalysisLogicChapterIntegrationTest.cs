@@ -14,7 +14,7 @@ namespace TextSplit.Tests
     public class AnalysisLogicChapterIntegrationTest
     {
         [TestMethod] // - marks method as a test
-        [DataRow(".//testBooks//testEndlishTexts_03.txt", "5fb0cd088e35fddcc38ae26fe8841fb6", (int)WhatNeedDoWithFiles.AnalyseText, 0, "6cd5975bad068b17460cea84586349b4")]
+        [DataRow(".//testBooks//testEndlishTexts_03.txt", "5fb0cd088e35fddcc38ae26fe8841fb6", (int)WhatNeedDoWithFiles.AnalyseText, 0, "b279e5a5300b1dcc589aa3180c112aae")]
         //(int)WhatNeedDoWithFiles.AnalyseText - включить анализ текста - аналог нажатия кнопки Analysis в OpenForm
         //1a228cf53b80ba5e24499b8d83a44df0 - в исходный текст поставлены градусы вместо пробела после разделителей - для контроля переноса пробела
         //e7ef272232c4b704f557db114ac7815f - в исходный текст добавлено много пустых строк в конце
@@ -30,7 +30,10 @@ namespace TextSplit.Tests
         //Actual Hash with …: 371e4f92ba1a86fa08838fec6396e32c - должно быть 528 предложений
         //Actual Hash with Char.IsUpper: 9628dcb7e84a589eabb98590b96b4613 - должно быть 528 предложений
         //Actual Hash with exceptionWillCome: a7d2bea324bfac674eb345fbd0a9da84 - предложений все равно 528
-        //Actual Hash with end-of-psragraph check: 6cd5975bad068b17460cea84586349b4 - предложение 528
+        //Actual Hash with end-of-paragraph check: 6cd5975bad068b17460cea84586349b4 - предложение 528
+        //Actual Hash with paragraph only: 75b859aafcbca4d1630d2244a29886a2
+        //Actual Hash with Paragraph and Sentences numbers: b279e5a5300b1dcc589aa3180c112aae
+
         public void TestMain_AnalyseTextBook(string _filePath, string expectedHash, int fileToDo, int desiredTextLanguage, string saveTextFileResult)
         {
             bool truePath = File.Exists(_filePath);
@@ -40,12 +43,11 @@ namespace TextSplit.Tests
             IFileManager manager = new FileManager(bookData);
 
             //IMessageService msgService = Mock.Of<IMessageService>();// - вывод на печать отключить
-            IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)           
-            IAnalysisLogicDataArrays arrayAnalysis = new AnalysisLogicDataArrays(bookData, msgService);
-            IAnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService, arrayAnalysis);
-            IAnalysisLogicSentences sentenceAnalyser = new AnalysisLogicSentences(bookData, msgService, analysisLogic, arrayAnalysis);
-            IAnalysisLogicParagraph paragraphAnalysis = new AnalysisLogicParagraph(bookData, msgService, analysisLogic, arrayAnalysis);
-            IAnalysisLogicChapter chapterAnalyser = new AnalysisLogicChapter(bookData, msgService, analysisLogic, arrayAnalysis);            
+            IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)                       
+            IAnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService);
+            IAnalysisLogicSentences sentenceAnalyser = new AnalysisLogicSentences(bookData, msgService, analysisLogic);
+            IAnalysisLogicParagraph paragraphAnalysis = new AnalysisLogicParagraph(bookData, msgService, analysisLogic);
+            IAnalysisLogicChapter chapterAnalyser = new AnalysisLogicChapter(bookData, msgService, analysisLogic);            
             IAllBookAnalysis bookAnalysis = new AllBookAnalysis(bookData, msgService, analysisLogic, chapterAnalyser, paragraphAnalysis, sentenceAnalyser);
 
             bookData.SetFileToDo(fileToDo, desiredTextLanguage);//создание нужной инструкции ToDo

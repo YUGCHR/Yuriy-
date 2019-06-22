@@ -63,8 +63,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IntegrationTests\AnalysisLogicChapterIntegrationTest.cs" />
+    <Compile Include="UnitTests\sampleAnalysisDataConstantUnitTests.cs" />
     <Compile Include="UnitTests\AnalysisLogicChapterUnitTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UnitTests\T.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

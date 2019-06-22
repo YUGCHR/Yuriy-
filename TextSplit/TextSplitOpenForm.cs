@@ -71,12 +71,12 @@ namespace TextSplit
             _book = book;
             _messageService = service;
 
-            textFieldsQuantity = DeclarationConstants.TextFieldsQuantity;//количество текстовых окон - пока глобальное (нужно в Main)
+            textFieldsQuantity = DConst.TextFieldsQuantity;//количество текстовых окон - пока глобальное (нужно в Main)
             buttonLanguages = Enum.GetNames(typeof(LeftButtons)).Length; //количество языков на кнопках
             buttonTextsQuantity = 2 + 2;//количество вариантов текста на кнопках под текстовыми окнами
-            buttonNamesCountInLanguageGroup = DeclarationConstants.ButtonNamesCountInLanguageGroup;
-            showMessagesLevel = DeclarationConstants.ShowMessagesLevel;
-            strCRLF = DeclarationConstants.StrCRLF;
+            buttonNamesCountInLanguageGroup = DConst.ButtonNamesCountInLanguageGroup;
+            showMessagesLevel = DConst.ShowMessagesLevel;
+            strCRLF = DConst.StrCRLF;
 
             InitializeComponent();
             _messageService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "InitializeComponent in TextSplitOpenForm", CurrentClassName, showMessagesLevel);

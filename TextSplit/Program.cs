@@ -25,12 +25,15 @@ namespace TextSplit
             MessageService msgService = new MessageService(fileManager);
             DataBaseAccessor dataAccess = new DataBaseAccessor(msgService);
             TextSplitForm viewForm = new TextSplitForm(msgService, logFile);
-            TextSplitOpenForm openForm = new TextSplitOpenForm(bookData, msgService);            
-            AnalysisLogicDataArrays arrayAnalysis = new AnalysisLogicDataArrays(bookData, msgService);
-            AnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService, arrayAnalysis);
-            AnalysisLogicChapter chapterLogic = new AnalysisLogicChapter(bookData, msgService, analysisLogic, arrayAnalysis);
-            AnalysisLogicSentences sentenceLogic = new AnalysisLogicSentences(bookData, msgService, analysisLogic, arrayAnalysis);
-            AnalysisLogicParagraph paragraphLogic = new AnalysisLogicParagraph(bookData, msgService, analysisLogic, arrayAnalysis);
+            TextSplitOpenForm openForm = new TextSplitOpenForm(bookData, msgService);
+
+            AnalysisDataConstant<int[]> totalDigitsQuantity = new AnalysisDataConstant<int[]>();
+            AnalysisDataConstant<string[]> SentenceSeparators = new AnalysisDataConstant<string[]>();
+
+            AnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService);
+            AnalysisLogicChapter chapterLogic = new AnalysisLogicChapter(bookData, msgService, analysisLogic);
+            AnalysisLogicSentences sentenceLogic = new AnalysisLogicSentences(bookData, msgService, analysisLogic);
+            AnalysisLogicParagraph paragraphLogic = new AnalysisLogicParagraph(bookData, msgService, analysisLogic);
             AllBookAnalysis analysisBook = new AllBookAnalysis(bookData, msgService, analysisLogic, chapterLogic, paragraphLogic, sentenceLogic);
             LoadTextToDataBase loadDataBase = new LoadTextToDataBase(bookData, dataAccess, msgService);
             MainLogicCultivation logicMain = new MainLogicCultivation(bookData, msgService, fileManager);

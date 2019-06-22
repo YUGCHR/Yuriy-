@@ -35,11 +35,11 @@ namespace TextSplit
             _load = load;
             _logic = logic;
 
-            filesQuantity = DeclarationConstants.FilesQuantity;
-            textFieldsQuantity = DeclarationConstants.TextFieldsQuantity;
-            buttonNamesCountInLanguageGroup = DeclarationConstants.ButtonNamesCountInLanguageGroup;
-            showMessagesLevel = DeclarationConstants.ShowMessagesLevel;
-            strCRLF = DeclarationConstants.StrCRLF;
+            filesQuantity = DConst.FilesQuantity;
+            textFieldsQuantity = DConst.TextFieldsQuantity;
+            buttonNamesCountInLanguageGroup = DConst.ButtonNamesCountInLanguageGroup;
+            showMessagesLevel = DConst.ShowMessagesLevel;
+            strCRLF = DConst.StrCRLF;
 
             string mainStart = "******************************************************************************************************************************************* \r\n";//Log-file separator
             _messageService.ShowTrace(mainStart + MethodBase.GetCurrentMethod().ToString(), " Started", CurrentClassName, showMessagesLevel);

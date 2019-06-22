@@ -10,8 +10,10 @@ namespace TextSplitLibrary
 {
     public interface IAllBookData
     {
+        //новые методы
         int GetIntContent(int desiredTextLanguage, string needOperationName);//перегрузка для получения длины двуязычных динамических массивов
         int GetIntContent(string needOperationName, string stringToSet, int indexCount);//перегрузка для записи обычных массивов
+        int GetIntContent(int desiredTextLanguage, string needOperationName, int indexCount);//перегрузка для удаления элементов динамических массивов
         int GetIntContent(int desiredTextLanguage, string needOperationName, string stringToSet, int indexCount);
 
         string GetStringContent(string nameOfStringNeed, int indexCount);
@@ -19,7 +21,7 @@ namespace TextSplitLibrary
 
 
 
-
+        //старые методы
 
         int GetFileToDo(int i);
         int SetFileToDo(int fileToDo, int i);
@@ -79,7 +81,7 @@ namespace TextSplitLibrary
         {
             //_messageService = service;
 
-            filesQuantity = DeclarationConstants.FilesQuantity;
+            filesQuantity = DConst.FilesQuantity;
 
             filesToDo = new int[filesQuantity];
             filesToSave = new int[filesQuantity];
@@ -192,6 +194,13 @@ namespace TextSplitLibrary
             return result;
         }
 
+        public int GetIntContent(int desiredTextLanguage, string needOperationName, int indexCount)//перегрузка для удаления динамических массивов
+        {
+            string stringToSet = null;
+            int result = GetIntContent(desiredTextLanguage, needOperationName, stringToSet, indexCount);
+            return result;
+        }
+
         public int GetIntContent(int desiredTextLanguage, string needOperationName, string stringToSet, int indexCount)
         {
             switch (needOperationName)
@@ -200,6 +209,8 @@ namespace TextSplitLibrary
                 "SetFilePath":
                     //для начала надо проверить, что индекс не выходит за границы массива
                     //еще можно проверить, что такой путь существует?
+
+
                     filesPath[indexCount] = stringToSet;                    
                     return (int)MethodFindResult.AllRight;
                 case
@@ -228,15 +239,8 @@ namespace TextSplitLibrary
                     return paragraphsTexts[desiredTextLanguage].Count;
                 case
                 "RemoveAtParagraphText":
-                    if (indexCount >= paragraphsTexts[desiredTextLanguage].Count)//сделать такие проверки во всех методах, придумать что-то с печатью (тревожное окно)
-                    {
-                        MessageBox.Show("запрошенный индекс = " + indexCount.ToString() + "\r\n" + "максимальный индекс = " + paragraphsTexts[desiredTextLanguage].Count.ToString(), "AllBookData", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
-
-                    if (indexCount < 0)
-                    {
-                        MessageBox.Show("запрошенный индекс = " + indexCount.ToString(), "AllBookData", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
+                    bool indexCountInLimits = indexCount > 0 && indexCount < paragraphsTexts[desiredTextLanguage].Count;
+                    System.Diagnostics.Debug.Assert(indexCountInLimits, "The index of paragraphsTexts is WRONG!");
 
                     paragraphsTexts[desiredTextLanguage].RemoveAt(indexCount);//удаление элемента по индексу
                     return paragraphsTexts[desiredTextLanguage].Count;//получение и возврат новой длины списка

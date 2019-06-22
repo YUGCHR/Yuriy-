@@ -38,10 +38,10 @@ namespace TextSplit
             _messageService = service;
             _manager = manager;
 
-            filesQuantity = DeclarationConstants.FilesQuantity;
-            buttonNamesCountInLanguageGroup = DeclarationConstants.ButtonNamesCountInLanguageGroup;
-            showMessagesLevel = DeclarationConstants.ShowMessagesLevel;
-            strCRLF = DeclarationConstants.StrCRLF;
+            filesQuantity = DConst.FilesQuantity;
+            buttonNamesCountInLanguageGroup = DConst.ButtonNamesCountInLanguageGroup;
+            showMessagesLevel = DConst.ShowMessagesLevel;
+            strCRLF = DConst.StrCRLF;
         }
 
         public int isFilesExistCheckAndOpen()
