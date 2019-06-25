@@ -1,0 +1,21 @@
+﻿<ProjectConfiguration>
+  <Settings>
+    <IgnoredTests>
+      <FixtureTestSelector>
+        <FixtureName>TextSplit.Tests.AnalysisDataConstantUnitTests</FixtureName>
+      </FixtureTestSelector>
+      <NamedTestSelector>
+        <TestName>TextSplit.Tests.AnalysisLogicChapterUnitTests.Test01_QuickSort (15704138105876957301)</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>TextSplit.Tests.AnalysisLogicChapterIntegrationTest.TestMain_AnalyseTextBook (11167714052371868642)</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>TextSplit.Tests.AnalysisLogicChapterUnitTests.Test09_DivideTextToSentencesByDelimiters (6522932288471391967)</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>TextSplit.Tests.AnalysisLogicChapterIntegrationTest.TestMain_AnalyseTextBook (11220581330653401900)</TestName>
+      </NamedTestSelector>
+    </IgnoredTests>
+  </Settings>
+</ProjectConfiguration>

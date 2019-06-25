@@ -58,6 +58,7 @@
     <Compile Include="MessageService.cs" />
     <Compile Include="OpenFormLogicCultivation.cs" />
     <Compile Include="AllBookAnalysis.cs" />
+    <Compile Include="QuickSort.cs" />
     <Compile Include="TextSplitForm.cs">
       <SubType>Form</SubType>
     </Compile>

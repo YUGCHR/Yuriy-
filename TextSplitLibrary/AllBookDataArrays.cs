@@ -40,7 +40,7 @@ namespace TextSplitLibrary
         string GetFileContent(int i);
         int SetFileContent(string fileContent, int i);
 
-        string GetParagraphText(int paragraphCount, int desiredTextLanguage);//возвращает строку из двумерного списка List
+        string GetParagraphText(int desiredTextLanguage, int paragraphCount);//возвращает строку из двумерного списка List
         int GetParagraphTextLength(int desiredTextLanguage);
         int SetParagraphText(string paragraphText, int paragraphCount, int desiredTextLanguage);
         int AddParagraphText(string paragraphText, int desiredTextLanguage);//тоже возвращает количество элементов
@@ -294,7 +294,7 @@ namespace TextSplitLibrary
             return (int)MethodFindResult.AllRight;
         }
         //группа массива Абзац текста - paragraphsTexts
-        public string GetParagraphText(int paragraphCount, int desiredTextLanguage)//перенесен в GetStringContent
+        public string GetParagraphText(int desiredTextLanguage, int paragraphCount)//перенесен в GetStringContent
         {
             return paragraphsTexts[desiredTextLanguage][paragraphCount];            
         }

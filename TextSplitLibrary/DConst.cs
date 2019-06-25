@@ -23,15 +23,22 @@ namespace TextSplitLibrary
         #endregion
 
         #region AnalysisConstantArrays
-        public const int baseKeyWordFormsCount = 3;
+        public const int FindChapterNameSpace = 21;
+
+        public const int BaseKeyWordFormsCount = 3;
         public const int chapterNumberTotalDigits = 3;
         public const int paragraptNumberTotalDigits = 5;
         public const int sentenceNumberTotalDigits = 5;       
 
-        public static string[] charsEllipsisToChange1 = new string[] { "“”", "...", "!!!", "!!", "?!!", "?!", "!!?", "!?", "???", "??" };
-        public static string[] charsEllipsisToChange2 = new string[] { "«»", "…", "\u203C", "\u203C", "\u2048", "\u2048", "\u2049", "\u2049", "\u2047", "\u2047" };
+        public static string[] charsEllipsisToChange1 = new string[] { "“”", "...", "!!!", "!!", "?!!", "?!", "!!?", "!?", "???", "??" };//“” - обе вместе не будет работать - так не ищутся, их надо ставить по одной
+        public static string[] charsEllipsisToChange2 = new string[] { "«»", "…", "\u203C", "\u203C", "\u2048", "\u2048", "\u2049", "\u2049", "\u2047", "\u2047" };//но все не просто, такие «» используются по одной - как указатели
         public static char[] charsParagraphSeparator = new char[] { '\r', '\n' };
-        public static string[] charsGroupsSeparators = new string[] { ".…!?;", "\u0022\u002F\u02BA\u02EE\u02DD", "()[]{}«»<>" };//…\u2026 (Horizontal Ellipsis) (\u002F - /) ⁇\u2047 ⁈\u2048 ⁉\u2049 ‼\u203C
+        public static string[] charsGroupsSeparators = new string[] { ".…!?;", "\u0022\u02BA\u02EE\u02DD", "()[]{}<>“”" };
+        //…\u2026 (Horizontal Ellipsis) 
+        //(непарные кавычки  - "\u0022 ʺ\u02BA ˮ\u02EE ˝\u02DD) 
+        //(парные кавычки  - “\u201C ”\u201D «\u00AB »\u00BB) 
+        //(\u002F - / - убрали, встречатеся в датах и вообще, а также временно убрали «») ⁇\u2047 ⁈\u2048 ⁉\u2049 ‼\u203C
+
         public static int AllDelimitersCount = charsGroupsSeparators[0].Length + charsGroupsSeparators[1].Length + charsGroupsSeparators[2].Length;
         public static string[] numbersOfGroupsNames = new string[] { "Sentence", "Quotes", "Brackets" }; //номера групп сепараторов для получения их значений в цикле
         

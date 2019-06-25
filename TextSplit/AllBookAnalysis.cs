@@ -71,9 +71,9 @@ namespace TextSplit
                     appendFileContent = appendFileContent.AppendLine(currentParagraph); // was + DConst.StrCRLF);                    
                 }
                 string tracedFileContent = appendFileContent.ToString();
-                string tracedFileNameAddition = ".//testBooks//testEndlishTexts_03R.txt";//путь только для тестов, для полного запуска надо брать путь, указанный пользователем
+                string tracedFileNameAddition = "D://PBDS//OneDrive//Gonchar//C#2005//testBooks//testEndlishTexts_03R.txt";//путь только для тестов, для полного запуска надо брать путь, указанный пользователем
                 string hashSavedFile = _msgService.SaveTracedToFile(tracedFileNameAddition, tracedFileContent);
-                _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "hash of the saved file - " + DConst.StrCRLF + hashSavedFile, CurrentClassName, 3);// DConst.ShowMessagesLevel);
+                _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "hash of the saved file - " + DConst.StrCRLF + hashSavedFile, CurrentClassName, DConst.ShowMessagesLevel);
 
                 //и вообще, сделать запись в файл по строкам и там проверять результат - этот же файл потом можно сделать контрольным (посчитать хэш)
                 //затем загрузить первую главу (предысловие?) в текстовое окно и показать пользователю

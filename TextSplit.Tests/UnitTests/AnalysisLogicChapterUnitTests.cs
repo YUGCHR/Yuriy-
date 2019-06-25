@@ -13,35 +13,180 @@ namespace TextSplit.Tests
         public AnalysisLogicChapterUnitTests()//тесты всех методов класса
         { }
 
-        //[TestMethod]
-        //[DataRow("Chapter 00", 2)]
-        //[DataRow("-Chapter-00-", 2)]
-        //[DataRow("Chapter$00", 2)]
-        //[DataRow("-!-!-Chapter 1", 3)]
-        //[DataRow("[Chapter-2]", 2)]
-        //[DataRow("Chapter$3", 2)]
-        //[DataRow("---Chapter---0---", 3)]
-        //[DataRow("", -1)]
-        //[DataRow("was going to be at precisely 3 p.m.?", 9)]
-        //[DataRow("168     The Master and Margarita", 5)]
-        //[DataRow("On Friday afternoon Maximilian Andreyevich walked into the office of the housing committee of No. 302B Sadovaya Street in Moscow.", 10)]
-        //public void Test01_WordsOfParagraphSearch(string currentParagraph, int numberOfWords)
-        //{
-        //    IAllBookData bookData = new AllBookDataArrays();
-        //    IFileManager manager = new FileManager(bookData);
+        [TestMethod]
+        [DataRow(0, 21, 1099)]
+        
+        public void Test01_QuickSort(int start, int end, int expResult)
+        {
+            int[] chapterNameIsDigitsOnly = new int[] {12, 84, 73, 55, 48, 11, 94, 33, 37, 58, 29, 76, 34, 92, 17, 19, 22, 18, 71, 66, 44, 10, 99, 64, 17 };
+            int last = chapterNameIsDigitsOnly.Length - 1;
+            int checkResult = 10 + 99 + 10*99;
 
-        //    //IMessageService msgService = Mock.Of<IMessageService>();// - вывод на печать отключить
-        //    IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)
+            Trace.WriteLine("Input: " + checkResult);
 
-        //    Mock<IAllBookData> bookDataMock = new Mock<IAllBookData>();
-        //    IAnalysisConstantArrays arrayAnalysis = new AnalysisConstantArrays(bookData, msgService);
-        //    IAnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService, arrayAnalysis);
-        //    Trace.WriteLine("Input: " + currentParagraph);
+            var target = new QuickSort();
+            target.ChapterNameDigitQuickSort(chapterNameIsDigitsOnly, start, last);
+            int sortResult = chapterNameIsDigitsOnly[0] + chapterNameIsDigitsOnly[last] + chapterNameIsDigitsOnly[0] * chapterNameIsDigitsOnly[last];
 
-        //    var target = new AnalysisLogicChapter(bookDataMock.Object, msgService, analysisLogic, arrayAnalysis);
-        //    var words = target.WordsOfParagraphSearch(currentParagraph);
-        //    Assert.AreEqual(numberOfWords, words);
-        //}
+            Assert.AreEqual(expResult, sortResult);
+        }
+        //список методов в классе AnalysisLogicSentences по порядку
+        //01 List<List<char>> charsAllDelimiters = ConstanstListFillCharsDelimiters();//заполнили List разделителями из констант, вернули ненулевое количество групп разделителей (предложений, кавычки, скобки)
+        //02 int currentParagraphNumber = FindTextPartNumber(currentParagraph, DConst.beginParagraphMark, DConst.paragraptNumberTotalDigits);//тут уже знаем, что в начале абзаца есть нужный маркер и сразу ищем номер (FindTextPartNumber находится в AnalysisLogicCultivation)
+        //03 string sentenceTextMarksWithOtherNumbers = FindParagrapNumberForSentenceNumber(desiredTextLanguage, currentParagraph, currentParagraphNumber);//получили строку типа -Paragraph-3-of-Chapter-3 - удалены марки, но сохранены номера главы и абзаца
+        //04 List<List<int>> allIndexResults = FoundAllDelimitersGroupsInParagraph(nextParagraph, charsAllDelimiters, sGroupCount);//собрали все разделители по группам в массив, каждая группа в своей ветке
+        //05 int foundMAxDelimitersGroups = FoundMaxDelimitersGroupNumber(sGroupCount, allIndexResults);//создали массив, в котором указано, сколько найдено разделителей каждой группы - изменим, теперь отдаем значение старшей найденной группы (и добавить в тестовый текст скобок)                    
+        //06 bool evenQuotesCount = IsCurrentGroupDelimitersCountEven(nextParagraph, allIndexResults, currentQuotesGroup);//результат пока не используем - если кавычек нечетное количество, то при проверке сейчас остановит Assert, а потом - позовем пользователя сделать четное (nextParagraph используется только для аварийной печати)
+        //07 allIndexResults = FindSentencesDelimitersBeetweenQuotes(allIndexResults, currentQuotesGroup);//в этом месте foundMAxDelimitersGroups может быть 1 или 2, по очереди проверяем их, не вникая, какой именно был (если только группа 0, она прошла мимо)
+        //08 int[] SentenceDelimitersIndexesArray = RemoveNegativeSentenceDelimitersIndexes(allIndexResults);//сжали ветку массива с точками - удалили отрицательный и сохранили в обычный временный массив
+        //09 string[] paragraphSentences = DivideTextToSentencesByDelimiters(nextParagraph, SentenceDelimitersIndexesArray);//разделили текст на предложения согласно оставшимся разделителям
+        //10 еще нет метода - string sentenceTextMarks = CreatePartTextMarks(stringToPutMarkBegin, stringToPutMarkEnd, currentChapterNumber, currentSentenceNumber, sentenceTextMarksWithOtherNumbers);//создали базовую маркировку и номер текущего предложения - ¶¶¶¶¶00001¶¶¶-Paragraph-3-of-Chapter-3
+        //11 paragraphSentences = EnumerateDividedSentences(desiredTextLanguage, sentenceTextMarksWithOtherNumbers, paragraphSentences);//пронумеровали разделенные предложения - еще в том же массиве
+        //12 totalSentencesCount = WriteDividedSentencesInTheSameParagraph(desiredTextLanguage, nextParagraphIndex, paragraphSentences, totalSentencesCount);
+
+        [TestMethod]
+        [DataRow(18, 0, "\"Yes,\" the maid was saying into the phone, \"Who is it? Baron Maigel? Hullo. Yes! The artiste is at home today. Yes, he'll be happy to see you. Yes, there'll be guests... Tails or a black dinner jacket What? Before midnight. \" After finishing her conversation, the maid put back the receiver and turned to the bartender, \"What can I do for you?\"")]
+        [DataRow(4, 0, "\"May I see the chairman of the housing committee?\"$The economic planner inquired politely, taking off his hat and putting his suitcase on the chair by the doorway.")]
+        [DataRow(4, 0, "Mom figured that the temperature problems would just about disappear then, even for the boxes left on board: “Having separate power supplies and venting will be an advantage now. The kids will all be safe. Johanna, you check Jefri’s work on the ones inside, okay?…”")]
+        [DataRow(5, 0, "True, it would be difficult, very difficult.$But the difficulties had to be overcome, no matter what.$As an experienced man of the world.$Maximilian Andreyevich knew the first thing he had to do to accomplbh this goal was to get registered.$In his late nephew's three-room apartment.")]
+        [DataRow(10, 0, "AT the same time as bookkeeper was in the taxj enroute to his encounter with the suit, man was getting off the  car of the No.$9 train from Kiev.$This passenger was Poplavsky, the uncle of the late Berlioz, who lived in Kiev.$The reason for his trip to Moscow was a telegram.$It said,$\"I have just been cut in half by a streetcar.$Funeral Friday 3 PM.$Come.$Berlioz.\"")]
+        //04 List<List<int>> allIndexResults = FoundAllDelimitersGroupsInParagraph(nextParagraph, charsAllDelimiters, sGroupCount);//собрали все разделители по группам в массив, каждая группа в своей ветке
+        public void Test04_FoundAllDelimitersGroupsInParagraph(int totalFoundDelimiters, int desiredTextLanguage, string textParagraph)
+        {
+            IAllBookData bookData = new AllBookDataArrays();
+            IFileManager manager = new FileManager(bookData);
+            Mock<IAllBookData> bookDataMock = new Mock<IAllBookData>();
+            //IMessageService msgService = Mock.Of<IMessageService>();// - вывод на печать отключить
+            IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)            
+            IAnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService);
+            IAnalysisLogicSentences sentenceAnalyser = new AnalysisLogicSentences(bookData, msgService, analysisLogic);
+            var target = new AnalysisLogicSentences(bookDataMock.Object, msgService, analysisLogic);
+            List<List<char>> charsAllDelimiters = target.ConstanstListFillCharsDelimiters();
+            int sGroupCount = DConst.charsGroupsSeparators.Length;
+
+            List<List<int>> allIndexResults = target.FoundAllDelimitersGroupsInParagraph(textParagraph, charsAllDelimiters, sGroupCount);
+
+            int resultFoundDelimiters = 0;
+            for (int sGroup = 0; sGroup < sGroupCount; sGroup++)
+            {
+                resultFoundDelimiters += allIndexResults[sGroup].Count;
+            }
+            Trace.WriteLine("sGroupTotal: " + resultFoundDelimiters);
+            Assert.AreEqual(totalFoundDelimiters, resultFoundDelimiters);
+        }
+
+        [TestMethod]
+        [DataRow(2, "\"Yes,\" the maid was saying into the phone, \"Who is it? Baron Maigel? Hullo. Yes! The artiste is at home today. Yes, he'll be happy to see you. Yes, there'll be guests... Tails or a black dinner jacket What? Before midnight. \" After finishing her conversation, the maid put back the receiver and turned to the bartender, \"What can I do for you?\"")]
+        [DataRow(2, "\"May I see the chairman of the housing committee?\"$The economic planner inquired politely, taking off his hat and putting his suitcase on the chair by the doorway.")]
+        [DataRow(4, "Mom figured that the temperature problems would just about disappear then, even for the boxes left on board: “Having separate power supplies and venting will be an advantage now. The kids will all be safe. Johanna, you check Jefri’s work on the ones inside, okay?…”")]
+        [DataRow(1, "After such a Part correction the telegram became intelligible, albeit, of course, tragic")]
+        [DataRow(5, "True, it would be difficult, very difficult.$But the difficulties had to be overcome, no matter what.$As an experienced man of the world.$Maximilian Andreyevich knew the first thing he had to do to accomplbh this goal was to get registered.$In his late nephew's three-room apartment.")]
+        [DataRow(5, "AT the same time as bookkeeper was in the taxj enroute to his encounter with the suit, man was getting off the  car of the No.$9 train from Kiev.$This passenger was Poplavsky, the uncle of the late Berlioz, who lived in Kiev.$The reason for his trip to Moscow was a telegram.$It said,$\"I have just been cut in half by a streetcar.$Funeral Friday 3 PM.$Come.$Berlioz.\"")]
+        //07 allIndexResults = FindSentencesDelimitersBeetweenQuotes(allIndexResults, currentQuotesGroup);//в этом месте foundMAxDelimitersGroups может быть 1 или 2, по очереди проверяем их, не вникая, какой именно был (если только группа 0, она прошла мимо)
+        public void Test07_FindSentencesDelimitersBeetweenQuotes(int totalFoundDelimiters, string textParagraph)
+        {
+            IAllBookData bookData = new AllBookDataArrays();
+            IFileManager manager = new FileManager(bookData);
+            Mock<IAllBookData> bookDataMock = new Mock<IAllBookData>();
+            //IMessageService msgService = Mock.Of<IMessageService>();// - вывод на печать отключить
+            IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)            
+            IAnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService);
+            IAnalysisLogicSentences sentenceAnalyser = new AnalysisLogicSentences(bookData, msgService, analysisLogic);
+            var target = new AnalysisLogicSentences(bookDataMock.Object, msgService, analysisLogic);
+            List<List<char>> charsAllDelimiters = target.ConstanstListFillCharsDelimiters();
+            int sGroupCount = DConst.charsGroupsSeparators.Length;
+            List<List<int>> allIndexResults = target.FoundAllDelimitersGroupsInParagraph(textParagraph, charsAllDelimiters, sGroupCount);
+            int foundMAxDelimitersGroups = target.FoundMaxDelimitersGroupNumber(sGroupCount, allIndexResults);//создали массив, в котором указано, сколько найдено разделителей каждой группы - изменим, теперь отдаем значение старшей найденной группы (и добавить в тестовый текст скобок)                    
+
+            for (int currentQuotesGroup = foundMAxDelimitersGroups; currentQuotesGroup > 0; currentQuotesGroup--)
+            {
+                allIndexResults = target.FindSentencesDelimitersBeetweenQuotes(allIndexResults, currentQuotesGroup);
+            }
+            int[] SentenceDelimitersIndexesArray = target.RemoveNegativeSentenceDelimitersIndexes(allIndexResults);//сжали ветку массива с точками - удалили отрицательный и сохранили в обычный временный массив
+            int resultFoundDelimiters = SentenceDelimitersIndexesArray.Length;            
+            Trace.WriteLine("sGroupTotal: " + resultFoundDelimiters);
+
+            Assert.AreEqual(totalFoundDelimiters, resultFoundDelimiters);
+        }
+
+        [TestMethod]
+        [DataRow(2, "\"Yes,\" the maid was saying into the phone, \"Who is it? Baron Maigel? Hullo. Yes! The artiste is at home today. Yes, he'll be happy to see you. Yes, there'll be guests... Tails or a black dinner jacket What? Before midnight. \" After finishing her conversation, the maid put back the receiver and turned to the bartender, \"What can I do for you?\"")]
+        [DataRow(2, "\"May I see the chairman of the housing committee?\"$The economic planner inquired politely, taking off his hat and putting his suitcase on the chair by the doorway.")]
+        [DataRow(1, "Mom figured that the temperature problems would just about disappear then, even for the boxes left on board: “Having separate power supplies and venting will be an advantage now. The kids will all be safe. Johanna, you check Jefri’s work on the ones inside, okay?…”")]
+        [DataRow(1, "After such a Part correction the telegram became intelligible, albeit, of course, tragic")]
+        [DataRow(4, "True, it would be difficult, very difficult.$“But the difficulties had to be overcome, no matter what.$As an experienced man of the world.”$Maximilian Andreyevich knew the first thing he had to do to accomplbh this goal was to get registered.$In his late nephew's three-room apartment.")]
+        [DataRow(4, "AT the same time as bookkeeper was in the taxj enroute to his encounter with the suit, man was getting off the  car of the No.$9 train from Kiev.$This passenger was Poplavsky, the uncle of the late Berlioz, who lived in Kiev.$The reason for his trip to Moscow was a telegram.$It said,$\"I have just been cut in half by a streetcar.$Funeral Friday 3 PM.$Come.$Berlioz.\"")]
+        //09 string[] paragraphSentences = DivideTextToSentencesByDelimiters(nextParagraph, SentenceDelimitersIndexesArray);//разделили текст на предложения согласно оставшимся разделителям
+        public void Test09_DivideTextToSentencesByDelimiters(int totalFoundDelimiters, string textParagraph)
+        {
+            IAllBookData bookData = new AllBookDataArrays();
+            IFileManager manager = new FileManager(bookData);
+            Mock<IAllBookData> bookDataMock = new Mock<IAllBookData>();
+            //IMessageService msgService = Mock.Of<IMessageService>();// - вывод на печать отключить
+            IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)            
+            IAnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService);
+            IAnalysisLogicSentences sentenceAnalyser = new AnalysisLogicSentences(bookData, msgService, analysisLogic);
+            var target = new AnalysisLogicSentences(bookDataMock.Object, msgService, analysisLogic);
+            List<List<char>> charsAllDelimiters = target.ConstanstListFillCharsDelimiters();
+            int sGroupCount = DConst.charsGroupsSeparators.Length;
+            List<List<int>> allIndexResults = target.FoundAllDelimitersGroupsInParagraph(textParagraph, charsAllDelimiters, sGroupCount);
+            int foundMAxDelimitersGroups = target.FoundMaxDelimitersGroupNumber(sGroupCount, allIndexResults);//создали массив, в котором указано, сколько найдено разделителей каждой группы - изменим, теперь отдаем значение старшей найденной группы (и добавить в тестовый текст скобок)
+            for (int currentQuotesGroup = foundMAxDelimitersGroups; currentQuotesGroup > 0; currentQuotesGroup--)
+            {
+                msgService.ShowTrace("Test09_DivideTextToSentencesByDelimiters", "foundMAxDelimitersGroups = " + foundMAxDelimitersGroups.ToString() + DConst.StrCRLF +
+                            "currentQuotesGroup = " + currentQuotesGroup.ToString(), "After FoundMaxDelimitersGroupNumber", DConst.ShowMessagesLevel);
+
+                allIndexResults = target.FindSentencesDelimitersBeetweenQuotes(allIndexResults, currentQuotesGroup);
+            }
+            int[] SentenceDelimitersIndexesArray = target.RemoveNegativeSentenceDelimitersIndexes(allIndexResults);//сжали ветку массива с точками - удалили отрицательный и сохранили в обычный временный массив
+
+            string[] paragraphSentences = target.DivideTextToSentencesByDelimiters(textParagraph, SentenceDelimitersIndexesArray);
+
+            int resultFoundDelimiters = paragraphSentences.Length;
+            Trace.WriteLine("sGroupTotal: " + resultFoundDelimiters);
+
+            Assert.AreEqual(totalFoundDelimiters, resultFoundDelimiters);
+        }
+
+        [TestMethod]
+        [DataRow("¶¶¶¶¶00002¶¶¶-Sentence-of-Paragraph-00001-of-Chapter-001", 0, "\"Yes,\" the maid was saying into the phone, \"Who is it? Baron Maigel? Hullo. Yes! The artiste is at home today. Yes, he'll be happy to see you. Yes, there'll be guests... Tails or a black dinner jacket What? Before midnight. \" After finishing her conversation, the maid put back the receiver and turned to the bartender, \"What can I do for you?\"")]
+        [DataRow("¶¶¶¶¶00002¶¶¶-Sentence-of-Paragraph-00001-of-Chapter-001", 0, "\"May I see the chairman of the housing committee?\"$The economic planner inquired politely, taking off his hat and putting his suitcase on the chair by the doorway.")]
+        [DataRow("¶¶¶¶¶00001¶¶¶-Sentence-of-Paragraph-00001-of-Chapter-001", 0, "After such a Part correction the telegram became intelligible, albeit, of course, tragic")]
+        [DataRow("¶¶¶¶¶00005¶¶¶-Sentence-of-Paragraph-00001-of-Chapter-001", 0, "True, it would be difficult, very difficult.$But the difficulties had to be overcome, no matter what.$As an experienced man of the world.$Maximilian Andreyevich knew the first thing he had to do to accomplbh this goal was to get registered.$In his late nephew's three-room apartment.")]
+        [DataRow("¶¶¶¶¶00004¶¶¶-Sentence-of-Paragraph-00001-of-Chapter-001", 0,  "AT the same time as bookkeeper was in the taxj enroute to his encounter with the suit, man was getting off the  car of the No.$9 train from Kiev.$This passenger was Poplavsky, the uncle of the late Berlioz, who lived in Kiev.$The reason for his trip to Moscow was a telegram.$It said,$\"I have just been cut in half by a streetcar.$Funeral Friday 3 PM.$Come.$Berlioz.\"")]
+        //11 paragraphSentences = EnumerateDividedSentences(desiredTextLanguage, sentenceTextMarksWithOtherNumbers, paragraphSentences);//пронумеровали разделенные предложения - еще в том же массиве
+        public void Test11_EnumerateDividedSentences(string expSentenceTextMark, int desiredTextLanguage, string textParagraph)
+        {
+            IAllBookData bookData = new AllBookDataArrays();
+            IFileManager manager = new FileManager(bookData);
+            Mock<IAllBookData> bookDataMock = new Mock<IAllBookData>();
+            //IMessageService msgService = Mock.Of<IMessageService>();// - вывод на печать отключить
+            IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)            
+            IAnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService);
+            IAnalysisLogicSentences sentenceAnalyser = new AnalysisLogicSentences(bookData, msgService, analysisLogic);
+            var target = new AnalysisLogicSentences(bookDataMock.Object, msgService, analysisLogic);
+            List<List<char>> charsAllDelimiters = target.ConstanstListFillCharsDelimiters();
+            int sGroupCount = DConst.charsGroupsSeparators.Length;            
+            string sentenceTextMarksWithOtherNumbers = "-Paragraph-00001-of-Chapter-001";
+            List<List<int>> allIndexResults = target.FoundAllDelimitersGroupsInParagraph(textParagraph, charsAllDelimiters, sGroupCount);
+            int foundMAxDelimitersGroups = target.FoundMaxDelimitersGroupNumber(sGroupCount, allIndexResults);//создали массив, в котором указано, сколько найдено разделителей каждой группы - изменим, теперь отдаем значение старшей найденной группы (и добавить в тестовый текст скобок)
+            for (int currentQuotesGroup = foundMAxDelimitersGroups; currentQuotesGroup > 0; currentQuotesGroup--)
+            {
+                allIndexResults = target.FindSentencesDelimitersBeetweenQuotes(allIndexResults, currentQuotesGroup);
+            }
+            int[] SentenceDelimitersIndexesArray = target.RemoveNegativeSentenceDelimitersIndexes(allIndexResults);//сжали ветку массива с точками - удалили отрицательный и сохранили в обычный временный массив
+            string[] paragraphSentences = target.DivideTextToSentencesByDelimiters(textParagraph, SentenceDelimitersIndexesArray);
+
+            paragraphSentences = target.EnumerateDividedSentences(desiredTextLanguage, sentenceTextMarksWithOtherNumbers, paragraphSentences);
+
+            int resultFoundDelimiters = paragraphSentences.Length;
+            string resultSentenceTextMark = paragraphSentences[resultFoundDelimiters-1].Substring(0, 56);
+            Trace.WriteLine("sGroupTotal: " + resultFoundDelimiters);
+
+            Assert.AreEqual(expSentenceTextMark, resultSentenceTextMark);
+        }
+
+
 
         //[TestMethod]
         //[DataRow("Chapter 00", 0, 1)]
@@ -299,21 +444,16 @@ namespace TextSplit.Tests
         [DataRow("99", "00099", 5)]
         [DataRow("55555", null, 5)]
         [DataRow("55", "00000055", 8)]
-        public void Test07_AddSome00ToIntNumber(string currentNumberToFind, string currentNumberWith00, int totalDigitsQuantity)
+        public void Test21_AddSome00ToIntNumber(string currentNumberToFind, string currentNumberWith00, int totalDigitsQuantity)
         {
             IAllBookData bookData = new AllBookDataArrays();
             IFileManager manager = new FileManager(bookData);
 
             //IMessageService msgService = Mock.Of<IMessageService>();// - вывод на печать отключить
             IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)
-
-            //Mock<IAllBookData> bookDataMock = new Mock<IAllBookData>();
-            IAnalysisConstantArrays arrayAnalysis = new noneAnalysisConstantArrays(bookData, msgService);
             IAnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService);
-            //IAnalysisLogicDataArrays arrayAnalysis = new AnalysisLogicDataArrays(bookData, msgService);
+            
             Trace.WriteLine("currentNumberToFind: " + currentNumberToFind);
-
-            //var target = new AnalysisLogicChapter(bookDataMock.Object, msgService, analysisLogic, arrayAnalysis);
 
             string result = analysisLogic.AddSome00ToIntNumber(currentNumberToFind, totalDigitsQuantity);// totalDigitsQuantity);
 
@@ -350,24 +490,6 @@ namespace TextSplit.Tests
         //    Assert.AreEqual(foundRealSentencesCount, result);
         //}
 
-        public int ConstanstListFillCharsDelimiters(List<List<char>> charsAllDelimiters)
-        {
-            IAllBookData bookData = new AllBookDataArrays();
-            IFileManager manager = new FileManager(bookData);
-            IMessageService msgService = new MessageService(manager);
-            IAnalysisConstantArrays arrayAnalysis = new noneAnalysisConstantArrays(bookData, msgService);
-
-            int sGroupCount = arrayAnalysis.GetIntConstant("Groups");
-            string[] numbersOfGroupsNames = arrayAnalysis.GetStringArrConstant("Groups");            
-            int allDelimitersCount = 0;
-            for (int g = 0; g < sGroupCount; g++)
-            {                
-                string stringCurrentDelimiters = numbersOfGroupsNames[g];
-                charsAllDelimiters[g].AddRange(stringCurrentDelimiters.ToCharArray());
-                allDelimitersCount = allDelimitersCount + charsAllDelimiters[g].Count;
-            }            
-            return sGroupCount;
-        }
 
         //[TestMethod]
         //[DataRow(7, "\"Yes, \" the maid was saying into the phone, \"Who is it ? Baron Maigel ? Hullo.Yes!The artiste is at home today.Yes, he'll be happy to see you. Yes, there'll be guests...Tails or a black dinner jacket What ? Before midnight.\" After finishing her conversation, the maid put back the receiver and turned to the bartender, \"What can I do for you ? \"")]
