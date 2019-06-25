@@ -9,7 +9,7 @@ namespace TextSplit
 {
     public interface IAnalysisLogicChapter
     {
-        int[] ChapterNameAnalysis(int desiredTextLanguage);        
+        string ChapterNameAnalysis(int desiredTextLanguage);        
     }
 
     public class AnalysisLogicChapter : IAnalysisLogicChapter
@@ -31,7 +31,7 @@ namespace TextSplit
             _analysisLogic = analysisLogic;//общая логика               
         }
 
-        public int[] ChapterNameAnalysis(int desiredTextLanguage)//Main здесь - ищем все названия и номера глав, создаем метку в фиксированном формате и записываем ее обратно в массив перед оригинальным называнием главы
+        public string ChapterNameAnalysis(int desiredTextLanguage)//Main здесь - ищем все названия и номера глав, создаем метку в фиксированном формате и записываем ее обратно в массив перед оригинальным называнием главы
         {
             //номера глав - это прежде всего цифры, поэтому сначала собираем все встречающиеся цифры в тексте (только в начале строки)
             int[] allParagraphsWithDigitsFound = CollectallParagraphsWithDigitsFound(desiredTextLanguage);//в массив такой же длины, как все абзацы текста собираем найденные цифры в начале строки с сохранением индекса абзаца, где найдена цифра
@@ -67,74 +67,106 @@ namespace TextSplit
 
             string lastFoundChapterNumberInMarkFormat = TextBookDivideOnChapter(desiredTextLanguage, allParagraphsWithDigitsFound, chapterNameIsDigitsOnly, keyWordFoundForm);//делим текст на главы, ставим метки с собственными номерами глав (совпадающими по значению с исходными)
 
-            return allParagraphsWithDigitsFound;
+            return lastFoundChapterNumberInMarkFormat;//вернем образец маркировки, все остальное есть в служебном массиве заметок
         }
 
         //метод 4
         //используя ключевое слово, формируем метку номера главы - можно (нужно) вынести этот массив в AnalysisLogicCultivation (там уже есть 2 похожих, потом попробовать объединить в один)
-        public string TextBookDivideOnChapter(int desiredTextLanguage, int[] ChapterNumberParagraphsIndexes, int[] chapterNameIsDigitsOnly, string keyWordFoundForm)//разделили текст на главы - перед каждой главой поставили специальную метку вида ¤¤¤¤¤KeyWord-NNN-¤¤¤, где KeyWord - в той же форме, в какой в тексте, а NNN - три цифры номера главы с лидирующими нулями
+        public string TextBookDivideOnChapter(int desiredTextLanguage, int[] allParagraphsWithDigitsFound, int[] chapterNameIsDigitsOnly, string keyWordFoundForm)//разделили текст на главы - перед каждой главой поставили специальную метку вида ¤¤¤¤¤KeyWord-NNN-¤¤¤, где KeyWord - в той же форме, в какой в тексте, а NNN - три цифры номера главы с лидирующими нулями
         {
             string lastFoundChapterNumberInMarkFormat = ""; //можно убрать (вернем из метода маркировку последней главы - лучше массив с индексами глав в общем тексте, хотя, он не меняется, чего его возвращать)
-            
-            //все, что до первого номера главы, маркировать нулевой главой! но сначала проверить, что нумерация глав не с нуля!
-            int firstChapterNumber = chapterNameIsDigitsOnly[0];
-            bool isFirstChapterNumberNot0 = firstChapterNumber > 0;
-            if(isFirstChapterNumberNot0)
+            int allParagraphsWithDigitsFoundLength = allParagraphsWithDigitsFound.Length;
+            for (int cpi = 0; cpi < allParagraphsWithDigitsFoundLength; cpi++)//cpi - current paragraph index
             {
-                string currentChapterNumberToFind000 = _analysisLogic.AddSome00ToIntNumber("0", DConst.chapterNumberTotalDigits);//получим строку номера для нулевой главы
-                //запишем маркировку нулевой главы прямо в первый абзац, добавив строку в начале текста
-                string chapterTextMarks = DConst.beginChapterMark + currentChapterNumberToFind000 + DConst.endChapterMark + "-" + keyWordFoundForm + "-";//¤¤¤¤¤000¤¤¤-Chapter-                                                                                                                                           
-                string currentParagraph = _bookData.GetStringContent(desiredTextLanguage, "GetParagraphText", 0);//достаем самый первый абзац
-                chapterTextMarks += DConst.StrCRLF + currentParagraph;//дописываем маркировку главы к названию главы, добавив строку для нее 
-                int setParagraphResult = _bookData.GetIntContent(desiredTextLanguage, "SetParagraphText", chapterTextMarks, 0);//записываем обратно в самый первый абзац
-                _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "CurrentParagraph -- > " + currentParagraph + DConst.StrCRLF +
-                        "chapterTextMarks " + chapterTextMarks, CurrentClassName, DConst.ShowMessagesLevel);
+                bool isChapterNumberFound = allParagraphsWithDigitsFound[cpi] > 0;
+                if (isChapterNumberFound)
+                {
+                    int currentChapterNumber = allParagraphsWithDigitsFound[cpi];//скорее всего, логичнее так и дальше передавать этот массив - индексы и номера в одном флаконе - можно сделать словарь и потом перебирать его по foreach
+                    string currentParagraph = _bookData.GetParagraphText(desiredTextLanguage, cpi);
+                    //тут можно заодно заполнять сжатый массив индексов абзацев, где расположены названия глав - для передачи дальше (в идеале 3 массива - индексы, номера глав и строка полного имени клавы уже с ее нумерацией)
+
+                    //можно было бы проверить строку, что там есть ключевое слово и номер
+                    string currentChapterNumberToFind000 = _analysisLogic.AddSome00ToIntNumber(currentChapterNumber.ToString(), DConst.chapterNumberTotalDigits);
+                    string chapterTextMarks = DConst.beginChapterMark + currentChapterNumberToFind000 + DConst.endChapterMark + "-" + keyWordFoundForm;//¤¤¤¤¤001¤¤¤-Chapter-
+
+                    chapterTextMarks += DConst.StrCRLF + currentParagraph + DConst.StrCRLF;//дописываем маркировку главы к названию главы, добавив строку для нее
+
+                    int setParagraphResult = _bookData.SetParagraphText(desiredTextLanguage, chapterTextMarks, cpi);//int GetIntContent(desiredTextLanguage, SetParagraphText, stringToSet, indexCount) надо писать в индекс[i] из массива индексов, а не в сам i - currentParagraphChapterNumberIndex
+                                                                                                                                                                    //проверять setParagraphResult - но сначала сделать его осмысленным в самом методе записи
+                    string newCurrentParagraph = _bookData.GetParagraphText(desiredTextLanguage, cpi);
+
+                    _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "CurrentParagraph[" + cpi.ToString() + "] -- > " + currentParagraph + DConst.StrCRLF +
+                            "chapterTextMarks - " + chapterTextMarks + DConst.StrCRLF +
+                            "newCurrentParagraph - " + newCurrentParagraph + DConst.StrCRLF +
+                            "allParagraphsWithDigitsFound [" + cpi.ToString() + "] = " + allParagraphsWithDigitsFound[cpi].ToString(), CurrentClassName, DConst.ShowMessagesLevel);
+
+                    lastFoundChapterNumberInMarkFormat = chapterTextMarks;
+
+                }
             }
 
-            int ChapterNumberParagraphsIndexesLength = ChapterNumberParagraphsIndexes.Length;
-            for (int chapterNumberIndex = 0; chapterNumberIndex < ChapterNumberParagraphsIndexesLength; chapterNumberIndex++)
-            {//из массива всего текста доставать абзац, проверять на название главы, если названия нет, присвоить метку и номер абзаца - но лучше в отдельный метод
-                int currentParagraphChapterNumberIndex = ChapterNumberParagraphsIndexes[chapterNumberIndex];
-                int currentChapterNumber = chapterNameIsDigitsOnly[chapterNumberIndex] - 1;
-                string currentChapterNumberString = currentChapterNumber.ToString();
-                string currentParagraph = _bookData.GetStringContent(desiredTextLanguage, "GetParagraphText", currentParagraphChapterNumberIndex);
+            _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "lastFoundChapterNumberInMarkFormat -- > " + lastFoundChapterNumberInMarkFormat, CurrentClassName, 3);// DConst.ShowMessagesLevel);
+                                                                                                                                                            
+            //string lastFoundChapterNumberInMarkFormat = ""; //можно убрать (вернем из метода маркировку последней главы - лучше массив с индексами глав в общем тексте, хотя, он не меняется, чего его возвращать)
+            //все, что до первого номера главы, маркировать нулевой главой! но сначала проверить, что нумерация глав не с нуля!
+            //int firstChapterNumber = chapterNameIsDigitsOnly[0];
+            //bool isFirstChapterNumberNot0 = firstChapterNumber > 0;
+            //if(isFirstChapterNumberNot0)
+            //{
+            //    string currentChapterNumberToFind000 = _analysisLogic.AddSome00ToIntNumber("0", DConst.chapterNumberTotalDigits);//получим строку номера для нулевой главы
+            //    //запишем маркировку нулевой главы прямо в первый абзац, добавив строку в начале текста
+            //    string chapterTextMarks = DConst.beginChapterMark + currentChapterNumberToFind000 + DConst.endChapterMark + "-" + keyWordFoundForm + "-";//¤¤¤¤¤000¤¤¤-Chapter-                                                                                                                                           
+            //    string currentParagraph = _bookData.GetStringContent(desiredTextLanguage, "GetParagraphText", 0);//достаем самый первый абзац
+            //    chapterTextMarks += DConst.StrCRLF + currentParagraph;//дописываем маркировку главы к названию главы, добавив строку для нее 
+            //    int setParagraphResult = _bookData.GetIntContent(desiredTextLanguage, "SetParagraphText", chapterTextMarks, 0);//записываем обратно в самый первый абзац
+            //    _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "CurrentParagraph -- > " + currentParagraph + DConst.StrCRLF +
+            //            "chapterTextMarks " + chapterTextMarks, CurrentClassName, DConst.ShowMessagesLevel);
+            //}
 
-                //контрольная проверка номера главы
-                int startIndexOf = 0;
-                int currentParagraphLength = currentParagraph.Length;
-                int findChapterNameSpace = currentParagraphLength - startIndexOf;//стереотип - всегда отнять точку старта
-                int chapterNumberCheck = currentParagraph.IndexOf(currentChapterNumberString, startIndexOf, findChapterNameSpace);
-                bool isChapterNumberNotExist = chapterNumberCheck < 0;
-                if (isChapterNumberNotExist)
-                {
-                    //можно сюда добавить Assert
-                    _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "ambush in the currentParagraph[" + currentParagraphChapterNumberIndex.ToString() + "] = " + DConst.StrCRLF + currentParagraph + DConst.StrCRLF +
-                        "currentChapterNumberString was not found - " + currentChapterNumberString + DConst.StrCRLF +
-                        "the result of IndexOf is - " + chapterNumberCheck.ToString() + DConst.StrCRLF +
-                        "chapterNumberIndex = " + chapterNumberIndex.ToString(), CurrentClassName, 3);
-                }
+            //int ChapterNumberParagraphsIndexesLength = ChapterNumberParagraphsIndexes.Length;
+            //for (int chapterNumberIndex = 0; chapterNumberIndex < ChapterNumberParagraphsIndexesLength; chapterNumberIndex++)
+            //{//из массива всего текста доставать абзац, проверять на название главы, если названия нет, присвоить метку и номер абзаца - но лучше в отдельный метод
+            //    int currentParagraphChapterNumberIndex = ChapterNumberParagraphsIndexes[chapterNumberIndex];
+            //    int currentChapterNumber = chapterNameIsDigitsOnly[chapterNumberIndex] - 1;
+            //    string currentChapterNumberString = currentChapterNumber.ToString();
+            //    string currentParagraph = _bookData.GetStringContent(desiredTextLanguage, "GetParagraphText", currentParagraphChapterNumberIndex);
 
-                string currentChapterNumberToFind000 = _analysisLogic.AddSome00ToIntNumber(currentChapterNumberString, DConst.chapterNumberTotalDigits);
-                if (currentChapterNumberToFind000 == null)
-                {
-                    return null;//лучше поставить Assert - и можно прямо в AddSome00ToIntNumber?
-                }                
-                
-                string chapterTextMarks = DConst.beginChapterMark + currentChapterNumberToFind000 + DConst.endChapterMark + "-" + keyWordFoundForm;//¤¤¤¤¤001¤¤¤-Chapter-
-                                                                                                                                                         
-                chapterTextMarks += DConst.StrCRLF + currentParagraph + DConst.StrCRLF;//дописываем маркировку главы к названию главы, добавив строку для нее 
-                int setParagraphResult = _bookData.GetIntContent(desiredTextLanguage, "SetParagraphText", chapterTextMarks, currentParagraphChapterNumberIndex);//int GetIntContent(desiredTextLanguage, SetParagraphText, stringToSet, indexCount) надо писать в индекс[i] из массива индексов, а не в сам i - currentParagraphChapterNumberIndex
-                //проверять setParagraphResult - но сначала сделать его осмысленным в самом методе записи
-                string newCurrentParagraph = _bookData.GetStringContent(desiredTextLanguage, "GetParagraphText", currentParagraphChapterNumberIndex);
+            //    //контрольная проверка номера главы
+            //    int startIndexOf = 0;
+            //    int currentParagraphLength = currentParagraph.Length;
+            //    int findChapterNameSpace = currentParagraphLength - startIndexOf;//стереотип - всегда отнять точку старта
+            //    int chapterNumberCheck = currentParagraph.IndexOf(currentChapterNumberString, startIndexOf, findChapterNameSpace);
+            //    bool isChapterNumberNotExist = chapterNumberCheck < 0;
+            //    if (isChapterNumberNotExist)
+            //    {
+            //        //можно сюда добавить Assert
+            //        _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "ambush in the currentParagraph[" + currentParagraphChapterNumberIndex.ToString() + "] = " + DConst.StrCRLF + currentParagraph + DConst.StrCRLF +
+            //            "currentChapterNumberString was not found - " + currentChapterNumberString + DConst.StrCRLF +
+            //            "the result of IndexOf is - " + chapterNumberCheck.ToString() + DConst.StrCRLF +
+            //            "chapterNumberIndex = " + chapterNumberIndex.ToString(), CurrentClassName, 3);
+            //    }
 
-                _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "CurrentParagraph with i = " + currentParagraphChapterNumberIndex.ToString() + "  -- > " + currentParagraph + DConst.StrCRLF +
-                        "chapterTextMarks - " + chapterTextMarks + DConst.StrCRLF +
-                        "newCurrentParagraph - " + newCurrentParagraph + DConst.StrCRLF +
-                        "currentChapterNumber [" + chapterNumberIndex.ToString() + "] --> " + currentChapterNumber.ToString(), CurrentClassName, DConst.ShowMessagesLevel);
+            //    string currentChapterNumberToFind000 = _analysisLogic.AddSome00ToIntNumber(currentChapterNumberString, DConst.chapterNumberTotalDigits);
+            //    if (currentChapterNumberToFind000 == null)
+            //    {
+            //        return null;//лучше поставить Assert - и можно прямо в AddSome00ToIntNumber?
+            //    }                
 
-                lastFoundChapterNumberInMarkFormat = chapterTextMarks;                
-            }    
-            
+            //    string chapterTextMarks = DConst.beginChapterMark + currentChapterNumberToFind000 + DConst.endChapterMark + "-" + keyWordFoundForm;//¤¤¤¤¤001¤¤¤-Chapter-
+
+            //    chapterTextMarks += DConst.StrCRLF + currentParagraph + DConst.StrCRLF;//дописываем маркировку главы к названию главы, добавив строку для нее 
+            //    int setParagraphResult = _bookData.GetIntContent(desiredTextLanguage, "SetParagraphText", chapterTextMarks, currentParagraphChapterNumberIndex);//int GetIntContent(desiredTextLanguage, SetParagraphText, stringToSet, indexCount) надо писать в индекс[i] из массива индексов, а не в сам i - currentParagraphChapterNumberIndex
+            //    //проверять setParagraphResult - но сначала сделать его осмысленным в самом методе записи
+            //    string newCurrentParagraph = _bookData.GetStringContent(desiredTextLanguage, "GetParagraphText", currentParagraphChapterNumberIndex);
+
+            //    _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "CurrentParagraph with i = " + currentParagraphChapterNumberIndex.ToString() + "  -- > " + currentParagraph + DConst.StrCRLF +
+            //            "chapterTextMarks - " + chapterTextMarks + DConst.StrCRLF +
+            //            "newCurrentParagraph - " + newCurrentParagraph + DConst.StrCRLF +
+            //            "currentChapterNumber [" + chapterNumberIndex.ToString() + "] --> " + currentChapterNumber.ToString(), CurrentClassName, DConst.ShowMessagesLevel);
+
+            //    lastFoundChapterNumberInMarkFormat = chapterTextMarks;                
+            //}    
+
             return lastFoundChapterNumberInMarkFormat;//непонятно, что вернуть - дальше класса уже не уйдет, только что-то для проверки в классе напоследок (ранее - вернуть уточненное количество глав)
         }       
 
@@ -292,12 +324,15 @@ namespace TextSplit
             for (int f = 0; f < chapterNamesParagraphIndexesCount; f++)
             {
                 allParagraphsWithDigitsFound[chapterNamesParagraphIndexesTemp[f]] = chapterNameIsDigitsOnly[f];//по индексу, сохраненному в ячейке сжатого массива сохраняем номер главы - в таком массиве унесем больше - и индекс, где находится глава и сам номер главы
+
+                int result = _bookData.SetNotices(desiredTextLanguage, chapterNamesParagraphIndexesTemp[f], chapterNameIsDigitsOnly[f], keyWordFoundForm);//сохранили все номера глав и ключевое слово в служебный массив заметок - для передачи дальше
+
                 //массив allParagraphsWithDigitsFound неявно возвращаем из метода, остальные не нужны
                 chapterNamesParagraphIndexes[f] = chapterNamesParagraphIndexesTemp[f];//метод Take(workIndex) извлекает workIndex элементов из массива
                 string currentParagraph = _bookData.GetParagraphText(desiredTextLanguage, chapterNamesParagraphIndexes[f]);//достаем только для печати, потом убрать
                 _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "currentParagraph[" + chapterNamesParagraphIndexes[f].ToString() + "] = " + currentParagraph + DConst.StrCRLF +
                     "allParagraphsWithDigitsFound[" + chapterNamesParagraphIndexesTemp[f].ToString() + "] = " + chapterNameIsDigitsOnly[f].ToString() + DConst.StrCRLF +
-                    "f = " + f.ToString() + " - from - chapterNamesParagraphIndexesCount = " + chapterNamesParagraphIndexesCount.ToString(), CurrentClassName, 3);// DConst.ShowMessagesLevel);
+                    "f = " + f.ToString() + " - from - chapterNamesParagraphIndexesCount = " + chapterNamesParagraphIndexesCount.ToString(), CurrentClassName, DConst.ShowMessagesLevel);
             }
 
 

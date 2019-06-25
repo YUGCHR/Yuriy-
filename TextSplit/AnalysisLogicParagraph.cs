@@ -11,7 +11,7 @@ namespace TextSplit
 {
     public interface IAnalysisLogicParagraph
     {
-        int MarkAndEnumerateParagraphs(int desiredTextLanguage, int[] ChapterNumberParagraphsIndexes);//plogic        
+        int MarkAndEnumerateParagraphs(int desiredTextLanguage, string lastFoundChapterNumberInMarkFormat);//plogic        
         int PortionBookTextOnParagraphs(int desiredTextLanguage);//plogic        
     }
 
@@ -29,13 +29,21 @@ namespace TextSplit
             _analysisLogic = analysisLogic;//общая логика            
         }        
 
-        public int MarkAndEnumerateParagraphs (int desiredTextLanguage, int[] ChapterNumberParagraphsIndexes)//ChapterNumberParagraphsIndexes - вычесть 1
+        public int MarkAndEnumerateParagraphs (int desiredTextLanguage, string lastFoundChapterNumberInMarkFormat)//ChapterNumberParagraphsIndexes - вычесть 1
         {
             //получив номер главы, в каждую пустую строку вставляем номер абзаца - §§§§§Paragraph-0000-§§§(-of-000) - где 000 берутся из номера главы ¤¤¤¤¤Chapter-000-¤¤¤
             int paragraphTextLength = _bookData.GetIntContent(desiredTextLanguage, "GetParagraphTextLength"); //вместо GetParagraphTextLength(desiredTextLanguage);
-            int ChapterNumberParagraphsIndexesLength = ChapterNumberParagraphsIndexes.Length;
-               
+            //int ChapterNumberParagraphsIndexesLength = ChapterNumberParagraphsIndexes.Length;
+
             int totalParagraphsNumbersCount = 0;//всего пронумеровано абзацев - без названий глав
+
+
+
+
+            //тут достанем номера глав и ключевое слово главы из служебного массива, а пример нумерации главы получили в параметрах - из примера сделаем заготовку нумерации абзаца
+
+
+
 
             //работаем с нулевой главой ¤¤¤¤¤000¤¤¤-Chapter-            
             string currentChapterNameParagraph = _bookData.GetStringContent(desiredTextLanguage, "GetParagraphText", 0);//достать название нулевой главы

@@ -56,9 +56,9 @@ namespace TextSplit
                     "Total ANY paragraphs count = " + paragraphTextLength.ToString() + DConst.StrCRLF +
                     "Total EMPTY paragraphs count = " + allEmptyParagraphsCount.ToString(), CurrentClassName, DConst.ShowMessagesLevel);
 
-                int[] ChapterNumberParagraphsIndexes = _chapterAnalysis.ChapterNameAnalysis(desiredTextLanguage);//находим название и номера, расставляем метки глав в тексте
+                string lastFoundChapterNumberInMarkFormat = _chapterAnalysis.ChapterNameAnalysis(desiredTextLanguage);//находим название и номера, расставляем метки глав в тексте
 
-                int enumerateParagraphsCount = _paragraphAnalyser.MarkAndEnumerateParagraphs(desiredTextLanguage, ChapterNumberParagraphsIndexes);//тут раставляем метки и номера абзацев - lastFoundChapterNumberInMarkFormat - не особо нужен
+                int enumerateParagraphsCount = _paragraphAnalyser.MarkAndEnumerateParagraphs(desiredTextLanguage, lastFoundChapterNumberInMarkFormat);//тут раставляем метки и номера абзацев - lastFoundChapterNumberInMarkFormat - не особо нужен
                 
                 int countSentencesNumber = _sentenceAnalyser.DividePagagraphToSentencesAndEnumerate(desiredTextLanguage);
 
@@ -71,7 +71,7 @@ namespace TextSplit
                     appendFileContent = appendFileContent.AppendLine(currentParagraph); // was + DConst.StrCRLF);                    
                 }
                 string tracedFileContent = appendFileContent.ToString();
-                string tracedFileNameAddition = "D://PBDS//OneDrive//Gonchar//C#2005//testBooks//testEndlishTexts_03R.txt";//путь только для тестов, для полного запуска надо брать путь, указанный пользователем
+                string tracedFileNameAddition = "E://PBDS//OneDrive//Gonchar//C#2005//testBooks//testEndlishTexts_03R.txt";//путь только для тестов, для полного запуска надо брать путь, указанный пользователем
                 string hashSavedFile = _msgService.SaveTracedToFile(tracedFileNameAddition, tracedFileContent);
                 _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "hash of the saved file - " + DConst.StrCRLF + hashSavedFile, CurrentClassName, DConst.ShowMessagesLevel);
 

@@ -10,7 +10,7 @@ namespace TextSplitLibrary
 {
     public interface IAllBookData
     {
-        //новые методы
+        //новые методы - постепенно удалить
         int GetIntContent(int desiredTextLanguage, string needOperationName);//перегрузка для получения длины двуязычных динамических массивов
         int GetIntContent(string needOperationName, string stringToSet, int indexCount);//перегрузка для записи обычных массивов
         int GetIntContent(int desiredTextLanguage, string needOperationName, int indexCount);//перегрузка для удаления элементов динамических массивов
@@ -21,8 +21,7 @@ namespace TextSplitLibrary
 
 
 
-        //старые методы
-
+       
         int GetFileToDo(int i);
         int SetFileToDo(int fileToDo, int i);
         int WhatFileNeedToDo(int whatNeedToDo);//возвращает индекс ToDo, в котором найдено значение whatNeedToDo, если не найдено, возвращает -1
@@ -40,23 +39,19 @@ namespace TextSplitLibrary
         string GetFileContent(int i);
         int SetFileContent(string fileContent, int i);
 
-        string GetParagraphText(int desiredTextLanguage, int paragraphCount);//возвращает строку из двумерного списка List
-        int GetParagraphTextLength(int desiredTextLanguage);
-        int SetParagraphText(string paragraphText, int paragraphCount, int desiredTextLanguage);
-        int AddParagraphText(string paragraphText, int desiredTextLanguage);//тоже возвращает количество элементов
-        int RemoveAtParagraphText(int paragraphCount, int desiredTextLanguage);//удаляет элемент списка с индексом paragraphCount
-
-        //string GetChapterName(int chapterCount, int desiredTextLanguage);
-        //int GetChapterNameLength(int desiredTextLanguage);
-        int SetChapterName(string chapterNameWithNumber, int chapterCount, int desiredTextLanguage);
-        int AddChapterName(string chapterNameWithNumber, int desiredTextLanguage);
-
-        int GetChapterNumber(int chapterCount, int desiredTextLanguage);
-        int GetChapterNumberLength(int desiredTextLanguage);
-        int AddChapterNumber(int chapterNumberOnly, int desiredTextLanguage);
-
         string GetSymbolsCount(int i);
         int SetSymbolsCount(int symbolsCount, int i);
+
+        string GetParagraphText(int desiredTextLanguage, int paragraphCount);//возвращает строку из двумерного списка List
+        int GetParagraphTextLength(int desiredTextLanguage);
+        int SetParagraphText(int desiredTextLanguage, string paragraphText, int paragraphCount);
+        int AddParagraphText(int desiredTextLanguage, string paragraphText);//тоже возвращает количество элементов
+        int RemoveAtParagraphText(int desiredTextLanguage, int paragraphCount);//удаляет элемент списка с индексом paragraphCount
+
+        int GetNoticeNumber(int desiredTextLanguage, int noticeIndex);
+        string GetNoticeName(int desiredTextLanguage, int noticeIndex);
+        int SetNotices(int desiredTextLanguage, int noticeIndex, int noticeNumber, string noticeName);
+        
     }
 
     public class AllBookDataArrays : IAllBookData
@@ -74,10 +69,12 @@ namespace TextSplitLibrary
         private string[] filesContents;
         
         private List<List<string>> paragraphsTexts = new List<List<string>>(); //инициализация динамического двумерного массива с абзацами (на двух языках + когда-то результат)        
-        private List<List<string>> chaptersNamesWithNumbers = new List<List<string>>(); //массив полных названий глав
-        private List<List<int>> chaptersNamesNumbersOnly = new List<List<int>>(); //только цифры из названий глав (надо ли?)        
 
-        public AllBookDataArrays()//IMessageService service
+        //два массива для замечаний - добавление и удаление ячеек синхронизировано с paragraphsTexts, так что, у них всегда одинаковая длина, а чтение-запись производится синхронно в оба эти массивы (потом можно заменить на общих класс для всех трех массивов)
+        private List<List<string>> noticesNames = new List<List<string>>(); //массив названий замечаний
+        private List<List<int>> noticesNumbers = new List<List<int>>(); //массив номеров замечаний
+
+        public AllBookDataArrays()//IMessageService service 
         {
             //_messageService = service;
 
@@ -94,13 +91,15 @@ namespace TextSplitLibrary
             paragraphsTexts.Add(new List<string>());
             paragraphsTexts.Add(new List<string>()); //добавление второй строки для абзацев второго языка (пока нужно всего 2 строки)
             
-            chaptersNamesWithNumbers.Add(new List<string>());
-            chaptersNamesWithNumbers.Add(new List<string>());
+            noticesNames.Add(new List<string>());
+            noticesNames.Add(new List<string>());
 
-            chaptersNamesNumbersOnly.Add(new List<int>());
-            chaptersNamesNumbersOnly.Add(new List<int>());
+            noticesNumbers.Add(new List<int>());
+            noticesNumbers.Add(new List<int>()); 
         }
-        //группа массива filesToDo
+
+        #region ToDo
+        //группа массива filesToDo - сделать синхронизированную группу filesToDo-filesToSave (или две строки List?)
         public int GetFileToDo(int i)
         {
             return filesToDo[i];
@@ -140,6 +139,9 @@ namespace TextSplitLibrary
             }
             return (int)MethodFindResult.NothingFound;
         }
+        #endregion
+        
+        #region GetStringContent
         //группа выдачи string
 
         public string GetStringContent(string nameOfStringNeed, int indexCount)
@@ -169,7 +171,7 @@ namespace TextSplitLibrary
                 case
                 "GetChapterName":
                     if (desiredTextLanguage < 0) return null;
-                    if (chaptersNamesWithNumbers[desiredTextLanguage][indexCount] != null) return chaptersNamesWithNumbers[desiredTextLanguage][indexCount];//при замене метода обратить внимание, что desiredTextLanguage и indexCount в старом вызове стоят наоборот!
+                    if (noticesNames[desiredTextLanguage][indexCount] != null) return noticesNames[desiredTextLanguage][indexCount];//при замене метода обратить внимание, что desiredTextLanguage и indexCount в старом вызове стоят наоборот!
                     return null;
                 case
                 "GetSymbolsCount":
@@ -177,7 +179,9 @@ namespace TextSplitLibrary
             }
             return null;
         }
-
+        #endregion
+        
+        #region GetIntContent
         //группа выдачи int
         public int GetIntContent(int desiredTextLanguage, string needOperationName)//перегрузка для получения длины двуязычных динамических массивов
         {
@@ -246,21 +250,22 @@ namespace TextSplitLibrary
                     return paragraphsTexts[desiredTextLanguage].Count;//получение и возврат новой длины списка
                 case
                 "GetChapterNumberLength":
-                    chaptersNamesWithNumbers[desiredTextLanguage][indexCount] = stringToSet;
+                    noticesNames[desiredTextLanguage][indexCount] = stringToSet;
                     return 0;
                 case
                 "AddChapterNumber":
-                    chaptersNamesWithNumbers[desiredTextLanguage].Add(stringToSet);//добавление нового элемента в строку
-                    return chaptersNamesWithNumbers[desiredTextLanguage].Count;
+                    noticesNames[desiredTextLanguage].Add(stringToSet);//добавление нового элемента в строку
+                    return noticesNames[desiredTextLanguage].Count;
             }
             //а еще лучше поставить Assert - ваше ключевое слово не подошло к нашей замочной скважине
             return (int)MethodFindResult.NothingFound;
             
             
         }
-
-
-        //группа массива filesPath
+        #endregion
+        
+        #region files
+        //группа массива filesPath -  - сделать синхронизированную группу filesPath-filesContents (или две строки List?)
         public string GetFilePath(int i)//перенесен в GetStringContent
         {
             return filesPath[i];
@@ -293,6 +298,20 @@ namespace TextSplitLibrary
             filesContents[i] = fileContent;
             return (int)MethodFindResult.AllRight;
         }
+        //группа массива подсчета символов
+        public string GetSymbolsCount(int i)//перенесен в GetStringContent
+        {
+            return symbolsCounts[i].ToString();
+        }
+
+        public int SetSymbolsCount(int symbolsCount, int i)
+        {
+            symbolsCounts[i] = symbolsCount;
+            return (int)MethodFindResult.AllRight;
+        }
+        #endregion
+        
+        #region paragraphsTexts
         //группа массива Абзац текста - paragraphsTexts
         public string GetParagraphText(int desiredTextLanguage, int paragraphCount)//перенесен в GetStringContent
         {
@@ -304,19 +323,21 @@ namespace TextSplitLibrary
             return paragraphsTexts[desiredTextLanguage].Count;
         }
 
-        public int SetParagraphText(string paragraphText, int paragraphCount, int desiredTextLanguage)//перенесен в GetIntContent
+        public int SetParagraphText(int desiredTextLanguage, string paragraphText, int paragraphCount)//перенесен в GetIntContent
         {
             paragraphsTexts[desiredTextLanguage][paragraphCount] = paragraphText;
             return 0;
         }
 
-        public int AddParagraphText(string paragraphText, int desiredTextLanguage)//перенесен в GetIntContent
+        public int AddParagraphText(int desiredTextLanguage, string paragraphText)//перенесен в GetIntContent
         {
             paragraphsTexts[desiredTextLanguage].Add(paragraphText);//добавление нового элемента в строку
+            noticesNames[desiredTextLanguage].Add("");
+            noticesNumbers[desiredTextLanguage].Add(0);
             return paragraphsTexts[desiredTextLanguage].Count;
         }
 
-        public int RemoveAtParagraphText(int paragraphCount, int desiredTextLanguage)//перенесен в GetIntContent
+        public int RemoveAtParagraphText(int desiredTextLanguage, int paragraphCount)
         {
             if (paragraphCount >= paragraphsTexts[desiredTextLanguage].Count)//сделать такие проверки во всех методах, придумать что-то с печатью (тревожное окно)
             {
@@ -329,59 +350,32 @@ namespace TextSplitLibrary
             }
 
             paragraphsTexts[desiredTextLanguage].RemoveAt(paragraphCount);//удаление элемента по индексу
+            noticesNames[desiredTextLanguage].RemoveAt(paragraphCount);
+            noticesNumbers[desiredTextLanguage].RemoveAt(paragraphCount);
             return paragraphsTexts[desiredTextLanguage].Count;//получение и возврат новой длины списка
         }
+        #endregion
+
+        #region Notices
         //группа массива Главы имя - chaptersNamesWithNumbers
-        //public string GetChapterName(int chapterCount, int desiredTextLanguage)//перенесен в GetStringContent
-        //{
-        //    //if (chaptersNamesWithNumbers[desiredTextLanguage][chapterCount] != null) return chaptersNamesWithNumbers[desiredTextLanguage][chapterCount];
-        //    return null;
-        //}
-
-        //public int GetChapterNameLength(int desiredTextLanguage)
-        //{
-        //    return chaptersNamesWithNumbers[desiredTextLanguage].Count;
-        //}
-
-        public int SetChapterName(string chapterNameWithNumber, int chapterCount, int desiredTextLanguage)//перенесен в GetIntContent
+        public int GetNoticeNumber(int desiredTextLanguage, int noticeIndex)
         {
-            chaptersNamesWithNumbers[desiredTextLanguage][chapterCount] = chapterNameWithNumber;
+            return noticesNumbers[desiredTextLanguage][noticeIndex];            
+        }
+
+        public string GetNoticeName(int desiredTextLanguage, int noticeIndex)
+        {
+            return noticesNames[desiredTextLanguage][noticeIndex];            
+        }
+
+        public int SetNotices(int desiredTextLanguage, int noticeIndex, int noticeNumber, string noticeName)
+        {
+            noticesNumbers[desiredTextLanguage][noticeIndex] = noticeNumber;
+            noticesNames[desiredTextLanguage][noticeIndex] = noticeName;
             return 0;
-        }
-
-        public int AddChapterName(string chapterNameWithNumber, int desiredTextLanguage)//перенесен в GetIntContent
-        {
-            chaptersNamesWithNumbers[desiredTextLanguage].Add(chapterNameWithNumber);//добавление нового элемента в строку
-            return chaptersNamesWithNumbers[desiredTextLanguage].Count;
-        }
-        //группа массива Главы Номер - chaptersNamesNumbersOnly
-        public int GetChapterNumber(int chapterCount, int desiredTextLanguage)
-        {
-            if (chaptersNamesNumbersOnly[desiredTextLanguage][chapterCount] !=  0) return chaptersNamesNumbersOnly[desiredTextLanguage][chapterCount];
-            return (int)MethodFindResult.NothingFound;
-        }
-
-        public int GetChapterNumberLength(int desiredTextLanguage)
-        {
-            return chaptersNamesNumbersOnly[desiredTextLanguage].Count;
         }        
-
-        public int AddChapterNumber(int chapterNumberOnly, int desiredTextLanguage)
-        {
-            chaptersNamesNumbersOnly[desiredTextLanguage].Add(chapterNumberOnly);//добавление нового элемента в строку
-            return chaptersNamesNumbersOnly[desiredTextLanguage].Count;
-        }
-        //группа массива подсчета символов
-        public string GetSymbolsCount(int i)//перенесен в GetStringContent
-        {
-            return symbolsCounts[i].ToString();
-        }
-
-        public int SetSymbolsCount(int symbolsCount, int i)
-        {
-            symbolsCounts[i] = symbolsCount;
-            return (int)MethodFindResult.AllRight;
-        }
+        #endregion
+        
 
         //public void NewVersion()//interface IAllBookData
         //{

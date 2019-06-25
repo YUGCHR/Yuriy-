@@ -14,7 +14,7 @@ namespace TextSplit.Tests
     public class AnalysisLogicChapterIntegrationTest
     {
         [TestMethod] // - marks method as a test - в офисе файл расположен на - D:\PBDS...
-        [DataRow("D://PBDS//OneDrive//Gonchar//C#2005//testBooks//testEndlishTexts_03.txt", "9f3babf4cba096664a7d8fc400a35678", (int)WhatNeedDoWithFiles.AnalyseText, 0, "2ec499c9f9d2ed3e8a1a7699162a8199")]
+        [DataRow("E://PBDS//OneDrive//Gonchar//C#2005//testBooks//testEndlishTexts_03.txt", "9f3babf4cba096664a7d8fc400a35678", (int)WhatNeedDoWithFiles.AnalyseText, 0, "2ec499c9f9d2ed3e8a1a7699162a8199")]
         //Input hash: 66eca5b84108553ce10daa89eb3b2b63 - testEndlishTexts_03_M&Mch18.txt        
         //Input hash: 956a57bb3114bb14361f11398b815425 - Vindzh_Keng_Ho_2_Plamya_nad_bezdnoy.168091.txt - CORRECTED
         //Input hash: 1f05dce24683e3b4ecd644a3463c922f - corrected quotes
