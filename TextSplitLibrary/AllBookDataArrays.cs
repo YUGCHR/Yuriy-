@@ -11,13 +11,13 @@ namespace TextSplitLibrary
     public interface IAllBookData
     {
         //новые методы - постепенно удалить
-        int GetIntContent(int desiredTextLanguage, string needOperationName);//перегрузка для получения длины двуязычных динамических массивов
-        int GetIntContent(string needOperationName, string stringToSet, int indexCount);//перегрузка для записи обычных массивов
-        int GetIntContent(int desiredTextLanguage, string needOperationName, int indexCount);//перегрузка для удаления элементов динамических массивов
-        int GetIntContent(int desiredTextLanguage, string needOperationName, string stringToSet, int indexCount);
+        //int GetIntContent(int desiredTextLanguage, string needOperationName);//перегрузка для получения длины двуязычных динамических массивов
+        //int GetIntContent(string needOperationName, string stringToSet, int indexCount);//перегрузка для записи обычных массивов
+        //int GetIntContent(int desiredTextLanguage, string needOperationName, int indexCount);//перегрузка для удаления элементов динамических массивов
+        //int GetIntContent(int desiredTextLanguage, string needOperationName, string stringToSet, int indexCount);
 
-        string GetStringContent(string nameOfStringNeed, int indexCount);
-        string GetStringContent(int desiredTextLanguage, string nameOfStringNeed, int indexCount);
+        //string GetStringContent(string nameOfStringNeed, int indexCount);
+        //string GetStringContent(int desiredTextLanguage, string nameOfStringNeed, int indexCount);
 
 
 
@@ -44,7 +44,7 @@ namespace TextSplitLibrary
 
         string GetParagraphText(int desiredTextLanguage, int paragraphCount);//возвращает строку из двумерного списка List
         int GetParagraphTextLength(int desiredTextLanguage);
-        int SetParagraphText(int desiredTextLanguage, string paragraphText, int paragraphCount);
+        int SetParagraphText(int desiredTextLanguage, int paragraphCount, string paragraphText);
         int AddParagraphText(int desiredTextLanguage, string paragraphText);//тоже возвращает количество элементов
         int RemoveAtParagraphText(int desiredTextLanguage, int paragraphCount);//удаляет элемент списка с индексом paragraphCount
 
@@ -266,40 +266,40 @@ namespace TextSplitLibrary
         
         #region files
         //группа массива filesPath -  - сделать синхронизированную группу filesPath-filesContents (или две строки List?)
-        public string GetFilePath(int i)//перенесен в GetStringContent
+        public string GetFilePath(int i)
         {
             return filesPath[i];
         }
 
-        public int SetFilePath(string filePath, int i)//перенесен в GetIntContent
+        public int SetFilePath(string filePath, int i)
         {
             filesPath[i] = filePath;
             return (int)MethodFindResult.AllRight;
         }
         //группа массива selectedTexts
-        public string GetSelectedText(int i)//перенесен в GetStringContent
+        public string GetSelectedText(int i)
         {
             return selectedTexts[i];
         }
 
-        public int SetSelectedText(string selectedText, int i)//перенесен в GetIntContent
+        public int SetSelectedText(string selectedText, int i)
         {
             selectedTexts[i] = selectedText;
             return (int)MethodFindResult.AllRight;
         }
         //группа массива filesContents
-        public string GetFileContent(int i)//перенесен в GetStringContent
+        public string GetFileContent(int i)
         {
             return filesContents[i];
         }
 
-        public int SetFileContent(string fileContent, int i)//перенесен в GetIntContent
+        public int SetFileContent(string fileContent, int i)
         {
             filesContents[i] = fileContent;
             return (int)MethodFindResult.AllRight;
         }
         //группа массива подсчета символов
-        public string GetSymbolsCount(int i)//перенесен в GetStringContent
+        public string GetSymbolsCount(int i)
         {
             return symbolsCounts[i].ToString();
         }
@@ -313,23 +313,23 @@ namespace TextSplitLibrary
         
         #region paragraphsTexts
         //группа массива Абзац текста - paragraphsTexts
-        public string GetParagraphText(int desiredTextLanguage, int paragraphCount)//перенесен в GetStringContent
+        public string GetParagraphText(int desiredTextLanguage, int paragraphCount)
         {
             return paragraphsTexts[desiredTextLanguage][paragraphCount];            
         }
 
-        public int GetParagraphTextLength(int desiredTextLanguage)//перенесен в GetIntContent
+        public int GetParagraphTextLength(int desiredTextLanguage)
         {
             return paragraphsTexts[desiredTextLanguage].Count;
         }
 
-        public int SetParagraphText(int desiredTextLanguage, string paragraphText, int paragraphCount)//перенесен в GetIntContent
+        public int SetParagraphText(int desiredTextLanguage, int paragraphCount, string paragraphText)
         {
             paragraphsTexts[desiredTextLanguage][paragraphCount] = paragraphText;
             return 0;
         }
 
-        public int AddParagraphText(int desiredTextLanguage, string paragraphText)//перенесен в GetIntContent
+        public int AddParagraphText(int desiredTextLanguage, string paragraphText)
         {
             paragraphsTexts[desiredTextLanguage].Add(paragraphText);//добавление нового элемента в строку
             noticesNames[desiredTextLanguage].Add("");

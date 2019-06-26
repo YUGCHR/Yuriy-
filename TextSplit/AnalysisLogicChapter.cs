@@ -88,10 +88,10 @@ namespace TextSplit
                     //можно было бы проверить строку, что там есть ключевое слово и номер
                     string currentChapterNumberToFind000 = _analysisLogic.AddSome00ToIntNumber(currentChapterNumber.ToString(), DConst.chapterNumberTotalDigits);
                     string chapterTextMarks = DConst.beginChapterMark + currentChapterNumberToFind000 + DConst.endChapterMark + "-" + keyWordFoundForm;//¤¤¤¤¤001¤¤¤-Chapter-
-
+                    lastFoundChapterNumberInMarkFormat = chapterTextMarks;
                     chapterTextMarks += DConst.StrCRLF + currentParagraph + DConst.StrCRLF;//дописываем маркировку главы к названию главы, добавив строку для нее
 
-                    int setParagraphResult = _bookData.SetParagraphText(desiredTextLanguage, chapterTextMarks, cpi);//int GetIntContent(desiredTextLanguage, SetParagraphText, stringToSet, indexCount) надо писать в индекс[i] из массива индексов, а не в сам i - currentParagraphChapterNumberIndex
+                    int setParagraphResult = _bookData.SetParagraphText(desiredTextLanguage, cpi, chapterTextMarks);//int GetIntContent(desiredTextLanguage, SetParagraphText, stringToSet, indexCount) надо писать в индекс[i] из массива индексов, а не в сам i - currentParagraphChapterNumberIndex
                                                                                                                                                                     //проверять setParagraphResult - но сначала сделать его осмысленным в самом методе записи
                     string newCurrentParagraph = _bookData.GetParagraphText(desiredTextLanguage, cpi);
 
@@ -100,12 +100,12 @@ namespace TextSplit
                             "newCurrentParagraph - " + newCurrentParagraph + DConst.StrCRLF +
                             "allParagraphsWithDigitsFound [" + cpi.ToString() + "] = " + allParagraphsWithDigitsFound[cpi].ToString(), CurrentClassName, DConst.ShowMessagesLevel);
 
-                    lastFoundChapterNumberInMarkFormat = chapterTextMarks;
+                    
 
                 }
             }
 
-            _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "lastFoundChapterNumberInMarkFormat -- > " + lastFoundChapterNumberInMarkFormat, CurrentClassName, 3);// DConst.ShowMessagesLevel);
+            _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "lastFoundChapterNumberInMarkFormat -- > " + lastFoundChapterNumberInMarkFormat, CurrentClassName, DConst.ShowMessagesLevel);
                                                                                                                                                             
             //string lastFoundChapterNumberInMarkFormat = ""; //можно убрать (вернем из метода маркировку последней главы - лучше массив с индексами глав в общем тексте, хотя, он не меняется, чего его возвращать)
             //все, что до первого номера главы, маркировать нулевой главой! но сначала проверить, что нумерация глав не с нуля!
@@ -271,7 +271,7 @@ namespace TextSplit
             }
 
             _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Total chapters names count kMultipleMax = " + kMultipleMax.ToString() + "] = " + DConst.StrCRLF +
-                                "keyWordForm was found --> " + totalBaseFormsOfNamesSamples[kMultipleMaxKeyWordIndex], CurrentClassName, 3);// DConst.ShowMessagesLevel);
+                                "keyWordForm was found --> " + totalBaseFormsOfNamesSamples[kMultipleMaxKeyWordIndex], CurrentClassName, DConst.ShowMessagesLevel);
 
             keyWordFoundForm = totalBaseFormsOfNamesSamples[kMultipleMaxKeyWordIndex];
 
@@ -325,11 +325,13 @@ namespace TextSplit
             {
                 allParagraphsWithDigitsFound[chapterNamesParagraphIndexesTemp[f]] = chapterNameIsDigitsOnly[f];//по индексу, сохраненному в ячейке сжатого массива сохраняем номер главы - в таком массиве унесем больше - и индекс, где находится глава и сам номер главы
 
+                string currentParagraph = _bookData.GetParagraphText(desiredTextLanguage, chapterNamesParagraphIndexesTemp[f]);//достаем только для печати, потом убрать
+
                 int result = _bookData.SetNotices(desiredTextLanguage, chapterNamesParagraphIndexesTemp[f], chapterNameIsDigitsOnly[f], keyWordFoundForm);//сохранили все номера глав и ключевое слово в служебный массив заметок - для передачи дальше
 
                 //массив allParagraphsWithDigitsFound неявно возвращаем из метода, остальные не нужны
                 chapterNamesParagraphIndexes[f] = chapterNamesParagraphIndexesTemp[f];//метод Take(workIndex) извлекает workIndex элементов из массива
-                string currentParagraph = _bookData.GetParagraphText(desiredTextLanguage, chapterNamesParagraphIndexes[f]);//достаем только для печати, потом убрать
+
                 _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "currentParagraph[" + chapterNamesParagraphIndexes[f].ToString() + "] = " + currentParagraph + DConst.StrCRLF +
                     "allParagraphsWithDigitsFound[" + chapterNamesParagraphIndexesTemp[f].ToString() + "] = " + chapterNameIsDigitsOnly[f].ToString() + DConst.StrCRLF +
                     "f = " + f.ToString() + " - from - chapterNamesParagraphIndexesCount = " + chapterNamesParagraphIndexesCount.ToString(), CurrentClassName, DConst.ShowMessagesLevel);
@@ -350,7 +352,7 @@ namespace TextSplit
             //        }
             
             //рассмотреть случай, когда вообще нет ключевого слова, только номера
-            _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "chapter names Count = " + chapterNamesParagraphIndexesCount.ToString(), CurrentClassName, 3);// DConst.ShowMessagesLevel);
+            _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "chapter names Count = " + chapterNamesParagraphIndexesCount.ToString(), CurrentClassName, DConst.ShowMessagesLevel);
             //теперь почистить массивы от лишних записей
 
 
@@ -360,7 +362,7 @@ namespace TextSplit
         public int[] CollectallParagraphsWithDigitsFound(int desiredTextLanguage)
         {//метод 1 - фактически вместо FirstTenGroupsChecked - собираем индексы строк, в начале которых нашлись цифры
 
-            int paragraphTextLength = _bookData.GetIntContent(desiredTextLanguage, "GetParagraphTextLength"); // это вместо _bookData.GetParagraphTextLength(desiredTextLanguage);
+            int paragraphTextLength = _bookData.GetParagraphTextLength(desiredTextLanguage); // это вместо _bookData.GetParagraphTextLength(desiredTextLanguage);
             _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "paragraphTextLength = " + paragraphTextLength.ToString(), CurrentClassName, DConst.ShowMessagesLevel);
             
             int[] allParagraphsWithDigitsFound = new int[paragraphTextLength];
@@ -370,7 +372,7 @@ namespace TextSplit
             //выбираем в цикле каждый абзац по очереди
             for (int currentIndex = 0; currentIndex < paragraphTextLength; currentIndex++)//далее рассмотреть, можно ли убрать цикл из мейна в метод
             {
-                string currentParagraph = _bookData.GetStringContent(desiredTextLanguage, "GetParagraphText", currentIndex);//_bookData.GetParagraphText(i, desiredTextLanguage);                
+                string currentParagraph = _bookData.GetParagraphText(desiredTextLanguage, currentIndex);//_bookData.GetParagraphText(i, desiredTextLanguage);                
                 int startIndexOfAny = 0;
                 int findChapterNameSpace = DConst.FindChapterNameSpace;//чтобы не рыться в большом абзаце, проверяем только первые сколько-то символов (количество установить в переменной в AnalysisLogicDataArrays)
                 int currentParagraphLength = currentParagraph.Length;
@@ -496,10 +498,10 @@ namespace TextSplit
 
             _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "increasedChapterNumbers = " + increasedChapterNumbers.ToString() + DConst.StrCRLF +
                 "chapterNameIsDigitsOnly[" + lastValueIndex.ToString() + "] = " + chapterNameIsDigitsOnly[lastValueIndex] + DConst.StrCRLF +
-                "workIndex = " + workIndex.ToString(), CurrentClassName, 3);// DConst.ShowMessagesLevel);
+                "workIndex = " + workIndex.ToString(), CurrentClassName, DConst.ShowMessagesLevel);
 
             _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Max realistic chapter number found = " + (increasedChapterNumbers - 2).ToString() + DConst.StrCRLF +
-                "chapterNameIsDigitsOnly[" + lastValueIndex.ToString() + "] = " + chapterNameIsDigitsOnly[lastValueIndex], CurrentClassName, 3);// DConst.ShowMessagesLevel);
+                "chapterNameIsDigitsOnly[" + lastValueIndex.ToString() + "] = " + chapterNameIsDigitsOnly[lastValueIndex], CurrentClassName, DConst.ShowMessagesLevel);
             //метод 2 - существующий IsChapterNumbersIncreased очень близок к этому  
             return chapterNameIsDigitsOnly;//-1 еще не делали - чтобы получить реальные номера глав
         }

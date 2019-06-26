@@ -49,7 +49,7 @@ namespace TextSplit
             if (_bookData.GetFileToDo(desiredTextLanguage) == (int)WhatNeedDoWithFiles.AnalyseText)//если первоначальный анализ текста, без подсказки пользователя о названии глав, ищем главы самостоятельно
             {
                 int portionBookTextResult = _paragraphAnalyser.PortionBookTextOnParagraphs(desiredTextLanguage);//возвращает количество строк с текстом
-                int paragraphTextLength = _bookData.GetIntContent(desiredTextLanguage, "GetParagraphTextLength");
+                int paragraphTextLength = _bookData.GetParagraphTextLength(desiredTextLanguage);
                 int allEmptyParagraphsCount = paragraphTextLength - portionBookTextResult;
 
                 _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), DConst.StrCRLF + "Total TEXTs Paragraphs count = " + portionBookTextResult.ToString() + DConst.StrCRLF +
@@ -66,7 +66,7 @@ namespace TextSplit
                 //int paragraphTextLength = GetParagraphTextLength(desiredTextLanguage);
                 for (int i = 0; i < paragraphTextLength; i++)
                 {
-                    string currentParagraph = _bookData.GetParagraphText(i, desiredTextLanguage);
+                    string currentParagraph = _bookData.GetParagraphText(desiredTextLanguage, i);
                     _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "CurrentParagraph [" + i.ToString() + "] -- > " + currentParagraph, CurrentClassName, DConst.ShowMessagesLevel);
                     appendFileContent = appendFileContent.AppendLine(currentParagraph); // was + DConst.StrCRLF);                    
                 }

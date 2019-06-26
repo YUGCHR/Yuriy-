@@ -37,12 +37,12 @@ namespace TextSplit
 
             //стейт-машина? - бесконечный цикл while по условию "все сделано, пора выходить"
             int currentParagraphIndex = 0;
-            int paragraphTextLength = _bookData.GetIntContent(desiredTextLanguage, "GetParagraphTextLength");//нет, главу искать не будем, сразу ищем абзац - в его номере уже есть номер главы
+            int paragraphTextLength = _bookData.GetParagraphTextLength(desiredTextLanguage);//нет, главу искать не будем, сразу ищем абзац - в его номере уже есть номер главы
             bool sentenceFSMwillWorkWithNExtParagraph = true;//для старта машины присваиваем true;
             while (sentenceFSMwillWorkWithNExtParagraph)//список условий и методов
             {
                 int nextParagraphIndex = currentParagraphIndex + 1;
-                string currentParagraph = _bookData.GetStringContent(desiredTextLanguage, "GetParagraphText", currentParagraphIndex);//string currentParagraph = GetParagraphText(currentParagraphIndex, desiredTextLanguage);
+                string currentParagraph = _bookData.GetParagraphText(desiredTextLanguage, currentParagraphIndex);//string currentParagraph = GetParagraphText(currentParagraphIndex, desiredTextLanguage);
                 
                 bool foundParagraphMark = currentParagraph.StartsWith(DConst.beginParagraphMark);
                 currentParagraphIndex++;//сразу прибавили счетчик абзаца для получения следующего абзаца в следующем цикле
@@ -54,7 +54,7 @@ namespace TextSplit
                     //на всякий случай тут можно проверять, что индекс следующего абзаца (+1 к текущему) не уткнется в конец файла
                     string sentenceTextMarksWithOtherNumbers = FindParagrapNumberForSentenceNumber(desiredTextLanguage, currentParagraph, currentParagraphNumber);//получили строку типа -Paragraph-3-of-Chapter-3 - удалены марки, но сохранены номера главы и абзаца
                                         
-                    string nextParagraph = _bookData.GetStringContent(desiredTextLanguage, "GetParagraphText", nextParagraphIndex);//достаем следующий абзац только при необходимости - когда точно знаем, что там текст, который надо делить                    
+                    string nextParagraph = _bookData.GetParagraphText(desiredTextLanguage, nextParagraphIndex);//достаем следующий абзац только при необходимости - когда точно знаем, что там текст, который надо делить                    
 
                     List<List<int>> allIndexResults = FoundAllDelimitersGroupsInParagraph(nextParagraph, charsAllDelimiters, sGroupCount);//собрали все разделители по группам в массив, каждая группа в своей ветке
 
@@ -395,7 +395,7 @@ namespace TextSplit
             string currentParagraphToWrite = string.Join(DConst.StrCRLF, paragraphSentences);//добавить ли в конце еще один перевод строки?
 
             int countSentencesNumber = paragraphSentences.Length;
-            int result = _bookData.GetIntContent(desiredTextLanguage, "SetParagraphText", currentParagraphToWrite, nextParagraphIndex);//ЗДЕСЬ запись SetParagraphText! - записываем абзац с пронумерованными предложениями на старое место! проверить, что попадаем на нужное место, а не в предыдущую ячейку
+            int result = _bookData.SetParagraphText(desiredTextLanguage, nextParagraphIndex, currentParagraphToWrite);//ЗДЕСЬ запись SetParagraphText! - записываем абзац с пронумерованными предложениями на старое место! проверить, что попадаем на нужное место, а не в предыдущую ячейку
             
             totalSentencesCount += countSentencesNumber;
 
