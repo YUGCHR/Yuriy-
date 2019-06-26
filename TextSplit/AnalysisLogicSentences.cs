@@ -60,9 +60,8 @@ namespace TextSplit
 
                     int foundMAxDelimitersGroups = FoundMaxDelimitersGroupNumber(sGroupCount, allIndexResults);//создали массив, в котором указано, сколько найдено разделителей каждой группы - изменим, теперь отдаем значение старшей найденной группы (и добавить в тестовый текст скобок)                    
 
-                    //bool quotesGroupFound = foundMAxDelimitersGroups > 0;//можно не проверять, что больше нуля - просто цикл не запустится
-                    //if (quotesGroupFound)
-                    //{//значит есть одна или две группы кавычек, кроме точек - ищем точки внутри кавычек (с допущениями) и помечаем их отрицательными индексами, потом удалим
+                    //bool quotesGroupFound = foundMAxDelimitersGroups > 0;//можно не проверять, что больше нуля - просто цикл не запустится                    
+                    //значит есть одна или две группы кавычек, кроме точек - ищем точки внутри кавычек (с допущениями) и помечаем их отрицательными индексами, потом удалим
                     for (int currentQuotesGroup = foundMAxDelimitersGroups; currentQuotesGroup > 0; currentQuotesGroup--)
                     {//сюда принести IsCurrentGroupDelimitersCountEven - проверять перед FindSentencesDelimitersBeetweenQuotes по каждой группе кавычек - не проверено, надо где-то сделать непарные кавычки, пусть проверяет
                         bool evenQuotesCount = IsCurrentGroupDelimitersCountEven(nextParagraph, allIndexResults, currentQuotesGroup);//результат пока не используем - если кавычек нечетное количество, то при проверке сейчас остановит Assert, а потом - позовем пользователя сделать четное (nextParagraph используется только для аварийной печати)
@@ -76,14 +75,11 @@ namespace TextSplit
                     int[] SentenceDelimitersIndexesArray = RemoveNegativeSentenceDelimitersIndexes(allIndexResults);//сжали ветку массива с точками - удалили отрицательный и сохранили в обычный временный массив
 
                     string[] paragraphSentences = DivideTextToSentencesByDelimiters(nextParagraph, SentenceDelimitersIndexesArray);//разделили текст на предложения согласно оставшимся разделителям
-
-                    //string sentenceTextMarks = CreatePartTextMarks(stringToPutMarkBegin, stringToPutMarkEnd, currentChapterNumber, currentSentenceNumber, sentenceTextMarksWithOtherNumbers);//создали базовую маркировку и номер текущего предложения - ¶¶¶¶¶00001¶¶¶-Paragraph-3-of-Chapter-3
+                    
                     paragraphSentences = EnumerateDividedSentences(desiredTextLanguage, sentenceTextMarksWithOtherNumbers, paragraphSentences);//пронумеровали разделенные предложения - еще в том же массиве
 
-                    totalSentencesCount = WriteDividedSentencesInTheSameParagraph(desiredTextLanguage, nextParagraphIndex, paragraphSentences, totalSentencesCount);//здесь предложения уже поделенные и с номерами, теперь слить их опять вместе, чтобы записать на то же самое место
-                    //sentenceTextMarksWithOtherNumbers = null;//сбрасываем (не)нужный флаг для следующего прохода - должен автоматически измениться на следующем проходе
-                }
-                //foundParagraphMark = false;//сбрасываем (не)нужный флаг для следующего прохода - должен автоматически измениться на следующем проходе
+                    totalSentencesCount = WriteDividedSentencesInTheSameParagraph(desiredTextLanguage, nextParagraphIndex, paragraphSentences, totalSentencesCount);//здесь предложения уже поделенные и с номерами, теперь слить их опять вместе, чтобы записать на то же самое место                    
+                }                
                 sentenceFSMwillWorkWithNExtParagraph = currentParagraphIndex < (paragraphTextLength - 1);//-1 - чтобы можно было взять следующий абзац - или проверять в конце цикла, когда к текущему уже прибавили 1 для следующего прохода
             }
             _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "totalSentencesCount = " + totalSentencesCount.ToString(), CurrentClassName, DConst.ShowMessagesLevel);
@@ -143,9 +139,7 @@ namespace TextSplit
             }
             int[] SentenceDelimitersIndexesArray = allIndexResults[0].ToArray();
             return SentenceDelimitersIndexesArray;
-        }
-
-        
+        }        
 
         public List<List<char>> ConstanstListFillCharsDelimiters()//создавать временный массив каждый раз заново - только те, которые нужны в данный момент? нет, один раз хватит
         {//вариант многоточия из обычных точек надо обрабатывать отдельно - просто проверить, нет ли трех точек подряд - уже удалили такое
@@ -162,9 +156,7 @@ namespace TextSplit
             _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "allDelimitersCount = " + allDelimitersCount.ToString(), CurrentClassName, DConst.ShowMessagesLevel);
             System.Diagnostics.Debug.Assert(allDelimitersCount == DConst.AllDelimitersCount, "The total Delimiters count is WRONG!");
             return charsAllDelimiters;
-        }
-
-        
+        }        
 
         public List<List<int>> FoundAllDelimitersGroupsInParagraph(string textParagraph, List<List<char>> charsAllDelimiters, int sGroupCount)//выбираем, какой метод вызвать для обработки состояния
         {
@@ -193,12 +185,6 @@ namespace TextSplit
                     startFindIndex = indexResult + 1;//начинаем новый поиск с места найденных кавычек (наверное, тут надо добавить +1)
                     DelimitersQuantity[sGroup]++; //считаем разделители
                     indexResult = textParagraph.IndexOfAny(charsCurrentGroupDelimiters, startFindIndex);//Значение –1, если никакой символ не найдена. Индекс от нуля с начала строки, если любой символ найден
-
-                    _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "textParagraph -->" + textParagraph + DConst.StrCRLF +
-                        "sGroup = " + sGroup.ToString() + DConst.StrCRLF +
-                        "DelimitersQuantity = " + DelimitersQuantity[sGroup].ToString() + DConst.StrCRLF +
-                        "printCharsCurrentGroupDelimiters --> " + printCharsCurrentGroupDelimiters + DConst.StrCRLF +
-                        "NEW startFindIndex (+ indexResultQuotes) = " + startFindIndex.ToString(), CurrentClassName, DConst.ShowMessagesLevel);
                 }                
             }
             return allIndexResults;                
@@ -210,13 +196,12 @@ namespace TextSplit
             bool evenQuotesCount = (currentOFAllIndexResultsCount & 1) == 0;//true, если allIndexResults2Count - четное // if(a&1==0) Console.WriteLine("Четное")
             if (!evenQuotesCount)
             {//правильно - удалить все кавычки битой группы, занести все номер группы и стертые индексы в массив с непонятками и туда же нужен индекс параграфа - и номер проблемы (хотя он будет виден по номеру группы)
+                
                 //тут сначала проверить, есть ли нечетное количество других кавычек в абзаце и, если других нет - игнорировать (или еще проще - если кавычка в группе всего одна, удалить ее индекс и всего делов) - нет, звать пользователя - показать ему абзац и перевод
-
                 _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Current textParagraph with unpair quotes is - " + textParagraph + DConst.StrCRLF +
                     "current Group of Quotes = " + currentQuotesGroup.ToString() + DConst.StrCRLF +
                     "current Quotes Count = " + currentOFAllIndexResultsCount.ToString() + DConst.StrCRLF +                    
-                    "The Quotes Quantity in NOT EVEN!" + evenQuotesCount.ToString(), CurrentClassName, 3);
-                //string currentParagraph = GetParagraphText(i, desiredTextLanguage); //надо бы выводить или абзац, в котором беда или хотя бы его индекс (но можно в вызывающем методе, правда, там тоже всего этого нет) - когда дадут доступ, вызовем
+                    "The Quotes Quantity in NOT EVEN!" + evenQuotesCount.ToString(), CurrentClassName, 3);                
             }
             System.Diagnostics.Debug.Assert(evenQuotesCount, "The Quotes Quantity in NOT EVEN");//тут проверили, что кавычек-скобок четное количество, если нечетное, то потом будем звать пользователя
             return evenQuotesCount;
@@ -260,7 +245,7 @@ namespace TextSplit
             return allIndexResults;
         }
 
-        //все непонятки можно записать в освободившийся массив ChapterNumber - кстати, их все надо чистить перед анализом следующего языка/текста - или можно завести аналогичный цифровой массив ParagraghNumber
+        //все непонятки можно (нужно) записать в освободившийся массив ChapterNumber - кстати, их все надо чистить перед анализом следующего языка/текста - или можно завести аналогичный цифровой массив ParagraghNumber - чистить не надо, он на 2 языка
         public string[] DivideTextToSentencesByDelimiters(string textParagraph, int[] sentenceDelimitersIndexesArray)//разобраться с константами и почему не совпадает по сумме часть предложений
         {
             int foundSentenceCount = 0;
@@ -268,7 +253,7 @@ namespace TextSplit
             int sentenceDelimitersIndexesCount = sentenceDelimitersIndexesArray.Length;
             
             string[] tempParagraphSentences = new string[sentenceDelimitersIndexesCount];//временный массив для хранения свежеподеленных предложений
-            //int textParagraphLengthFromSentences = 0;// было 1, но с 0 нет никакой разницы (она только для первого предложения, а там и так все сейчас неладно)
+            
             int startIndexSentence = 0;
 
             for (int i = 0; i < sentenceDelimitersIndexesCount; i++)
@@ -289,9 +274,8 @@ namespace TextSplit
                 string dividedSentence = textParagraph.Substring(startIndexSentence, lengthSentence);//string Substring (int startIndex, int length)
                 if(dividedSentence.Length > 0) foundSentenceCount++;
                 tempParagraphSentences[i] = dividedSentence;
-                startIndexSentence += lengthSentence;
-                //textParagraphLengthFromSentences += lengthSentence;//непонятно, зачем он нужен, нигде не используется
-            }            
+                startIndexSentence += lengthSentence;                
+            }
             string[] paragraphSentences = new string[foundSentenceCount];
             foundSentenceCount = 0;
             for (int i = 0; i < sentenceDelimitersIndexesCount; i++)
@@ -311,22 +295,12 @@ namespace TextSplit
 
             if (currentSymbolIsUpper)//если нашли новое предложение с большой буквы - делим (или если последнее предложение и уже не искали следующее) - по сути, если есть прописная, то это - не последнее - два if выполняются как if/else - но могут быть варианты
             {
-                lengthSentence = currertSentenceDelimitersIndexesArray - startIndexSentence + 2;//надо +2, потому что иначе теряется пробел после точки
-
-                _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "currentSymbolIsUpper = " + currentSymbolIsUpper.ToString() + DConst.StrCRLF +
-                    "currertSentenceDelimitersIndexesArray = " + currertSentenceDelimitersIndexesArray.ToString() + DConst.StrCRLF +
-                    "startIndexSentence = " + startIndexSentence.ToString() + DConst.StrCRLF +
-                    "lengthSentence = " + lengthSentence.ToString(), CurrentClassName, DConst.ShowMessagesLevel);
+                lengthSentence = currertSentenceDelimitersIndexesArray - startIndexSentence + 2;//надо +2, потому что иначе теряется пробел после точки                
             }
 
             if (lastSentenceDelimiterFound)//если последнее, то идем с другой стороны - отнимаем от длина абзаца начальный индекс предложения
             {
                 lengthSentence = textParagraphLength - startIndexSentence;//так точнее делит последнее предложение абзаца - оказывается, есть вариант, когда последнее предложение без точки - он его захватывает - уже нет
-
-                _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "lastSentenceDelimiterFound = " + lastSentenceDelimiterFound.ToString() + DConst.StrCRLF +
-                    "textParagraphLength = " + textParagraphLength.ToString() + DConst.StrCRLF +
-                    "startIndexSentence = " + startIndexSentence.ToString() + DConst.StrCRLF +
-                    "lengthSentence = " + lengthSentence.ToString(), CurrentClassName, DConst.ShowMessagesLevel);
             }
 
             return lengthSentence;
@@ -338,11 +312,6 @@ namespace TextSplit
             
             while (!currentSymbolIsLetterOrDigit)//пока не нашли букву или цифру после точки - ищем ее
             {
-                _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "textParagraph --> " + DConst.StrCRLF + textParagraph + DConst.StrCRLF +
-                            "sentenceDelimitersIndexesCount --> " + sentenceDelimitersIndexesCount.ToString() + DConst.StrCRLF +
-                            "currentSentenceDelimiterIndex = " + currentSentenceDelimiterIndex.ToString() + DConst.StrCRLF +
-                            "textParagraphLength = " + textParagraphLength.ToString(), CurrentClassName, DConst.ShowMessagesLevel);
-
                 currentSentenceDelimiterIndex++;
                 bool keepToSearch = (currentSentenceDelimiterIndex + 1) < textParagraphLength;// + 1 было лишним?
                 if (!keepToSearch)//продолжать поиск, пока индекс позиции не выходит за пределы длины абзаца
@@ -370,9 +339,7 @@ namespace TextSplit
         public string[] EnumerateDividedSentences(int desiredTextLanguage, string sentenceTextMarksWithOtherNumbers, string[] paragraphSentences) //в textParagraph получаем nextParagraph при вызове метода - следующий абзац с текстом после метки номера абзаца в пустой строке
         {            
             string needConstantnName = "Sentence" + desiredTextLanguage.ToString();//формирование ключевого слова запроса в зависимости от языка - можно языка прямо передавать параметром  
-            int countSentencesNumbers = paragraphSentences.Length;            
-            //int currentChapterNumber = 0;//0 - означает первую главу (-1 - предисловие), в данном случае это не используется, так как достается номер главы из сформированного номера абзаца
-            
+            int countSentencesNumbers = paragraphSentences.Length;
             //теперь к каждому предложению сгенерировать номер, добавить спереди метку и номер, добавить EOL и метку в конце и потом все сложить обратно во внешний массив ParagraphText                                                                               
             //генерация номера и метки очень похожа во всех трех случаях - потом можно было сделать единым методом
             for (int i = 0; i < countSentencesNumbers; i++)
@@ -383,9 +350,7 @@ namespace TextSplit
                 string currentSentenceNumberToFind000 = _analysisLogic.AddSome00ToIntNumber(currentSentenceNumber.ToString(), DConst.sentenceNumberTotalDigits);//создать номер главы из индекса сохраненных индексов - как раз начинаются с нуля
                 string sentenceTextMarks = DConst.beginSentenceMark + currentSentenceNumberToFind000 + DConst.endSentenceMark + "-" + DConst.SentenceMarkNameLanguage[desiredTextLanguage] + "-of" + sentenceTextMarksWithOtherNumbers;//¤¤¤¤¤001¤¤¤-Chapter- добавить номер главы от нулев
                 
-                paragraphSentences[i] = sentenceTextMarks + DConst.StrCRLF + paragraphSentences[i] + DConst.StrCRLF;
-                _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "paragraphSentences[" + i.ToString() + "] --> " + DConst.StrCRLF + paragraphSentences[i] + DConst.StrCRLF +
-                    "countSentencesNumbers = " + countSentencesNumbers.ToString(), CurrentClassName, DConst.ShowMessagesLevel);
+                paragraphSentences[i] = sentenceTextMarks + DConst.StrCRLF + paragraphSentences[i] + DConst.StrCRLF;                
             }
             return paragraphSentences;
         }
@@ -421,24 +386,32 @@ namespace TextSplit
             get { return MethodBase.GetCurrentMethod().DeclaringType.Name; }
         }
 
-        
 
-        private bool IsCurrentSymbolDelimiter(char[] charsSentenceDelimiters, char currentSymbol)
-        {
-            bool currentSymbolIsDelimiter = false;
-            foreach (char delimiter in charsSentenceDelimiters)
-            {
-                currentSymbolIsDelimiter = currentSymbol == delimiter;
-                if (currentSymbolIsDelimiter)
-                {
-                    return currentSymbolIsDelimiter;
-                }
-            }
-            return currentSymbolIsDelimiter;
-        }
+
     }
 }
-
+//_msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "paragraphSentences[" + i.ToString() + "] --> " + DConst.StrCRLF + paragraphSentences[i] + DConst.StrCRLF +
+//                    "countSentencesNumbers = " + countSentencesNumbers.ToString(), CurrentClassName, DConst.ShowMessagesLevel);
+//_msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "textParagraph --> " + DConst.StrCRLF + textParagraph + DConst.StrCRLF +
+//                            "sentenceDelimitersIndexesCount --> " + sentenceDelimitersIndexesCount.ToString() + DConst.StrCRLF +
+//                            "currentSentenceDelimiterIndex = " + currentSentenceDelimiterIndex.ToString() + DConst.StrCRLF +
+//                            "textParagraphLength = " + textParagraphLength.ToString(), CurrentClassName, DConst.ShowMessagesLevel);
+//private bool IsCurrentSymbolDelimiter(char[] charsSentenceDelimiters, char currentSymbol)
+//{
+//    bool currentSymbolIsDelimiter = false;
+//    foreach (char delimiter in charsSentenceDelimiters)
+//    {
+//        currentSymbolIsDelimiter = currentSymbol == delimiter;
+//        if (currentSymbolIsDelimiter)
+//        {
+//            return currentSymbolIsDelimiter;
+//        }
+//    }
+//    return currentSymbolIsDelimiter;
+//}
+//int textParagraphLengthFromSentences = 0;// было 1, но с 0 нет никакой разницы (она только для первого предложения, а там и так все сейчас неладно)
+//string currentParagraph = GetParagraphText(i, desiredTextLanguage); //надо бы выводить или абзац, в котором беда или хотя бы его индекс (но можно в вызывающем методе, правда, там тоже всего этого нет) - когда дадут доступ, вызовем
+//textParagraphLengthFromSentences += lengthSentence;//непонятно, зачем он нужен, нигде не используется
 //int endParagraphMarkLength = DConst.endParagraphMark.Length;
 //string paragraphKeyWord = DConst.paragraphMarkNameLanguage[desiredTextLanguage]; 
 //int paragraphKeyWordLength = paragraphKeyWord.Length;
@@ -1035,7 +1008,20 @@ namespace TextSplit
 //bool foundParagraphMark = FindTextPartMarker(currentParagraph, "ParagraphMark");//добавить в метод 0 для начальной марки / проверяем начало абзаца на маркер абзаца, если есть, то надо вызвать подготовку деления абзаца (она возьмет следующий абзац для деления на предложения)
 //bool FindTextPartMarker(string currentParagraph, string stringMarkBegin) => _analysisLogic.FindTextPartMarker(currentParagraph, stringMarkBegin);
 //если встретился разделитель, опять же проверяем, что за ним строчная буква
-
-
-
+//sentenceTextMarksWithOtherNumbers = null;//сбрасываем (не)нужный флаг для следующего прохода - должен автоматически измениться на следующем проходе
+//string sentenceTextMarks = CreatePartTextMarks(stringToPutMarkBegin, stringToPutMarkEnd, currentChapterNumber, currentSentenceNumber, sentenceTextMarksWithOtherNumbers);//создали базовую маркировку и номер текущего предложения - ¶¶¶¶¶00001¶¶¶-Paragraph-3-of-Chapter-3
+////foundParagraphMark = false;//сбрасываем (не)нужный флаг для следующего прохода - должен автоматически измениться на следующем проходе
+//_msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "textParagraph -->" + textParagraph + DConst.StrCRLF +
+//                        "sGroup = " + sGroup.ToString() + DConst.StrCRLF +
+//                        "DelimitersQuantity = " + DelimitersQuantity[sGroup].ToString() + DConst.StrCRLF +
+//                        "printCharsCurrentGroupDelimiters --> " + printCharsCurrentGroupDelimiters + DConst.StrCRLF +
+//                        "NEW startFindIndex (+ indexResultQuotes) = " + startFindIndex.ToString(), CurrentClassName, DConst.ShowMessagesLevel);
+//_msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "currentSymbolIsUpper = " + currentSymbolIsUpper.ToString() + DConst.StrCRLF +
+//    "currertSentenceDelimitersIndexesArray = " + currertSentenceDelimitersIndexesArray.ToString() + DConst.StrCRLF +
+//    "startIndexSentence = " + startIndexSentence.ToString() + DConst.StrCRLF +
+//    "lengthSentence = " + lengthSentence.ToString(), CurrentClassName, DConst.ShowMessagesLevel);
+//_msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "lastSentenceDelimiterFound = " + lastSentenceDelimiterFound.ToString() + DConst.StrCRLF +
+//    "textParagraphLength = " + textParagraphLength.ToString() + DConst.StrCRLF +
+//    "startIndexSentence = " + startIndexSentence.ToString() + DConst.StrCRLF +
+//    "lengthSentence = " + lengthSentence.ToString(), CurrentClassName, DConst.ShowMessagesLevel);
 

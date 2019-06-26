@@ -16,6 +16,39 @@
       <NamedTestSelector>
         <TestName>TextSplit.Tests.AnalysisLogicChapterIntegrationTest.TestMain_AnalyseTextBook (11220581330653401900)</TestName>
       </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>TextSplit.Tests.AnalysisLogicChapterUnitTests.Test09_DivideTextToSentencesByDelimiters (8258801904318672872)</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>TextSplit.Tests.AnalysisLogicChapterUnitTests.Test09_DivideTextToSentencesByDelimiters (822621275125647949)</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>TextSplit.Tests.AnalysisLogicChapterUnitTests.Test09_DivideTextToSentencesByDelimiters (11443731495934924284)</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>TextSplit.Tests.AnalysisLogicChapterUnitTests.Test09_DivideTextToSentencesByDelimiters (3625657336219932635)</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>TextSplit.Tests.AnalysisLogicChapterUnitTests.Test09_DivideTextToSentencesByDelimiters (14407699326481817625)</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>TextSplit.Tests.AnalysisLogicChapterUnitTests.Test09_DivideTextToSentencesByDelimiters (18067607658285855297)</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>TextSplit.Tests.AnalysisLogicChapterUnitTests.Test11_EnumerateDividedSentences (2544114451314762991)</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>TextSplit.Tests.AnalysisLogicChapterUnitTests.Test11_EnumerateDividedSentences (12600846184633884491)</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>TextSplit.Tests.AnalysisLogicChapterUnitTests.Test11_EnumerateDividedSentences (13857555472962139396)</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>TextSplit.Tests.AnalysisLogicChapterUnitTests.Test11_EnumerateDividedSentences (8892780114274758926)</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>TextSplit.Tests.AnalysisLogicChapterUnitTests.Test11_EnumerateDividedSentences (16087251412261802518)</TestName>
+      </NamedTestSelector>
     </IgnoredTests>
   </Settings>
 </ProjectConfiguration>
