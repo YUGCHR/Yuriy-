@@ -30,7 +30,7 @@ namespace TextSplitLibrary
     }
     public class FileManager : IFileManager
     {
-        private readonly IAllBookData _book;
+        private readonly ISharedDataAccess _book;
         //private readonly IMessageService _messageService;
         private readonly Encoding _defaultEncoding = Encoding.GetEncoding(1251);
 
@@ -38,7 +38,7 @@ namespace TextSplitLibrary
         private bool isLogFileExist;        
         string logFilePath = Directory.GetCurrentDirectory();//Will check log-file existing        
 
-        public FileManager(IAllBookData book) //IMessageService service
+        public FileManager(ISharedDataAccess book) //IMessageService service
         {
             _book = book;            
                         

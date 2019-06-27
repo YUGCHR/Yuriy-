@@ -7,16 +7,16 @@ using TextSplitLibrary;
 
 namespace TextSplit
 {
-    public interface IAnalysisLogicChapter
+    public interface IChapterDividingAnalysis
     {
         string ChapterNameAnalysis(int desiredTextLanguage);        
     }
 
-    public class AnalysisLogicChapter : IAnalysisLogicChapter
+    public class ChapterDividingAnalysis : IChapterDividingAnalysis
     {
-        private readonly IAllBookData _bookData;
+        private readonly ISharedDataAccess _bookData;
         private readonly IMessageService _msgService;
-        private readonly IAnalysisLogicCultivation _analysisLogic;        
+        private readonly ITextAnalysisLogicExtension _analysisLogic;        
 
         delegate bool IsOrNotEqual(char x);
         delegate bool DoElseConditions(string x, int i, int j);
@@ -24,7 +24,7 @@ namespace TextSplit
         delegate string TransduceWord(string baseKeyWord);
 
         
-        public AnalysisLogicChapter(IAllBookData bookData, IMessageService msgService, IAnalysisLogicCultivation analysisLogic)
+        public ChapterDividingAnalysis(ISharedDataAccess bookData, IMessageService msgService, ITextAnalysisLogicExtension analysisLogic)
         {
             _bookData = bookData;
             _msgService = msgService;
@@ -50,7 +50,7 @@ namespace TextSplit
             return lastFoundChapterNumberInMarkFormat;//вернем образец маркировки, все остальное есть в служебном массиве заметок
         }
 
-        //нерешенные задачи анализа имен глав (метода ChapterNameAnalysis)
+        //нерешенные задачи анализа имен глав (метода ChapterDividingAnalysis)
         //1. наличие в книге более старших разделов - Книга, Раздел и т.д. если нумерация глав идет непрерывно по книге, то они не помешают, а если заново, то надо что-то думать
         //2. проверить метод при наличии в книге других ключевых слов названий глав - в нужных местах (близко к началу абзаца) и с подходящими по смыслу номерами (такие тестовые места в книге отметить $$$$$)
         //3. подумать над вторым проходом метода по желанию пользователя - если он отметил какие-то варианты старших разделов - сохранить главы и добавить разметку других разделов (как потом хранить в базе?)

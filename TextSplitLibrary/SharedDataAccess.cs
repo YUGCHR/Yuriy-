@@ -8,20 +8,8 @@ using System.Windows.Forms;//Temp
 
 namespace TextSplitLibrary
 {
-    public interface IAllBookData
-    {
-        //новые методы - постепенно удалить
-        //int GetIntContent(int desiredTextLanguage, string needOperationName);//перегрузка для получения длины двуязычных динамических массивов
-        //int GetIntContent(string needOperationName, string stringToSet, int indexCount);//перегрузка для записи обычных массивов
-        //int GetIntContent(int desiredTextLanguage, string needOperationName, int indexCount);//перегрузка для удаления элементов динамических массивов
-        //int GetIntContent(int desiredTextLanguage, string needOperationName, string stringToSet, int indexCount);
-
-        //string GetStringContent(string nameOfStringNeed, int indexCount);
-        //string GetStringContent(int desiredTextLanguage, string nameOfStringNeed, int indexCount);
-
-
-
-       
+    public interface ISharedDataAccess
+    {        
         int GetFileToDo(int i);
         int SetFileToDo(int fileToDo, int i);
         int WhatFileNeedToDo(int whatNeedToDo);//возвращает индекс ToDo, в котором найдено значение whatNeedToDo, если не найдено, возвращает -1
@@ -50,11 +38,10 @@ namespace TextSplitLibrary
 
         int GetNoticeNumber(int desiredTextLanguage, int noticeIndex);
         string GetNoticeName(int desiredTextLanguage, int noticeIndex);
-        int SetNotices(int desiredTextLanguage, int noticeIndex, int noticeNumber, string noticeName);
-        
+        int SetNotices(int desiredTextLanguage, int noticeIndex, int noticeNumber, string noticeName);        
     }
 
-    public class AllBookDataArrays : IAllBookData
+    public class SharedDataAccess : ISharedDataAccess
     {
         //private readonly IMessageService _messageService;
 
@@ -74,7 +61,7 @@ namespace TextSplitLibrary
         private List<List<string>> noticesNames = new List<List<string>>(); //массив названий замечаний
         private List<List<int>> noticesNumbers = new List<List<int>>(); //массив номеров замечаний
 
-        public AllBookDataArrays()//IMessageService service 
+        public SharedDataAccess()//IMessageService service 
         {
             //_messageService = service;
 
@@ -97,6 +84,7 @@ namespace TextSplitLibrary
             noticesNumbers.Add(new List<int>());
             noticesNumbers.Add(new List<int>()); 
         }
+
 
         #region ToDo
         //группа массива filesToDo - сделать синхронизированную группу filesToDo-filesToSave (или две строки List?)
@@ -328,6 +316,8 @@ namespace TextSplitLibrary
             paragraphsTexts[desiredTextLanguage][paragraphCount] = paragraphText;
             return 0;
         }
+
+        //как сделать метод добавления Insert (int index, T item); - и, главное, зачем
 
         public int AddParagraphText(int desiredTextLanguage, string paragraphText)
         {

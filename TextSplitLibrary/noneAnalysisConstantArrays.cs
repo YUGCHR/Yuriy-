@@ -37,7 +37,7 @@ namespace TextSplitLibrary
 
     public class noneAnalysisConstantArrays : IAnalysisConstantArrays
     {
-        private readonly IAllBookData _bookData;
+        private readonly ISharedDataAccess _bookData;
         private readonly IMessageService _msgService;
 
         readonly private int showMessagesLevel;
@@ -76,7 +76,7 @@ namespace TextSplitLibrary
         private char[] foundCharsSeparator;
         private readonly int baseKeyWordFormsCount;
 
-        public noneAnalysisConstantArrays(IAllBookData bookData, IMessageService msgService)
+        public noneAnalysisConstantArrays(ISharedDataAccess bookData, IMessageService msgService)
         {
             _bookData = bookData;
             _msgService = msgService;

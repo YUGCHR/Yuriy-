@@ -11,7 +11,7 @@ namespace TextSplit
 {
     public class MainPresentor
     {
-        private readonly IAllBookData _book;
+        private readonly ISharedDataAccess _book;
         private readonly ITextSplitForm _view;
         private ITextSplitOpenForm _open;        
         private readonly IMessageService _messageService;
@@ -26,7 +26,7 @@ namespace TextSplit
         readonly private int buttonNamesCountInLanguageGroup;
         readonly private int showMessagesLevel;
 
-        public MainPresentor(ITextSplitForm view, ITextSplitOpenForm open, IMessageService message, IAllBookAnalysis analysis, ILoadTextToDataBase load, IAllBookData book, IMainLogicCultivation logic)
+        public MainPresentor(ITextSplitForm view, ITextSplitOpenForm open, IMessageService message, IAllBookAnalysis analysis, ILoadTextToDataBase load, ISharedDataAccess book, IMainLogicCultivation logic)
         {
             _book = book;
             _view = view;            

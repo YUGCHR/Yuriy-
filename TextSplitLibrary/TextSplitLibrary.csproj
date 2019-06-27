@@ -42,7 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AllBookDataArrays.cs" />
+    <Compile Include="SharedDataAccess.cs" />
     <Compile Include="noneAnalysisConstantArrays.cs" />
     <Compile Include="sampleAnalysisDataConstant.cs" />
     <Compile Include="DConst.cs" />

@@ -30,7 +30,7 @@ namespace TextSplit
 
     public partial class TextSplitOpenForm : Form, ITextSplitOpenForm
     {
-        private readonly IAllBookData _book;
+        private readonly ISharedDataAccess _book;
         private readonly IMessageService _messageService;
 
         private Label[] lblSymbolsCount;
@@ -66,7 +66,7 @@ namespace TextSplit
 
         public enum ProgressStatusMessages : int { EnglishFilePathSelected = 0, RussianFilePathSelected = 1, ResultFilePathSelected = 2, ResultFileCreated = 3 };        
 
-        public TextSplitOpenForm(IAllBookData book, IMessageService service)
+        public TextSplitOpenForm(ISharedDataAccess book, IMessageService service)
         {
             _book = book;
             _messageService = service;

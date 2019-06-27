@@ -53,14 +53,14 @@ namespace TextSplit.Tests
         //04 List<List<int>> allIndexResults = FoundAllDelimitersGroupsInParagraph(nextParagraph, charsAllDelimiters, sGroupCount);//собрали все разделители по группам в массив, каждая группа в своей ветке
         public void Test04_FoundAllDelimitersGroupsInParagraph(int totalFoundDelimiters, int desiredTextLanguage, string textParagraph)
         {
-            IAllBookData bookData = new AllBookDataArrays();
+            ISharedDataAccess bookData = new SharedDataAccess();
             IFileManager manager = new FileManager(bookData);
-            Mock<IAllBookData> bookDataMock = new Mock<IAllBookData>();
+            Mock<ISharedDataAccess> bookDataMock = new Mock<ISharedDataAccess>();
             //IMessageService msgService = Mock.Of<IMessageService>();// - вывод на печать отключить
             IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)            
-            IAnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService);
-            IAnalysisLogicSentences sentenceAnalyser = new AnalysisLogicSentences(bookData, msgService, analysisLogic);
-            var target = new AnalysisLogicSentences(bookDataMock.Object, msgService, analysisLogic);
+            ITextAnalysisLogicExtension analysisLogic = new TextAnalysisLogicExtension(bookData, msgService);
+            ISentencesDividingAnalysis sentenceAnalyser = new SentencesDividingAnalysis(bookData, msgService, analysisLogic);
+            var target = new SentencesDividingAnalysis(bookDataMock.Object, msgService, analysisLogic);
             List<List<char>> charsAllDelimiters = target.ConstanstListFillCharsDelimiters();
             int sGroupCount = DConst.charsGroupsSeparators.Length;
 
@@ -85,14 +85,14 @@ namespace TextSplit.Tests
         //07 allIndexResults = FindSentencesDelimitersBeetweenQuotes(allIndexResults, currentQuotesGroup);//в этом месте foundMAxDelimitersGroups может быть 1 или 2, по очереди проверяем их, не вникая, какой именно был (если только группа 0, она прошла мимо)
         public void Test07_FindSentencesDelimitersBeetweenQuotes(int totalFoundDelimiters, string textParagraph)
         {
-            IAllBookData bookData = new AllBookDataArrays();
+            ISharedDataAccess bookData = new SharedDataAccess();
             IFileManager manager = new FileManager(bookData);
-            Mock<IAllBookData> bookDataMock = new Mock<IAllBookData>();
+            Mock<ISharedDataAccess> bookDataMock = new Mock<ISharedDataAccess>();
             //IMessageService msgService = Mock.Of<IMessageService>();// - вывод на печать отключить
             IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)            
-            IAnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService);
-            IAnalysisLogicSentences sentenceAnalyser = new AnalysisLogicSentences(bookData, msgService, analysisLogic);
-            var target = new AnalysisLogicSentences(bookDataMock.Object, msgService, analysisLogic);
+            ITextAnalysisLogicExtension analysisLogic = new TextAnalysisLogicExtension(bookData, msgService);
+            ISentencesDividingAnalysis sentenceAnalyser = new SentencesDividingAnalysis(bookData, msgService, analysisLogic);
+            var target = new SentencesDividingAnalysis(bookDataMock.Object, msgService, analysisLogic);
             List<List<char>> charsAllDelimiters = target.ConstanstListFillCharsDelimiters();
             int sGroupCount = DConst.charsGroupsSeparators.Length;
             List<List<int>> allIndexResults = target.FoundAllDelimitersGroupsInParagraph(textParagraph, charsAllDelimiters, sGroupCount);
@@ -100,7 +100,8 @@ namespace TextSplit.Tests
 
             for (int currentQuotesGroup = foundMAxDelimitersGroups; currentQuotesGroup > 0; currentQuotesGroup--)
             {
-                allIndexResults = target.FindSentencesDelimitersBeetweenQuotes(allIndexResults, currentQuotesGroup);
+                bool evenQuotesCount = true;
+                evenQuotesCount = target.FindSentencesDelimitersBeetweenQuotes(allIndexResults, currentQuotesGroup, evenQuotesCount);
             }
             int[] SentenceDelimitersIndexesArray = target.RemoveNegativeSentenceDelimitersIndexes(allIndexResults);//сжали ветку массива с точками - удалили отрицательный и сохранили в обычный временный массив
             int resultFoundDelimiters = SentenceDelimitersIndexesArray.Length;            
@@ -119,14 +120,14 @@ namespace TextSplit.Tests
         //09 string[] paragraphSentences = DivideTextToSentencesByDelimiters(nextParagraph, SentenceDelimitersIndexesArray);//разделили текст на предложения согласно оставшимся разделителям
         public void Test09_DivideTextToSentencesByDelimiters(int totalFoundDelimiters, string textParagraph)
         {
-            IAllBookData bookData = new AllBookDataArrays();
+            ISharedDataAccess bookData = new SharedDataAccess();
             IFileManager manager = new FileManager(bookData);
-            Mock<IAllBookData> bookDataMock = new Mock<IAllBookData>();
+            Mock<ISharedDataAccess> bookDataMock = new Mock<ISharedDataAccess>();
             //IMessageService msgService = Mock.Of<IMessageService>();// - вывод на печать отключить
             IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)            
-            IAnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService);
-            IAnalysisLogicSentences sentenceAnalyser = new AnalysisLogicSentences(bookData, msgService, analysisLogic);
-            var target = new AnalysisLogicSentences(bookDataMock.Object, msgService, analysisLogic);
+            ITextAnalysisLogicExtension analysisLogic = new TextAnalysisLogicExtension(bookData, msgService);
+            ISentencesDividingAnalysis sentenceAnalyser = new SentencesDividingAnalysis(bookData, msgService, analysisLogic);
+            var target = new SentencesDividingAnalysis(bookDataMock.Object, msgService, analysisLogic);
             List<List<char>> charsAllDelimiters = target.ConstanstListFillCharsDelimiters();
             int sGroupCount = DConst.charsGroupsSeparators.Length;
             List<List<int>> allIndexResults = target.FoundAllDelimitersGroupsInParagraph(textParagraph, charsAllDelimiters, sGroupCount);
@@ -135,8 +136,8 @@ namespace TextSplit.Tests
             {
                 msgService.ShowTrace("Test09_DivideTextToSentencesByDelimiters", "foundMAxDelimitersGroups = " + foundMAxDelimitersGroups.ToString() + DConst.StrCRLF +
                             "currentQuotesGroup = " + currentQuotesGroup.ToString(), "After FoundMaxDelimitersGroupNumber", DConst.ShowMessagesLevel);
-
-                allIndexResults = target.FindSentencesDelimitersBeetweenQuotes(allIndexResults, currentQuotesGroup);
+                bool evenQuotesCount = true;
+                evenQuotesCount = target.FindSentencesDelimitersBeetweenQuotes(allIndexResults, currentQuotesGroup, evenQuotesCount);
             }
             int[] SentenceDelimitersIndexesArray = target.RemoveNegativeSentenceDelimitersIndexes(allIndexResults);//сжали ветку массива с точками - удалили отрицательный и сохранили в обычный временный массив
 
@@ -157,14 +158,14 @@ namespace TextSplit.Tests
         //11 paragraphSentences = EnumerateDividedSentences(desiredTextLanguage, sentenceTextMarksWithOtherNumbers, paragraphSentences);//пронумеровали разделенные предложения - еще в том же массиве
         public void Test11_EnumerateDividedSentences(string expSentenceTextMark, int desiredTextLanguage, string textParagraph)
         {
-            IAllBookData bookData = new AllBookDataArrays();
+            ISharedDataAccess bookData = new SharedDataAccess();
             IFileManager manager = new FileManager(bookData);
-            Mock<IAllBookData> bookDataMock = new Mock<IAllBookData>();
+            Mock<ISharedDataAccess> bookDataMock = new Mock<ISharedDataAccess>();
             //IMessageService msgService = Mock.Of<IMessageService>();// - вывод на печать отключить
             IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)            
-            IAnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService);
-            IAnalysisLogicSentences sentenceAnalyser = new AnalysisLogicSentences(bookData, msgService, analysisLogic);
-            var target = new AnalysisLogicSentences(bookDataMock.Object, msgService, analysisLogic);
+            ITextAnalysisLogicExtension analysisLogic = new TextAnalysisLogicExtension(bookData, msgService);
+            ISentencesDividingAnalysis sentenceAnalyser = new SentencesDividingAnalysis(bookData, msgService, analysisLogic);
+            var target = new SentencesDividingAnalysis(bookDataMock.Object, msgService, analysisLogic);
             List<List<char>> charsAllDelimiters = target.ConstanstListFillCharsDelimiters();
             int sGroupCount = DConst.charsGroupsSeparators.Length;            
             string sentenceTextMarksWithOtherNumbers = "-Paragraph-00001-of-Chapter-001";
@@ -172,7 +173,8 @@ namespace TextSplit.Tests
             int foundMAxDelimitersGroups = target.FoundMaxDelimitersGroupNumber(sGroupCount, allIndexResults);//создали массив, в котором указано, сколько найдено разделителей каждой группы - изменим, теперь отдаем значение старшей найденной группы (и добавить в тестовый текст скобок)
             for (int currentQuotesGroup = foundMAxDelimitersGroups; currentQuotesGroup > 0; currentQuotesGroup--)
             {
-                allIndexResults = target.FindSentencesDelimitersBeetweenQuotes(allIndexResults, currentQuotesGroup);
+                bool evenQuotesCount = true;
+                evenQuotesCount = target.FindSentencesDelimitersBeetweenQuotes(allIndexResults, currentQuotesGroup, evenQuotesCount);
             }
             int[] SentenceDelimitersIndexesArray = target.RemoveNegativeSentenceDelimitersIndexes(allIndexResults);//сжали ветку массива с точками - удалили отрицательный и сохранили в обычный временный массив
             string[] paragraphSentences = target.DivideTextToSentencesByDelimiters(textParagraph, SentenceDelimitersIndexesArray);
@@ -446,12 +448,12 @@ namespace TextSplit.Tests
         [DataRow("55", "00000055", 8)]
         public void Test21_AddSome00ToIntNumber(string currentNumberToFind, string currentNumberWith00, int totalDigitsQuantity)
         {
-            IAllBookData bookData = new AllBookDataArrays();
+            ISharedDataAccess bookData = new SharedDataAccess();
             IFileManager manager = new FileManager(bookData);
 
             //IMessageService msgService = Mock.Of<IMessageService>();// - вывод на печать отключить
             IMessageService msgService = new MessageService(manager);// - вывод на печать включить (+ в самом методе включить)
-            IAnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService);
+            ITextAnalysisLogicExtension analysisLogic = new TextAnalysisLogicExtension(bookData, msgService);
             
             Trace.WriteLine("currentNumberToFind: " + currentNumberToFind);
 

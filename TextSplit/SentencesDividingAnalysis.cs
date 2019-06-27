@@ -9,24 +9,25 @@ using System.Collections;
 
 namespace TextSplit
 {
-    public interface IAnalysisLogicSentences
+    public interface ISentencesDividingAnalysis
     {
         int DividePagagraphToSentencesAndEnumerate(int desiredTextLanguage);        
     }
 
-    public class AnalysisLogicSentences : IAnalysisLogicSentences
+    public class SentencesDividingAnalysis : ISentencesDividingAnalysis
     {
-        private readonly IAllBookData _bookData;
+        private readonly ISharedDataAccess _bookData;
         private readonly IMessageService _msgService;
-        private readonly IAnalysisLogicCultivation _analysisLogic; 
+        private readonly ITextAnalysisLogicExtension _analysisLogic; 
 
 
-        public AnalysisLogicSentences(IAllBookData bookData, IMessageService msgService, IAnalysisLogicCultivation analysisLogic)
+        public SentencesDividingAnalysis(ISharedDataAccess bookData, IMessageService msgService, ITextAnalysisLogicExtension analysisLogic)
         {
             _bookData = bookData;
             _msgService = msgService;
             _analysisLogic = analysisLogic;//общая логика            
         }
+        
 
         public int DividePagagraphToSentencesAndEnumerate(int desiredTextLanguage)
         {
@@ -38,6 +39,7 @@ namespace TextSplit
             //стейт-машина? - бесконечный цикл while по условию "все сделано, пора выходить"
             int currentParagraphIndex = 0;
             int paragraphTextLength = _bookData.GetParagraphTextLength(desiredTextLanguage);//нет, главу искать не будем, сразу ищем абзац - в его номере уже есть номер главы
+
             bool sentenceFSMwillWorkWithNExtParagraph = true;//для старта машины присваиваем true;
             while (sentenceFSMwillWorkWithNExtParagraph)//список условий и методов
             {
@@ -46,6 +48,13 @@ namespace TextSplit
                 
                 bool foundParagraphMark = currentParagraph.StartsWith(DConst.beginParagraphMark);
                 currentParagraphIndex++;//сразу прибавили счетчик абзаца для получения следующего абзаца в следующем цикле
+
+                //нерешенные задачи анализа раздела на предложения (метода SentencesDividingAnalysis)
+                //1. Неправильный раздел варианта One of Kratzi’s heads was looking in Chitiratte’s general direction. Now the mantis picked up the bowls and turned from the meal cart - ¶¶¶ “Hei, Johanna! How is it going?”
+                //   Если в конце предложения нет точки, а есть кавычки, надо делить от предыдущей точки - то есть, проверять наличие точки перед кавычками, а не только внутри.
+                //   Составить полную таблицу вариантов анализа кавычек и по ней программировать логику.
+                //2. Еще проблема в предварительную подготовку - нет пробела после точки (или других знаков препинания)
+
 
                 if (foundParagraphMark)
                 {
@@ -60,18 +69,28 @@ namespace TextSplit
 
                     int foundMAxDelimitersGroups = FoundMaxDelimitersGroupNumber(sGroupCount, allIndexResults);//создали массив, в котором указано, сколько найдено разделителей каждой группы - изменим, теперь отдаем значение старшей найденной группы (и добавить в тестовый текст скобок)                    
 
-                    //bool quotesGroupFound = foundMAxDelimitersGroups > 0;//можно не проверять, что больше нуля - просто цикл не запустится                    
+                    //bool quotesGroupFound = foundMAxDelimitersGroups > 0;//можно не проверять, что больше нуля - просто цикл не запустится
+                    bool oddQuotesForever = false;
+                    
                     //значит есть одна или две группы кавычек, кроме точек - ищем точки внутри кавычек (с допущениями) и помечаем их отрицательными индексами, потом удалим
                     for (int currentQuotesGroup = foundMAxDelimitersGroups; currentQuotesGroup > 0; currentQuotesGroup--)
-                    {//сюда принести IsCurrentGroupDelimitersCountEven - проверять перед FindSentencesDelimitersBeetweenQuotes по каждой группе кавычек - не проверено, надо где-то сделать непарные кавычки, пусть проверяет
-                        bool evenQuotesCount = IsCurrentGroupDelimitersCountEven(nextParagraph, allIndexResults, currentQuotesGroup);//результат пока не используем - если кавычек нечетное количество, то при проверке сейчас остановит Assert, а потом - позовем пользователя сделать четное (nextParagraph используется только для аварийной печати)
+                    {
+                        bool evenQuotesCount = IsCurrentGroupDelimitersCountEven(desiredTextLanguage, nextParagraph, nextParagraphIndex, allIndexResults, currentQuotesGroup);//результат пока не используем - если кавычек нечетное количество, то при проверке сейчас остановит Assert, а потом - позовем пользователя сделать четное (nextParagraph используется только для аварийной печати)                        
+                        evenQuotesCount = FindSentencesDelimitersBeetweenQuotes(allIndexResults, currentQuotesGroup, evenQuotesCount);//в этом месте foundMAxDelimitersGroups может быть 1 или 2, по очереди проверяем их, не вникая, какой именно был (если только группа 0, она прошла мимо)
 
-                        _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "foundMAxDelimitersGroups = " + foundMAxDelimitersGroups.ToString() + DConst.StrCRLF +
-                            "currentQuotesGroup = " + currentQuotesGroup.ToString(), CurrentClassName, DConst.ShowMessagesLevel);
-
-                        allIndexResults = FindSentencesDelimitersBeetweenQuotes(allIndexResults, currentQuotesGroup);//в этом месте foundMAxDelimitersGroups может быть 1 или 2, по очереди проверяем их, не вникая, какой именно был (если только группа 0, она прошла мимо)
+                        if (!evenQuotesCount)
+                        {
+                            oddQuotesForever = true;//фиксируем, что встретились нечетные кавычки - чтобы на следующем цикле, если есть вторая группа кавычек, переменная не затерлась
+                            
+                            _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "nextParagraph[" + nextParagraphIndex.ToString() + "] - " + nextParagraph + DConst.StrCRLF +
+                               "currentQuotesGroup = " + currentQuotesGroup.ToString() + DConst.StrCRLF +
+                               "oddQuotesForever = " + oddQuotesForever.ToString() + DConst.StrCRLF +
+                               "evenQuotesCount = " + evenQuotesCount.ToString(), CurrentClassName, DConst.ShowMessagesLevel);
+                        }
                     }
-                    
+
+                    if (oddQuotesForever) continue;//если с кавычками беда, то с этим абзацем больше делать нечего, уходим на следующий цикл
+
                     int[] SentenceDelimitersIndexesArray = RemoveNegativeSentenceDelimitersIndexes(allIndexResults);//сжали ветку массива с точками - удалили отрицательный и сохранили в обычный временный массив
 
                     string[] paragraphSentences = DivideTextToSentencesByDelimiters(nextParagraph, SentenceDelimitersIndexesArray);//разделили текст на предложения согласно оставшимся разделителям
@@ -190,26 +209,32 @@ namespace TextSplit
             return allIndexResults;                
         }
 
-        public bool IsCurrentGroupDelimitersCountEven(string textParagraph, List<List<int>> allIndexResults, int currentQuotesGroup)//результат пока не используем - если кавычек нечетное количество, то при проверке сейчас остановит Assert, а потом - позовем пользователя сделать четное, то есть в любом случае, считаем, что стало четное (хотя проверить все же стоит?))
+        public bool IsCurrentGroupDelimitersCountEven(int desiredTextLanguage, string textParagraph, int cpi, List<List<int>> allIndexResults, int currentQuotesGroup)//результат пока не используем - если кавычек нечетное количество, то при проверке сейчас остановит Assert, а потом - позовем пользователя сделать четное, то есть в любом случае, считаем, что стало четное (хотя проверить все же стоит?))
         {
-            int currentOFAllIndexResultsCount = allIndexResults[currentQuotesGroup].Count();//получили общее количество разделителей указанной в checkedDelimitersGroup группы
-            bool evenQuotesCount = (currentOFAllIndexResultsCount & 1) == 0;//true, если allIndexResults2Count - четное // if(a&1==0) Console.WriteLine("Четное")
+            int currentOFAllIndexResultsCount = allIndexResults[currentQuotesGroup].Count();//получили общее количество разделителей указанной в checkedDelimitersGroup группы            
+            bool evenQuotesCount = (currentOFAllIndexResultsCount & 1) == 0;//true, если allIndexResults2Count - четное // if(a&1==0) Console.WriteLine("Четное")            
             if (!evenQuotesCount)
             {//правильно - удалить все кавычки битой группы, занести все номер группы и стертые индексы в массив с непонятками и туда же нужен индекс параграфа - и номер проблемы (хотя он будет виден по номеру группы)
+                currentOFAllIndexResultsCount = currentOFAllIndexResultsCount * -1;//сделали для записи в массив замечаний количество кавычек отрицательным - признак, что этот абзац не обработан и на него надо обратить внимание
+                int result = _bookData.SetNotices(desiredTextLanguage, cpi, currentOFAllIndexResultsCount, "ODD QUOTES");
                 
-                //тут сначала проверить, есть ли нечетное количество других кавычек в абзаце и, если других нет - игнорировать (или еще проще - если кавычка в группе всего одна, удалить ее индекс и всего делов) - нет, звать пользователя - показать ему абзац и перевод
                 _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Current textParagraph with unpair quotes is - " + textParagraph + DConst.StrCRLF +
                     "current Group of Quotes = " + currentQuotesGroup.ToString() + DConst.StrCRLF +
                     "current Quotes Count = " + currentOFAllIndexResultsCount.ToString() + DConst.StrCRLF +                    
-                    "The Quotes Quantity in NOT EVEN!" + evenQuotesCount.ToString(), CurrentClassName, 3);                
+                    "The Quotes Quantity in NOT EVEN!" + evenQuotesCount.ToString(), CurrentClassName, DConst.ShowMessagesLevel); //включенная печать тут не нужна, можно потом на выходе метода включить контрольную печать всех замечаний
+                return false;
             }
             System.Diagnostics.Debug.Assert(evenQuotesCount, "The Quotes Quantity in NOT EVEN");//тут проверили, что кавычек-скобок четное количество, если нечетное, то потом будем звать пользователя
             return evenQuotesCount;
         }
 
         //сделать простые примеры с точным расположением серараторов, написать все возможные ситуации обработки разделителей (FSM)
-        public List<List<int>> FindSentencesDelimitersBeetweenQuotes(List<List<int>> allIndexResults, int currentQuotesGroup)//метод вызывется для проверки попадания точек (разделителей предложений) внутрь кавычек/скобок, тип кавычек - простые или откр-закр определяется checkedDelimitersGroup
+        public bool FindSentencesDelimitersBeetweenQuotes(List<List<int>> allIndexResults, int currentQuotesGroup, bool evenQuotesCount)//метод вызывется для проверки попадания точек (разделителей предложений) внутрь кавычек/скобок, тип кавычек - простые или откр-закр определяется checkedDelimitersGroup
         {
+            if (!evenQuotesCount)//получаем и проверяем признак четности кавычек - если кавычки нечетные, сразу выходим
+            {
+                return false;
+            }
             int SentenceDelimitersIndexesCount = allIndexResults[0].Count();
             int currentOFAllIndexResultsCount = allIndexResults[currentQuotesGroup].Count();//получили общее количество разделителей указанной в checkedDelimitersGroup группы
             //проверяем наличие разделителей нулевой группы (.?!;) между парами кавычек/скобок и при наличии таковых - удаляем (с осторожностью на правых краях)
@@ -242,7 +267,7 @@ namespace TextSplit
                     }                    
                 }
             }
-            return allIndexResults;
+            return true;
         }
 
         //все непонятки можно (нужно) записать в освободившийся массив ChapterNumber - кстати, их все надо чистить перед анализом следующего языка/текста - или можно завести аналогичный цифровой массив ParagraghNumber - чистить не надо, он на 2 языка
@@ -1024,4 +1049,4 @@ namespace TextSplit
 //    "textParagraphLength = " + textParagraphLength.ToString() + DConst.StrCRLF +
 //    "startIndexSentence = " + startIndexSentence.ToString() + DConst.StrCRLF +
 //    "lengthSentence = " + lengthSentence.ToString(), CurrentClassName, DConst.ShowMessagesLevel);
-
+//тут сначала проверить, есть ли нечетное количество других кавычек в абзаце и, если других нет - игнорировать (или еще проще - если кавычка в группе всего одна, удалить ее индекс и всего делов) - нет, звать пользователя - показать ему абзац и перевод

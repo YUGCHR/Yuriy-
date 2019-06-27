@@ -21,7 +21,7 @@ namespace TextSplit
 
     class MainLogicCultivation : IMainLogicCultivation
     {
-        private readonly IAllBookData _book;
+        private readonly ISharedDataAccess _book;
         private readonly IMessageService _messageService;
         private readonly IFileManager _manager;
 
@@ -32,7 +32,7 @@ namespace TextSplit
 
         //public event EventHandler AnalyseInvokeTheMain;
 
-        public MainLogicCultivation(IAllBookData book, IMessageService service, IFileManager manager)
+        public MainLogicCultivation(ISharedDataAccess book, IMessageService service, IFileManager manager)
         {
             _book = book;
             _messageService = service;

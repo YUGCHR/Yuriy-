@@ -62,7 +62,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IntegrationTests\AnalysisLogicChapterIntegrationTest.cs" />
+    <Compile Include="IntegrationTests\AllBookAnalysisIntegrationTest.cs" />
     <Compile Include="UnitTests\sampleAnalysisDataConstantUnitTests.cs" />
     <Compile Include="UnitTests\AnalysisLogicChapterUnitTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

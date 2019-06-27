@@ -17,23 +17,23 @@ namespace TextSplit
 
     public class AllBookAnalysis : IAllBookAnalysis
     {
-        private readonly IAllBookData _bookData;
+        private readonly ISharedDataAccess _bookData;
         private readonly IMessageService _msgService;
-        private readonly IAnalysisLogicCultivation _analysisLogic;
-        private readonly IAnalysisLogicChapter _chapterAnalysis;
-        private readonly IAnalysisLogicParagraph _paragraphAnalyser;
-        private readonly IAnalysisLogicSentences _sentenceAnalyser;          
+        private readonly ITextAnalysisLogicExtension _analysisLogic;
+        private readonly IChapterDividingAnalysis _chapterAnalysis;
+        //private readonly IAnalysisLogicParagraph _paragraphAnalyser;
+        private readonly ISentencesDividingAnalysis _sentenceAnalyser;          
 
         public event EventHandler AnalyseInvokeTheMain;
 
 
-        public AllBookAnalysis(IAllBookData bookData, IMessageService msgService, IAnalysisLogicCultivation analysisLogic, IAnalysisLogicChapter chapterAnalysis, IAnalysisLogicParagraph paragraphAnalysis, IAnalysisLogicSentences sentenceAnalyser)
+        public AllBookAnalysis(ISharedDataAccess bookData, IMessageService msgService, ITextAnalysisLogicExtension analysisLogic, IChapterDividingAnalysis chapterAnalysis, ISentencesDividingAnalysis sentenceAnalyser)
         {
             _bookData = bookData;
             _msgService = msgService;
             _analysisLogic = analysisLogic;//общая логика
             _chapterAnalysis = chapterAnalysis;//главы
-            _paragraphAnalyser = paragraphAnalysis;//абзацы
+            //_paragraphAnalyser = paragraphAnalysis;//абзацы
             _sentenceAnalyser = sentenceAnalyser;//предложения
         }
 
@@ -48,9 +48,16 @@ namespace TextSplit
 
             if (_bookData.GetFileToDo(desiredTextLanguage) == (int)WhatNeedDoWithFiles.AnalyseText)//если первоначальный анализ текста, без подсказки пользователя о названии глав, ищем главы самостоятельно
             {
+                //нерешенные задачи общего анализа текста (метода AnalyseTextBook)
+                //1. убрать в абзаце лидирующие пробелы, проверить больше двух пробелов подряд, проверить пробелы перед и между знаками препинания
+                //2. проверить метод при наличии в книге других ключевых слов названий глав - в нужных местах (близко к началу абзаца) и с подходящими по смыслу номерами (такие тестовые места в книге отметить $$$$$)
+                //3. подумать над вторым проходом метода по желанию пользователя - если он отметил какие-то варианты старших разделов - сохранить главы и добавить разметку других разделов (как потом хранить в базе?)
                 string textToAnalyse = _analysisLogic.NormalizeEllipsis(desiredTextLanguage);
+
                 int portionBookTextResult = _analysisLogic.PortionBookTextOnParagraphs(desiredTextLanguage, textToAnalyse);//делит текст на абзацы по EOL, сохраняет в List в AllBookData (возвращает количество строк с текстом)
+
                 int paragraphTextLength = _bookData.GetParagraphTextLength(desiredTextLanguage);
+
                 int allEmptyParagraphsCount = paragraphTextLength - portionBookTextResult;
 
                 _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), DConst.StrCRLF + "Total TEXTs Paragraphs count = " + portionBookTextResult.ToString() + DConst.StrCRLF +
@@ -65,12 +72,22 @@ namespace TextSplit
 
                 StringBuilder appendFileContent = new StringBuilder();//тут сохраняем весь текст в файл для контрольной печати - убрать метод в дополнения
                 //int paragraphTextLength = GetParagraphTextLength(desiredTextLanguage);
-                for (int i = 0; i < paragraphTextLength; i++)
+
+                string allNoticeNumbersInString = "";
+
+                for (int cpi = 0; cpi < paragraphTextLength; cpi++)
                 {
-                    string currentParagraph = _bookData.GetParagraphText(desiredTextLanguage, i);
-                    _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "CurrentParagraph [" + i.ToString() + "] -- > " + currentParagraph, CurrentClassName, DConst.ShowMessagesLevel);
-                    appendFileContent = appendFileContent.AppendLine(currentParagraph); // was + DConst.StrCRLF);                    
+                    string currentParagraph = _bookData.GetParagraphText(desiredTextLanguage, cpi);
+                    _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "CurrentParagraph [" + cpi.ToString() + "] -- > " + currentParagraph, CurrentClassName, DConst.ShowMessagesLevel);
+                    appendFileContent = appendFileContent.AppendLine(currentParagraph); // was + DConst.StrCRLF);
+                    int currentChapterNumber = _bookData.GetNoticeNumber(desiredTextLanguage, cpi);
+                    if(currentChapterNumber != 0) allNoticeNumbersInString += currentChapterNumber.ToString() + " | ";
                 }
+
+
+                _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "allNoticeNumbersInString --> " + allNoticeNumbersInString, CurrentClassName, DConst.ShowMessagesLevel);
+
+
                 string tracedFileContent = appendFileContent.ToString();
                 string tracedFileNameAddition = "D://PBDS//OneDrive//Gonchar//C#2005//testBooks//testEndlishTexts_03R.txt";//путь только для тестов, для полного запуска надо брать путь, указанный пользователем
                 string hashSavedFile = _msgService.SaveTracedToFile(tracedFileNameAddition, tracedFileContent);

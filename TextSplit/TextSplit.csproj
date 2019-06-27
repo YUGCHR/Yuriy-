@@ -47,10 +47,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AnalysisLogicChapter.cs" />
-    <Compile Include="AnalysisLogicCultivation.cs" />
+    <Compile Include="ChapterDividingAnalysis.cs" />
+    <Compile Include="TextAnalysisLogicExtension.cs" />
     <Compile Include="noneAnalysisLogicParagraph.cs" />
-    <Compile Include="AnalysisLogicSentences.cs" />
+    <Compile Include="SentencesDividingAnalysis.cs" />
     <Compile Include="MainLogicCultivation.cs" />
     <Compile Include="LoadTextToDataBase.cs" />
     <Compile Include="DataBaseAccessor.cs" />

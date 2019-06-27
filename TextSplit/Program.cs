@@ -19,7 +19,7 @@ namespace TextSplit
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            AllBookDataArrays bookData = new AllBookDataArrays();
+            SharedDataAccess bookData = new SharedDataAccess();
             FileManager fileManager = new FileManager(bookData);
             LogFileMessages logFile = new LogFileMessages();
             MessageService msgService = new MessageService(fileManager);
@@ -30,11 +30,11 @@ namespace TextSplit
             AnalysisDataConstant<int[]> totalDigitsQuantity = new AnalysisDataConstant<int[]>();
             AnalysisDataConstant<string[]> SentenceSeparators = new AnalysisDataConstant<string[]>();
 
-            AnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService);
-            AnalysisLogicChapter chapterLogic = new AnalysisLogicChapter(bookData, msgService, analysisLogic);
-            AnalysisLogicSentences sentenceLogic = new AnalysisLogicSentences(bookData, msgService, analysisLogic);
+            TextAnalysisLogicExtension analysisLogic = new TextAnalysisLogicExtension(bookData, msgService);
+            ChapterDividingAnalysis chapterLogic = new ChapterDividingAnalysis(bookData, msgService, analysisLogic);
+            SentencesDividingAnalysis sentenceLogic = new SentencesDividingAnalysis(bookData, msgService, analysisLogic);
             noneAnalysisLogicParagraph paragraphLogic = new noneAnalysisLogicParagraph(bookData, msgService, analysisLogic);
-            AllBookAnalysis analysisBook = new AllBookAnalysis(bookData, msgService, analysisLogic, chapterLogic, paragraphLogic, sentenceLogic);
+            AllBookAnalysis analysisBook = new AllBookAnalysis(bookData, msgService, analysisLogic, chapterLogic, sentenceLogic);
             LoadTextToDataBase loadDataBase = new LoadTextToDataBase(bookData, dataAccess, msgService);
             MainLogicCultivation logicMain = new MainLogicCultivation(bookData, msgService, fileManager);
             MainPresentor presentorMain = new MainPresentor(viewForm, openForm, msgService, analysisBook, loadDataBase, bookData, logicMain);

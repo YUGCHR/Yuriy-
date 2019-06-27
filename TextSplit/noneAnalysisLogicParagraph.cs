@@ -16,11 +16,11 @@ namespace TextSplit
 
     public class noneAnalysisLogicParagraph : IAnalysisLogicParagraph
     {
-        private readonly IAllBookData _bookData;
+        private readonly ISharedDataAccess _bookData;
         private readonly IMessageService _msgService;
-        private readonly IAnalysisLogicCultivation _analysisLogic;
+        private readonly ITextAnalysisLogicExtension _analysisLogic;
 
-        public noneAnalysisLogicParagraph(IAllBookData bookData, IMessageService msgService, IAnalysisLogicCultivation analysisLogic)
+        public noneAnalysisLogicParagraph(ISharedDataAccess bookData, IMessageService msgService, ITextAnalysisLogicExtension analysisLogic)
         {
             _bookData = bookData;
             _msgService = msgService;

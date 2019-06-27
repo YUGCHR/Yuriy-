@@ -17,7 +17,7 @@ namespace TextSplit
 
     class LoadTextToDataBase : ILoadTextToDataBase
     {
-        private readonly IAllBookData _book;
+        private readonly ISharedDataAccess _book;
         private readonly IMessageService _messageService;
         private readonly IDataBaseAccessor _data;
 
@@ -28,7 +28,7 @@ namespace TextSplit
         readonly private int filesQuantity;
         readonly private string strCRLF;
 
-        public LoadTextToDataBase(IAllBookData book, IDataBaseAccessor data, IMessageService service)
+        public LoadTextToDataBase(ISharedDataAccess book, IDataBaseAccessor data, IMessageService service)
         {
             strCRLF = DConst.StrCRLF;
             showMessagesLevel = DConst.ShowMessagesLevel;

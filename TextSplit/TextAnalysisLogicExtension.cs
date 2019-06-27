@@ -8,7 +8,7 @@ using TextSplitLibrary;
 
 namespace TextSplit
 {
-    public interface IAnalysisLogicCultivation
+    public interface ITextAnalysisLogicExtension
     {
         int GetDesiredTextLanguage();
         //int FindTextPartNumber(string currentParagraph, string stringMarkBegin, int totalDigitsQuantity);
@@ -19,9 +19,9 @@ namespace TextSplit
         int MarkAndEnumerateParagraphs(int desiredTextLanguage, string lastFoundChapterNumberInMarkFormat);//plogic        
     }
 
-    public class AnalysisLogicCultivation : IAnalysisLogicCultivation
+    public class TextAnalysisLogicExtension : ITextAnalysisLogicExtension
     {
-        private readonly IAllBookData _bookData;
+        private readonly ISharedDataAccess _bookData;
         private readonly IMessageService _msgService;
         
         readonly private int filesQuantity;
@@ -29,7 +29,7 @@ namespace TextSplit
         readonly private string strCRLF;
         
 
-        public AnalysisLogicCultivation(IAllBookData bookData, IMessageService msgService)
+        public TextAnalysisLogicExtension(ISharedDataAccess bookData, IMessageService msgService)
         {
             _bookData = bookData;
             _msgService = msgService;            
