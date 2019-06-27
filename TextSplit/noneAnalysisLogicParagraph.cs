@@ -11,128 +11,20 @@ namespace TextSplit
 {
     public interface IAnalysisLogicParagraph
     {
-        int MarkAndEnumerateParagraphs(int desiredTextLanguage, string lastFoundChapterNumberInMarkFormat);//plogic        
-        int PortionBookTextOnParagraphs(int desiredTextLanguage);//plogic        
+        
     }
 
-    public class AnalysisLogicParagraph : IAnalysisLogicParagraph
+    public class noneAnalysisLogicParagraph : IAnalysisLogicParagraph
     {
         private readonly IAllBookData _bookData;
         private readonly IMessageService _msgService;
         private readonly IAnalysisLogicCultivation _analysisLogic;
 
-
-        public AnalysisLogicParagraph(IAllBookData bookData, IMessageService msgService, IAnalysisLogicCultivation analysisLogic)
+        public noneAnalysisLogicParagraph(IAllBookData bookData, IMessageService msgService, IAnalysisLogicCultivation analysisLogic)
         {
             _bookData = bookData;
             _msgService = msgService;
             _analysisLogic = analysisLogic;//общая логика            
-        }        
-
-        public int MarkAndEnumerateParagraphs (int desiredTextLanguage, string lastFoundChapterNumberInMarkFormat)//ChapterNumberParagraphsIndexes - вычесть 1
-        {
-            //цикл запускаем по длине массива всех абзацев, номера глав достаем из массива Notice, ключевое слово маркировки получаем из ChapterNameAnalysis
-            int paragraphTextLength = _bookData.GetParagraphTextLength(desiredTextLanguage); 
-            //int ChapterNumberParagraphsIndexesLength = ChapterNumberParagraphsIndexes.Length;
-
-            int totalParagraphsNumbersCount = 0;//всего пронумеровано абзацев - без названий глав
-            int currentChapterParagraphsNumbersCount = 1;//счетчик абзацев в текущей главе - нумерация начинается с 1
-            int currentChapterNumber = 0;
-            bool cpiWithChapterName = false;
-
-            //маркировка глав выглядит так - ¤¤¤¤¤001¤¤¤-Chapter (слово в конце может меняться - ставится такое, как в книжке) - кстати, если в книге слова нет, надо поставить из константы?
-            int symbolsCountToRemove = DConst.beginChapterMark.Length + DConst.chapterNumberTotalDigits + DConst.endChapterMark.Length + 1; //(+1 - за тире) получим длину удаляемой группы символов, вместо нее добавить -of
-            string chapterKeyWordForParagraphMarks = lastFoundChapterNumberInMarkFormat.Remove(0, symbolsCountToRemove);//Возвращает новую строку, в которой было удалено указанное число символов в указанной позиции
-
-            _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "chapterKeyWordForParagraphMarks - " + chapterKeyWordForParagraphMarks, CurrentClassName, DConst.ShowMessagesLevel);
-
-            //тут достанем номера глав и ключевое слово главы из служебного массива, а пример нумерации главы получили в параметрах - из примера сделаем заготовку нумерации абзаца
-            for (int cpi=0; cpi < paragraphTextLength; cpi++)//cpi - current paragraph index
-            {
-                string currentParagraph = _bookData.GetParagraphText(desiredTextLanguage, cpi);
-                int savedChapterNumber = _bookData.GetNoticeNumber(desiredTextLanguage, cpi);
-                if(savedChapterNumber > 0)
-                {
-                    currentChapterNumber = savedChapterNumber;
-                    currentChapterParagraphsNumbersCount = 1;
-                    cpiWithChapterName = true;
-
-                    _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "textParagraph[" + cpi.ToString() + "] = " + DConst.StrCRLF + currentParagraph + DConst.StrCRLF +
-                        "currentChapterNumber - " + currentChapterNumber.ToString() + DConst.StrCRLF + "cpiWithChapterName - " + cpiWithChapterName.ToString() + DConst.StrCRLF +
-                        "currentChapterParagraphsNumbersCount - " + currentChapterParagraphsNumbersCount.ToString(), CurrentClassName, DConst.ShowMessagesLevel);
-                }
-
-                bool textParagraphIsEmpty = String.IsNullOrEmpty(currentParagraph);
-                if (!textParagraphIsEmpty && !cpiWithChapterName)
-                {
-                    //формировать номера абзацев, помня про нулевую главу (теперь нулевая формируется автоматически)
-                    string currentParagraphNumberToFind000 = _analysisLogic.AddSome00ToIntNumber(currentChapterParagraphsNumbersCount.ToString(), DConst.paragraptNumberTotalDigits);
-                    if (currentParagraphNumberToFind000 == null)
-                    {
-                        //return null;//лучше поставить Assert - и можно прямо в AddSome00ToIntNumber?
-                    }
-                    //писать маркировку с номерами прямо в абзац c текстом - добавить строку перед названием
-                    string currentChapterNumberToFind000 = _analysisLogic.AddSome00ToIntNumber(currentChapterNumber.ToString(), DConst.chapterNumberTotalDigits);//создать номер главы из индекса сохраненных индексов - как раз начинаются с нуля
-                    string paragraphTextMarks = DConst.beginParagraphMark + currentParagraphNumberToFind000 + DConst.endParagraphMark + "-" + DConst.paragraphMarkNameLanguage[desiredTextLanguage] + "-of-" + chapterKeyWordForParagraphMarks + "-" + currentChapterNumberToFind000;//¤¤¤¤¤001¤¤¤-Chapter- добавить номер главы от нулевой
-
-                    int emptyParagraphIndexBeforeText = cpi - 1;
-                    int setParagraphResult = _bookData.SetParagraphText(desiredTextLanguage, emptyParagraphIndexBeforeText, paragraphTextMarks);
-                    string newCurrentParagraph = _bookData.GetParagraphText(desiredTextLanguage, emptyParagraphIndexBeforeText);
-
-                    currentChapterParagraphsNumbersCount++;//начинаем нумерацию с 1 (не забыть потом сбросить счетчик)
-                    totalParagraphsNumbersCount++;
-
-                    _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "textParagraph[" + cpi.ToString() + "] = " + DConst.StrCRLF + currentParagraph + DConst.StrCRLF +                        
-                        "ParagraphTextMarks - " + paragraphTextMarks + DConst.StrCRLF +
-                        "newCurrentParagraph - " + newCurrentParagraph, CurrentClassName, DConst.ShowMessagesLevel);
-                }                
-                cpiWithChapterName = false;
-            }           
-            return totalParagraphsNumbersCount;//пока не очень понятно, зачем он нужен
-        }
-       
-        public int PortionBookTextOnParagraphs(int desiredTextLanguage)//делит текст на абзацы по EOL, сохраняет в List в AllBookData
-        {
-            string textToAnalyse = _bookData.GetFileContent(desiredTextLanguage);
-            //тут заменим все многоточия фирменным символом, а также другие составные знаки - выделить в метод NormalizeEllipsis например
-            int changedEllipsisVariationCount = 0;
-            int charsEllipsisToChangeLength = DConst.charsEllipsisToChange1.Length;           
-
-            for (int ellipsisVariationToChange = 0; ellipsisVariationToChange < charsEllipsisToChangeLength; ellipsisVariationToChange++)
-            {
-                int ellipsisVariationIndexFound = textToAnalyse.IndexOf(DConst.charsEllipsisToChange1[ellipsisVariationToChange]);
-                bool ellipsisVariationFound = ellipsisVariationIndexFound > 0;
-
-                if (ellipsisVariationFound)
-                {
-                    string textToAnalyseEllipsisChanged = textToAnalyse.Replace(DConst.charsEllipsisToChange1[ellipsisVariationToChange], DConst.charsEllipsisToChange2[ellipsisVariationToChange]);//Возвращает новую строку, в которой все вхождения заданной строки(1) в текущем экземпляре заменены другой строкой(2)
-                    textToAnalyse = textToAnalyseEllipsisChanged;//освобождаем переменную для следующего прохода
-                    changedEllipsisVariationCount++;
-                }
-            }
-            _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Found and changed Ellipsis Variation Count = " + changedEllipsisVariationCount.ToString(), CurrentClassName, DConst.ShowMessagesLevel);
-
-            string[] TextOnParagraphsPortioned = textToAnalyse.Split(DConst.charsParagraphSeparator);//portioned all book content in the ParagraphsArray via EOL
-            //потом тут можно написать свой метод деления на абзацы (или этот пусть делит по одному сепаратору) - но не нужно
-            int textOnParagraphsPortionedLength = TextOnParagraphsPortioned.Length;
-            int allParagraphsWithTextCount = 0;
-            
-            for (int i = 0; i < textOnParagraphsPortionedLength; i++)//загружаем получившиеся абзацы в динамический массив, потом сравниваем длину массивов
-            {
-                string currentTextParagraph = TextOnParagraphsPortioned[i];
-                bool currentTextParagraphIsEmpty = String.IsNullOrEmpty(currentTextParagraph);
-
-                if (!currentTextParagraphIsEmpty)
-                {
-                    _bookData.AddParagraphText(desiredTextLanguage, "");//записываем пустую строку 
-                    int addParagraphTextCount = _bookData.AddParagraphText(desiredTextLanguage, currentTextParagraph);//также возвращает количество уже существующих элементов
-                    //нельзя - здесь выгрузить данные из временного массива проблем в массив Notice, весь абзац (или найденные кавычки?) в Name, а в Number - что-то отрицательное, например количество кавычек (тут еще нет кавычек, но можно приспособить проверку)
-                    allParagraphsWithTextCount++;
-                    _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "Current Paragraph[" + i.ToString() + "] --> " + TextOnParagraphsPortioned[i] + "---control<CR>---" + DConst.StrCRLF +
-                        "currentTextParagraphIsEmpty = " + currentTextParagraphIsEmpty.ToString(), CurrentClassName, DConst.ShowMessagesLevel);
-                }
-            }            
-            return allParagraphsWithTextCount;
         }
 
         public static string CurrentClassName

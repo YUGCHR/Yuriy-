@@ -49,6 +49,12 @@
       <NamedTestSelector>
         <TestName>TextSplit.Tests.AnalysisLogicChapterUnitTests.Test11_EnumerateDividedSentences (16087251412261802518)</TestName>
       </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>TextSplit.Tests.AnalysisLogicChapterUnitTests.Test07_FindSentencesDelimitersBeetweenQuotes (13139072291579000692)</TestName>
+      </NamedTestSelector>
+      <NamedTestSelector>
+        <TestName>TextSplit.Tests.AnalysisLogicChapterUnitTests.Test04_FoundAllDelimitersGroupsInParagraph (13166222860073194712)</TestName>
+      </NamedTestSelector>
     </IgnoredTests>
   </Settings>
 </ProjectConfiguration>

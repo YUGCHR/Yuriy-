@@ -48,7 +48,8 @@ namespace TextSplit
 
             if (_bookData.GetFileToDo(desiredTextLanguage) == (int)WhatNeedDoWithFiles.AnalyseText)//если первоначальный анализ текста, без подсказки пользователя о названии глав, ищем главы самостоятельно
             {
-                int portionBookTextResult = _paragraphAnalyser.PortionBookTextOnParagraphs(desiredTextLanguage);//возвращает количество строк с текстом
+                string textToAnalyse = _analysisLogic.NormalizeEllipsis(desiredTextLanguage);
+                int portionBookTextResult = _analysisLogic.PortionBookTextOnParagraphs(desiredTextLanguage, textToAnalyse);//делит текст на абзацы по EOL, сохраняет в List в AllBookData (возвращает количество строк с текстом)
                 int paragraphTextLength = _bookData.GetParagraphTextLength(desiredTextLanguage);
                 int allEmptyParagraphsCount = paragraphTextLength - portionBookTextResult;
 
@@ -58,7 +59,7 @@ namespace TextSplit
 
                 string lastFoundChapterNumberInMarkFormat = _chapterAnalysis.ChapterNameAnalysis(desiredTextLanguage);//находим название и номера, расставляем метки глав в тексте
 
-                int enumerateParagraphsCount = _paragraphAnalyser.MarkAndEnumerateParagraphs(desiredTextLanguage, lastFoundChapterNumberInMarkFormat);//тут раставляем метки и номера абзацев - lastFoundChapterNumberInMarkFormat - не особо нужен
+                int enumerateParagraphsCount = _analysisLogic.MarkAndEnumerateParagraphs(desiredTextLanguage, lastFoundChapterNumberInMarkFormat);//тут раставляем метки и номера абзацев - lastFoundChapterNumberInMarkFormat - не особо нужен
                 
                 int countSentencesNumber = _sentenceAnalyser.DividePagagraphToSentencesAndEnumerate(desiredTextLanguage);
 
@@ -71,7 +72,7 @@ namespace TextSplit
                     appendFileContent = appendFileContent.AppendLine(currentParagraph); // was + DConst.StrCRLF);                    
                 }
                 string tracedFileContent = appendFileContent.ToString();
-                string tracedFileNameAddition = "E://PBDS//OneDrive//Gonchar//C#2005//testBooks//testEndlishTexts_03R.txt";//путь только для тестов, для полного запуска надо брать путь, указанный пользователем
+                string tracedFileNameAddition = "D://PBDS//OneDrive//Gonchar//C#2005//testBooks//testEndlishTexts_03R.txt";//путь только для тестов, для полного запуска надо брать путь, указанный пользователем
                 string hashSavedFile = _msgService.SaveTracedToFile(tracedFileNameAddition, tracedFileContent);
                 _msgService.ShowTrace(MethodBase.GetCurrentMethod().ToString(), "hash of the saved file - " + DConst.StrCRLF + hashSavedFile, CurrentClassName, DConst.ShowMessagesLevel);
 

@@ -33,7 +33,7 @@ namespace TextSplit
             AnalysisLogicCultivation analysisLogic = new AnalysisLogicCultivation(bookData, msgService);
             AnalysisLogicChapter chapterLogic = new AnalysisLogicChapter(bookData, msgService, analysisLogic);
             AnalysisLogicSentences sentenceLogic = new AnalysisLogicSentences(bookData, msgService, analysisLogic);
-            AnalysisLogicParagraph paragraphLogic = new AnalysisLogicParagraph(bookData, msgService, analysisLogic);
+            noneAnalysisLogicParagraph paragraphLogic = new noneAnalysisLogicParagraph(bookData, msgService, analysisLogic);
             AllBookAnalysis analysisBook = new AllBookAnalysis(bookData, msgService, analysisLogic, chapterLogic, paragraphLogic, sentenceLogic);
             LoadTextToDataBase loadDataBase = new LoadTextToDataBase(bookData, dataAccess, msgService);
             MainLogicCultivation logicMain = new MainLogicCultivation(bookData, msgService, fileManager);

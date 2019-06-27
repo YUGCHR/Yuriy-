@@ -49,7 +49,7 @@
   <ItemGroup>
     <Compile Include="AnalysisLogicChapter.cs" />
     <Compile Include="AnalysisLogicCultivation.cs" />
-    <Compile Include="AnalysisLogicParagraph.cs" />
+    <Compile Include="noneAnalysisLogicParagraph.cs" />
     <Compile Include="AnalysisLogicSentences.cs" />
     <Compile Include="MainLogicCultivation.cs" />
     <Compile Include="LoadTextToDataBase.cs" />
